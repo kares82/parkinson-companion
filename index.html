@@ -482,6 +482,7 @@
     "common.cancel":{fr:"Annuler",en:"Cancel"},
     "common.yes":{fr:"Oui",en:"Yes"},
     "common.no":{fr:"Non",en:"No"},
+    "common.delete":{fr:"Supprimer",en:"Delete"},
     "start.tap":{fr:"Appuyer<br>ici",en:"Tap<br>here"},
     "start.tapSub":{fr:"quand la crise commence",en:"when the episode starts"},
     "start.med":{fr:"Médicament donné",en:"Medication given"},
@@ -693,6 +694,8 @@
     Array.prototype.forEach.call(elh,function(e){e.innerHTML=t(e.getAttribute("data-i18n-html"));});
     var elp=document.querySelectorAll("[data-i18n-ph]");
     Array.prototype.forEach.call(elp,function(e){e.setAttribute("placeholder",t(e.getAttribute("data-i18n-ph")));});
+    var ela=document.querySelectorAll("[data-i18n-aria]");
+    Array.prototype.forEach.call(ela,function(e){e.setAttribute("aria-label",t(e.getAttribute("data-i18n-aria")));});
   }
   function presLabel(v){return v==="alone"?t("pres.alone"):v==="other"?t("pres.other"):v;}
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
@@ -808,7 +811,7 @@
   function getMedList(){return load(MEDLIST);}
   function saveMedList(l){save(MEDLIST,l);}
   function medListRowHtml(name,dose,times){var phN=(lang==="fr")?"Nom":"Name",phD=(lang==="fr")?"ex : 100mg, 1 comprimé":"e.g. 100mg, 1 tablet";
-    return '<div class="medListRow"><input type="text" class="mlName" value="'+esc(name)+'" placeholder="'+phN+'"><input type="text" class="mlDose" value="'+esc(dose)+'" placeholder="'+phD+'"><button type="button" class="mlDel" aria-label="supprimer">✕</button><input type="text" class="mlTimes" inputmode="numeric" value="'+esc(times||"")+'" placeholder="'+esc(t("set.medTimesPh"))+'"></div>';}
+    return '<div class="medListRow"><input type="text" class="mlName" value="'+esc(name)+'" placeholder="'+phN+'"><input type="text" class="mlDose" value="'+esc(dose)+'" placeholder="'+phD+'"><button type="button" class="mlDel" aria-label="'+esc(t("common.delete"))+'">✕</button><input type="text" class="mlTimes" inputmode="numeric" value="'+esc(times||"")+'" placeholder="'+esc(t("set.medTimesPh"))+'"></div>';}
   function renderMedListRows(){var l=getMedList(),html="";l.forEach(function(m){html+=medListRowHtml(m.name,m.dose,m.times);});$("medListRows").innerHTML=html;}
   $("addMedRow").addEventListener("click",function(){$("medListRows").insertAdjacentHTML("beforeend",medListRowHtml("","",""));});
   $("medListRows").addEventListener("click",function(e){if(e.target&&e.target.classList.contains("mlDel")){e.target.closest(".medListRow").remove();}});
@@ -1014,17 +1017,17 @@
       var lat=ep.lastMed?tf("hist.afterMed",{n:Math.round((ep.start-ep.lastMed)/60000),lbl:(ep.lastMedLabel?(" ("+ep.lastMedLabel+")"):"")}):t("hist.noMedRec");
       var pcls=pv==="alone"?"alone":"acc";
       var regLine=ep.regimen?'<div class="meta">'+esc(tf("hist.treatment",{v:String(ep.regimen).replace(/\n/g,' / ')}))+'</div>':'';
-      html+='<div class="ep" data-kind="crisis" data-id="'+ep.start+'"><div class="epTop"><div class="d">'+fmtDate(ep.start)+' — '+fmtClock(ep.start)+(ep.end?' → '+fmtClock(ep.end):'')+'</div><button type="button" class="epDel" aria-label="supprimer">✕</button></div><div class="meta">'+esc(t("hist.duration"))+' <b>'+dur+'</b> <span class="pill '+cls+'">'+esc(typeLbl(ep.type))+'</span> <span class="pill '+pcls+'">'+esc(presLabel(pv))+'</span>'+(ep.pain?' <span class="pill pain">'+esc(t("pill.pain"))+'</span>':'')+'</div><div class="meta">'+esc(lat)+'</div>'+regLine+'</div>';}
+      html+='<div class="ep" data-kind="crisis" data-id="'+ep.start+'"><div class="epTop"><div class="d">'+fmtDate(ep.start)+' — '+fmtClock(ep.start)+(ep.end?' → '+fmtClock(ep.end):'')+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+esc(t("hist.duration"))+' <b>'+dur+'</b> <span class="pill '+cls+'">'+esc(typeLbl(ep.type))+'</span> <span class="pill '+pcls+'">'+esc(presLabel(pv))+'</span>'+(ep.pain?' <span class="pill pain">'+esc(t("pill.pain"))+'</span>':'')+'</div><div class="meta">'+esc(lat)+'</div>'+regLine+'</div>';}
     $("histList").innerHTML=html||'<p style="padding:20px;color:#888">'+esc(t("hist.none"))+'</p>';
     $("count").textContent=tf(list.length>1?"hist.countMany":"hist.countOne",{n:list.length});
     var mlist=normMed(load(MEDKEY)).slice().sort(function(a,b){return b.time-a.time;}),mh="";
-    mlist.forEach(function(m){mh+='<div class="ep" data-kind="med" data-id="'+m.time+'"><div class="epTop"><div class="d">'+fmtDate(m.time)+' — '+fmtClock(m.time)+'</div><button type="button" class="epDel" aria-label="supprimer">✕</button></div><div class="meta">'+esc(medLabel(m))+'</div></div>';});
+    mlist.forEach(function(m){mh+='<div class="ep" data-kind="med" data-id="'+m.time+'"><div class="epTop"><div class="d">'+fmtDate(m.time)+' — '+fmtClock(m.time)+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+esc(medLabel(m))+'</div></div>';});
     if(mlist.length){$("histList").insertAdjacentHTML("beforeend",'<div class="section-t" style="margin:16px 12px 4px">'+esc(t("set.meds"))+'</div>'+mh);}
     var wlist=load(WELLKEY).slice().sort(function(a,b){return b.time-a.time;}),wh="";
-    wlist.forEach(function(w){wh+='<div class="ep" data-kind="well" data-id="'+w.time+'"><div class="epTop"><div class="d">'+fmtDate(w.time)+' — '+fmtClock(w.time)+'</div><button type="button" class="epDel" aria-label="supprimer">✕</button></div><div class="meta">'+wellSummaryLine(w)+'</div></div>';});
+    wlist.forEach(function(w){wh+='<div class="ep" data-kind="well" data-id="'+w.time+'"><div class="epTop"><div class="d">'+fmtDate(w.time)+' — '+fmtClock(w.time)+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+wellSummaryLine(w)+'</div></div>';});
     if(wlist.length){$("histList").insertAdjacentHTML("beforeend",'<div class="section-t" style="margin:16px 12px 4px">'+esc(t("hist.daily"))+'</div>'+wh);}
     var ilist=load(INCKEY).slice().sort(function(a,b){return b.time-a.time;}),ih="";
-    ilist.forEach(function(inc){ih+='<div class="ep" data-kind="inc" data-id="'+inc.time+'"><div class="epTop"><div class="d">'+fmtDate(inc.time)+' — '+fmtClock(inc.time)+'</div><button type="button" class="epDel" aria-label="supprimer">✕</button></div><div class="meta"><span class="pill pain">'+esc(incLbl(inc.type))+'</span>'+(inc.injury?' <span class="pill pain" style="background:#c0392b">'+esc(t("pill.injury"))+'</span>':'')+'</div>'+(inc.note?'<div class="meta">'+esc(inc.note)+'</div>':'')+'</div>';});
+    ilist.forEach(function(inc){ih+='<div class="ep" data-kind="inc" data-id="'+inc.time+'"><div class="epTop"><div class="d">'+fmtDate(inc.time)+' — '+fmtClock(inc.time)+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta"><span class="pill pain">'+esc(incLbl(inc.type))+'</span>'+(inc.injury?' <span class="pill pain" style="background:#c0392b">'+esc(t("pill.injury"))+'</span>':'')+'</div>'+(inc.note?'<div class="meta">'+esc(inc.note)+'</div>':'')+'</div>';});
     if(ilist.length){$("histList").insertAdjacentHTML("beforeend",'<div class="section-t" style="margin:16px 12px 4px">'+esc(t("hist.incidents"))+'</div>'+ih);}}
   /* Per-entry delete: one mistaken tap used to be fixable only by erasing everything. */
   $("histList").addEventListener("click",function(e){
@@ -1211,8 +1214,36 @@
     if(ilist.length){rows.push("");rows.push(FR?"Incidents":"Incidents");
       rows.push(FR?"Date;Heure;Type;Blessure;Description":"Date;Time;Type;Injury;Description");
       ilist.forEach(function(inc){rows.push([fmtDate(inc.time),fmtClock(inc.time),incLbl(inc.type),inc.injury?YES:NO,csvField(inc.note)].join(";"));});}
-    var blob=new Blob(["\ufeff"+rows.join("\n")],{type:"text/csv;charset=utf-8"});var url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=(FR?"crises_":"episodes_")+nameP().toLowerCase()+".csv";a.click();URL.revokeObjectURL(url);}
+    var blob=new Blob(["\ufeff"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
+    saveOrShare(blob,(FR?"crises_":"episodes_")+nameP().toLowerCase()+".csv");}
   $("exportBtn").addEventListener("click",doExport);$("exportBtn2").addEventListener("click",doExport);
+
+  /* Getting a file off the device.
+     `<a download>` is a browser-only trick: it does nothing inside an iOS WKWebView
+     (and needs a DownloadListener plus a blob shim on Android WebView), so a
+     natively-wrapped build would silently fail to export or back up \u2014 losing exactly
+     the data this is meant to protect. The share sheet is the route that works in
+     both, and on an iPhone it is the better one anyway: it offers Files, Mail,
+     AirDrop and iCloud instead of dropping a file into Downloads. */
+  function downloadBlob(blob,filename){
+    var url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download=filename;a.style.display="none";
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){try{document.body.removeChild(a);}catch(e){}URL.revokeObjectURL(url);},2000);
+  }
+  function saveOrShare(blob,filename,onSaved){
+    var file=null;
+    try{file=new File([blob],filename,{type:blob.type});}catch(e){}
+    if(file&&navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:filename}).then(function(){if(onSaved)onSaved();})
+        .catch(function(err){
+          if(err&&err.name==="AbortError")return;      // user dismissed \u2014 not a failure
+          downloadBlob(blob,filename);if(onSaved)onSaved();
+        });
+      return;
+    }
+    downloadBlob(blob,filename);if(onSaved)onSaved();
+  }
 
   // ---- BACKUP / RESTORE ----
   /* Everything lives in localStorage, which iOS can evict and which does not survive
@@ -1224,14 +1255,15 @@
   function doBackup(){
     var data={_app:"parkinson-companion",_v:5,_at:Date.now()};
     allKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!==null)data[k]=v;});
-    var blob=new Blob([JSON.stringify(data)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
-    var d=new Date();
-    a.href=url;a.download="parkinson-"+(lang==="fr"?"sauvegarde":"backup")+"-"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+".json";
-    a.click();URL.revokeObjectURL(url);
-    localStorage.setItem(BACKUPKEY,String(Date.now()));
-    refreshBackupState();refreshBackupNag();
-    var m=$("backupMsg");m.textContent=t("backup.done");m.style.display="block";
-    setTimeout(function(){m.style.display="none";},4000);
+    var blob=new Blob([JSON.stringify(data)],{type:"application/json"}),d=new Date();
+    var fn="parkinson-"+(lang==="fr"?"sauvegarde":"backup")+"-"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+".json";
+    // only count it as backed up once the file has actually left the app
+    saveOrShare(blob,fn,function(){
+      localStorage.setItem(BACKUPKEY,String(Date.now()));
+      refreshBackupState();refreshBackupNag();
+      var m=$("backupMsg");m.textContent=t("backup.done");m.style.display="block";
+      setTimeout(function(){m.style.display="none";},4000);
+    });
   }
   function doRestore(file){
     var r=new FileReader();
@@ -1281,7 +1313,7 @@
     var regs=getRegimens(),html="";
     regs.forEach(function(r,i){
       var period=(r.start===0?t("report.beforeTracking"):tf("report.since",{d:fmtDate(r.start)}))+(r.end?tf("report.to",{d:fmtDate(r.end)}):t("report.ongoing"));
-      html+='<div class="regRow"><span><b>'+esc(String(r.text).replace(/\n/g,' / '))+'</b><br>'+esc(period)+'</span><button type="button" class="regDel" data-i="'+i+'" aria-label="supprimer">✕</button></div>';
+      html+='<div class="regRow"><span><b>'+esc(String(r.text).replace(/\n/g,' / '))+'</b><br>'+esc(period)+'</span><button type="button" class="regDel" data-i="'+i+'" aria-label="'+esc(t("common.delete"))+'">✕</button></div>';
     });
     $("regimenList").innerHTML=html||'<p class="hint">'+esc(t("regimen.none"))+'</p>';
   }

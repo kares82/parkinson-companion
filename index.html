@@ -465,6 +465,9 @@
     "hist.clearConfirm":{fr:"Effacer TOUT ? Exportez d'abord.",en:"Erase EVERYTHING? Export first."},
     "report.title":{fr:"Rapport — {name}",en:"Report — {name}"},
     "report.total":{fr:"Total : <b>{c}</b> — temps total <b>{d}</b>",en:"Total: <b>{c}</b> — total time <b>{d}</b>"},
+    "report.trendSec":{fr:"Évolution dans le temps",en:"Trend over time"},
+    "report.trendTreatNote":{fr:"Ligne pointillée rouge = changement de traitement (survolez ou touchez pour le détail).",en:"Red dashed line = treatment change (hover or tap for detail)."},
+    "report.trendRecent":{fr:"Affichage des {n} dernières périodes.",en:"Showing the last {n} periods."},
     "report.aloneSec":{fr:"Crises pendant que {name} est SEUL(E)",en:"Episodes while {name} is ALONE"},
     "report.painSec":{fr:"Crises avec douleur",en:"Episodes with pain"},
     "report.hoursSec":{fr:"Heures des crises",en:"Times of day"},
@@ -496,7 +499,8 @@
     "well.faceAppetite":{fr:["Très faible","Faible","Moyen","Bon","Très bon"],en:["Very low","Low","Medium","Good","Very good"]},
     "well.faceMood":{fr:["Très triste","Triste","Neutre","Bonne","Très bonne"],en:["Very sad","Sad","Neutral","Good","Very good"]},
     "well.facePain":{fr:["Aucune","Légère","Modérée","Forte","Intense"],en:["None","Mild","Moderate","Strong","Intense"]},
-    "well.faceSleep":{fr:["Très mauvais","Mauvais","Moyen","Bon","Très bon"],en:["Very poor","Poor","Medium","Good","Very good"]}
+    "well.faceSleep":{fr:["Très mauvais","Mauvais","Moyen","Bon","Très bon"],en:["Very poor","Poor","Medium","Good","Very good"]},
+    "chart.months":{fr:["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"],en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]}
   };
   var lang=(function(){var s=localStorage.getItem(LANGKEY);if(s==="fr"||s==="en")return s;
     var n=(navigator.language||navigator.userLanguage||"en").toLowerCase();return n.indexOf("fr")===0?"fr":"en";})();
@@ -715,12 +719,72 @@
   // ---- REPORT ----
   $("toReport").addEventListener("click",function(){renderReport();show("reportScreen");});
   function median(a){if(!a.length)return null;a=a.slice().sort(function(x,y){return x-y;});var m=Math.floor(a.length/2);return a.length%2?a[m]:Math.round((a[m-1]+a[m])/2);}
+
+  // ---- TREND CHART (episodes over time, with treatment-change markers) ----
+  function monthLabel(d){return t("chart.months")[d.getMonth()]+" "+String(d.getFullYear()).slice(2);}
+  function trendBuckets(minT,maxT,unit){
+    var bounds=[];
+    if(unit==="week"){
+      var d0=new Date(minT);d0.setHours(0,0,0,0);
+      var day=d0.getDay();var diff=(day===0?-6:1-day);d0.setDate(d0.getDate()+diff);
+      var cur=d0.getTime(),msWeek=7*86400000;
+      while(cur<=maxT){bounds.push({start:cur,end:cur+msWeek,label:fmtDate(cur).slice(0,5)});cur+=msWeek;}
+    } else {
+      var step=unit==="month"?1:3;
+      var d=new Date(minT);d.setDate(1);d.setHours(0,0,0,0);
+      while(d.getTime()<=maxT){
+        var start=d.getTime();
+        var next=new Date(d);next.setMonth(next.getMonth()+step);
+        var label=unit==="month"?monthLabel(d):("Q"+(Math.floor(d.getMonth()/3)+1)+" "+String(d.getFullYear()).slice(2));
+        bounds.push({start:start,end:next.getTime(),label:label});
+        d=next;
+      }
+    }
+    return bounds;
+  }
+  function buildTrendSection(list){
+    if(!list.length)return "";
+    var minT=list[0].start;for(var i=1;i<list.length;i++){if(list[i].start<minT)minT=list[i].start;}
+    var maxT=Date.now();
+    var spanDays=(maxT-minT)/86400000;
+    var unit=spanDays<=70?"week":(spanDays<=550?"month":"quarter");
+    var full=trendBuckets(minT,maxT,unit);
+    var truncated=full.length>40;
+    var bounds=truncated?full.slice(full.length-40):full;
+    var n=bounds.length,counts=[];for(var i=0;i<n;i++)counts.push(0);
+    list.forEach(function(e){for(var i=0;i<n;i++){if(e.start>=bounds[i].start&&e.start<bounds[i].end){counts[i]++;return;}}});
+    var markers=[];
+    getRegimens().forEach(function(r){if(!r.start)return;for(var i=0;i<n;i++){if(r.start>=bounds[i].start&&r.start<bounds[i].end){markers.push({idx:i,r:r});break;}}});
+    var maxC=0;for(var i=0;i<n;i++){if(counts[i]>maxC)maxC=counts[i];}
+    if(maxC===0)maxC=1;
+    var W=300,H=132,padL=6,padR=6,padT=16,padB=22,plotW=W-padL-padR,plotH=H-padT-padB;
+    var slot=plotW/n,gap=n>16?1:2,barW=Math.max(2,slot-gap);
+    var labelEvery=Math.ceil(n/6)||1;
+    var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" preserveAspectRatio="none">';
+    svg+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(W-padR)+'" y2="'+(padT+plotH)+'" stroke="#ddd" stroke-width="1"/>';
+    for(var i=0;i<n;i++){
+      var x=padL+i*slot+(slot-barW)/2,hgt=(counts[i]/maxC)*plotH,y=padT+plotH-hgt;
+      svg+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+Math.max(0,hgt).toFixed(1)+'" rx="1.5" fill="#2980b9"><title>'+esc(bounds[i].label+": "+counts[i])+'</title></rect>';
+      if(counts[i]>0)svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(y-2).toFixed(1)+'" font-size="7" text-anchor="middle" fill="#555">'+counts[i]+'</text>';
+      if(i%labelEvery===0)svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(H-6)+'" font-size="7" text-anchor="middle" fill="#999">'+esc(bounds[i].label)+'</text>';
+    }
+    markers.forEach(function(m){var xm=padL+m.idx*slot;
+      svg+='<line x1="'+xm.toFixed(1)+'" y1="'+padT+'" x2="'+xm.toFixed(1)+'" y2="'+(padT+plotH)+'" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="3,2"><title>'+esc(fmtDate(m.r.start)+" — "+m.r.text)+'</title></line>';});
+    svg+='</svg>';
+    var out='<div class="section-t">'+esc(t("report.trendSec"))+'</div>';
+    if(truncated)out+='<p class="hint">'+esc(tf("report.trendRecent",{n:n}))+'</p>';
+    out+=svg;
+    if(markers.length)out+='<p class="hint" style="margin-top:6px">'+esc(t("report.trendTreatNote"))+'</p>';
+    return out;
+  }
+
   function renderReport(){var list=load(KEY).filter(function(e){return e.end;});
     var n=list.length,alone=0,pain=0,totalMs=0,hours=new Array(24).fill(0),lats=[],byPres={};
     list.forEach(function(e){var pv=e.presence==="Seule"?"alone":e.presence;if(pv==="alone")alone++;if(e.pain)pain++;totalMs+=(e.end-e.start);hours[new Date(e.start).getHours()]++;if(e.lastMed)lats.push(Math.round((e.start-e.lastMed)/60000));byPres[pv]=(byPres[pv]||0)+1;});
     var maxH=Math.max.apply(null,hours.concat([1])),medLat=median(lats),h="";
     var cLbl=n+' '+t(n>1?"crisisMany":"crisisOne");
     h+='<div class="stat">'+tf("report.total",{c:cLbl,d:fmtDur(totalMs)})+'</div>';
+    h+=buildTrendSection(list);
     h+='<div class="section-t">'+esc(tf("report.aloneSec",{name:nameP()}))+'</div><div class="big alone-num">'+alone+' / '+n+'</div>';
     h+='<div class="section-t">'+esc(t("report.painSec"))+'</div><div class="big" style="color:#8e44ad">'+pain+' / '+n+'</div>';
     h+='<div class="section-t">'+esc(t("report.hoursSec"))+'</div>';var any=false;

@@ -1,0 +1,8 @@
+# Repo tooling is not part of the site. Without a build step Cloudflare Pages
+# serves the whole repo root, which would publish the store plan, regulatory
+# notes and CI config on the product domain.
+/store/*      /404.html  404
+/fastlane/*   /404.html  404
+/tools/*      /404.html  404
+/.github/*    /404.html  404
+/README.md    /404.html  404

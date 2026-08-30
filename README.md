@@ -57,10 +57,24 @@ emergency services. It also does **not** monitor the person: being a web app it 
 run in the background, detect a fall, or raise an alarm by itself — use the iPhone's or
 Apple Watch's own fall detection for that.
 
+## Publishing to the app stores
+
+The store assets, listing copy in both languages, the exact answers for Google's
+Data safety / Health apps forms and Apple's privacy questionnaire, the regulatory
+position, and the Bubblewrap/Capacitor configs are in [`store/`](store/) — start
+with [`store/README.md`](store/README.md).
+
+Short version: this is a PWA, so it must be wrapped. Google Play via a Trusted
+Web Activity is straightforward; Apple needs a WKWebView wrapper plus a native
+print bridge, and carries a Guideline 4.2 rejection risk. The privacy policy at
+[`privacy.html`](privacy.html) must be publicly reachable before either store
+will accept a submission.
+
 ## Tech
 
 A single static `index.html` (no build step, ES5-level JavaScript) plus a service
-worker for full offline use. Installable as a PWA. Deployed on Cloudflare Pages at
+worker for full offline use. No network requests, no analytics, no third-party
+code of any kind. Installable as a PWA. Deployed on Cloudflare Pages at
 **parkinson.red-triangle.net**.
 
 © Red Triangle. All rights reserved.

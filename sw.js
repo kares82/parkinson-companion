@@ -1,13 +1,15 @@
 /* Parkinson Companion - service worker for full offline use.
    Caches the app so it opens instantly with no internet.
    Bump CACHE (v1 -> v2 ...) whenever index.html changes. */
-var CACHE = "parkinson-companion-v6";
+var CACHE = "parkinson-companion-v7";
 var ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icon-192.png",
-  "./icon-512.png"
+  "./icon-512.png",
+  "./icon-maskable-512.png",
+  "./privacy.html"
 ];
 
 self.addEventListener("install", function (e) {

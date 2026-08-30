@@ -22,27 +22,34 @@ patients while you deal with Apple.
       `parkinson.red-triangle.net`.
 - [ ] Confirm `https://parkinson.red-triangle.net/privacy.html` loads publicly.
       **A missing privacy policy URL is an automatic rejection on both stores.**
-- [ ] Decide the app icon — see *Icon* below. This is a real blocker, not polish.
 - [ ] Take screenshots (below).
 
 ### Icon
 
-The current icon is a red rounded square with a white **"S"**. That was fine for
-a personal build but is wrong for a product called Parkinson Companion — a
-reviewer, and every user, will wonder what S means. Decide before submitting;
-changing an icon after launch loses recognition.
+The icon is a stylised tulip — the international symbol of Parkinson's disease —
+in white on the app's red (`#c0392b`). It is drawn from scratch in
+`tools/make-icons.py`, not traced from any charity's logo: Parkinson's UK, the
+EPDA and others each hold trademarks on their own tulip marks. It deliberately
+avoids a red cross, which is a protected emblem under the Geneva Conventions and
+must never appear on a commercial app.
 
-Generated and ready either way:
+It replaces the previous white "S", which came from the personal build for
+Sylvie and would have meant nothing to other users.
 
 | File | Purpose |
 |---|---|
-| `icon-192.png`, `icon-512.png` | PWA, `purpose: any` (unchanged) |
-| `icon-maskable-512.png` | Android adaptive icon. Full-bleed red with the artwork inside the 80% safe zone — the old icon was declared `any maskable` while touching the edges, so an adaptive mask would have sliced its corners off. |
-| `icon-1024.png` | App Store. 1024×1024, **no alpha**, square corners. Apple rejects transparency and applies its own rounding — the original had both baked in. |
+| `icon-192.png`, `icon-512.png` | PWA, `purpose: any`. Rounded square with alpha. |
+| `icon-maskable-512.png` | Android adaptive icon. Full-bleed red, artwork inside the 80% safe zone. Declaring one edge-to-edge asset as `any maskable` (as before) lets the adaptive mask slice its corners off. |
+| `icon-1024.png` | App Store. 1024×1024, **no alpha**, square corners — Apple rejects transparency and applies its own rounding. |
+| inline `apple-touch-icon` in `index.html` | 180×180, kept in sync. |
 
-If the artwork changes, regenerate all four from the new source at native
-resolution. `icon-1024.png` is currently upscaled from 512, which is acceptable
-for flat artwork but not ideal.
+Regenerate every size at native resolution with:
+
+```bash
+python3 tools/make-icons.py
+```
+
+Verified legible down to 48px, and inside the circular adaptive-icon crop.
 
 ### Screenshots
 

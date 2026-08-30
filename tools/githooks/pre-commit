@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Refuse to commit credential material. Install with:
+#   git config core.hooksPath tools/githooks
+set -euo pipefail
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$staged" ] && exit 0
+
+bad=$(echo "$staged" | grep -Ei '\.(keystore|jks|p8|p12|mobileprovision|cer)$|(^|/)(play-key|asc_key)\.json$|(^|/)android\.keystore$' || true)
+if [ -n "$bad" ]; then
+  echo "BLOCKED: these look like credentials and must not be committed:" >&2
+  echo "$bad" | sed 's/^/  - /' >&2
+  echo "Put them in GitHub Secrets instead - see store/CI.md." >&2
+  exit 1
+fi
+
+# catch a service-account JSON or private key pasted into any staged text file
+for f in $staged; do
+  [ -f "$f" ] || continue
+  if grep -lqE '"type"[[:space:]]*:[[:space:]]*"service_account"|BEGIN (RSA |EC )?PRIVATE KEY' "$f" 2>/dev/null; then
+    echo "BLOCKED: $f contains what looks like a private key or service-account JSON." >&2
+    exit 1
+  fi
+done
+exit 0

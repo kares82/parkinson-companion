@@ -1,0 +1,8 @@
+# Android
+json_key_file(ENV["PLAY_JSON_KEY_PATH"])          # written from a GitHub secret at run time
+package_name("net.redtriangle.parkinson")
+
+# iOS
+app_identifier("net.redtriangle.parkinson")
+# apple_id / team_id come from the App Store Connect API key, so no Apple ID
+# password and no 2FA prompt is needed in CI.

@@ -1,0 +1,27 @@
+# --- credentials: never commit these -------------------------------------
+*.keystore
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+play-key.json
+asc_key.p8
+android.keystore
+fastlane/*.json
+.env
+
+# --- build output --------------------------------------------------------
+app-release-bundle.aab
+app-release-signed.apk
+app-release-unsigned.apk
+/twa-manifest.json          # copied from store/ at build time
+build/
+node_modules/
+ios/App/Pods/
+ios/App/build/
+.gradle/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/

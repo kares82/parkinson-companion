@@ -1,0 +1,87 @@
+# Publishing lanes for Parkinson Companion.
+#
+# No credential is ever stored in this repo. Everything sensitive arrives as an
+# environment variable from GitHub Secrets (see store/CI.md) and is written to a
+# temporary file that the workflow deletes afterwards.
+#
+# Defaults are deliberately cautious: uploads go to a TESTING track as a DRAFT.
+# Promoting to production is a separate, explicit action taken in the console.
+
+default_platform(:android)
+
+platform :android do
+  desc "Upload the TWA bundle to a Play testing track (default: internal, as a draft)"
+  lane :upload do |options|
+    track = options[:track] || "internal"
+    aab   = options[:aab]   || "app-release-bundle.aab"
+
+    UI.user_error!("No bundle at #{aab} - did the Bubblewrap build step run?") unless File.exist?(aab)
+
+    upload_to_play_store(
+      track: track,
+      aab: aab,
+      json_key: ENV.fetch("PLAY_JSON_KEY_PATH"),
+      release_status: (track == "production" ? "draft" : "completed"),
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: false,
+      validate_only: options[:dry_run] == true
+    )
+  end
+
+  desc "Push only the store listing text (no binary) - safe to run any time"
+  lane :metadata do
+    upload_to_play_store(
+      json_key: ENV.fetch("PLAY_JSON_KEY_PATH"),
+      skip_upload_aab: true,
+      skip_upload_apk: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: true
+    )
+  end
+end
+
+platform :ios do
+  desc "Build the Capacitor app and upload it to TestFlight"
+  lane :beta do
+    unless Dir.exist?("../ios/App")
+      UI.user_error!(
+        "No Xcode project found at ios/App.\n" \
+        "The iOS wrapper has to be generated once on a Mac before CI can build it:\n" \
+        "  npm i @capacitor/core @capacitor/cli @capacitor/ios\n" \
+        "  npx cap init \"Parkinson Companion\" net.redtriangle.parkinson --web-dir=.\n" \
+        "  npx cap add ios\n" \
+        "Then commit the ios/ directory. See store/CI.md."
+      )
+    end
+
+    app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: ENV.fetch("ASC_KEY_PATH"),
+      duration: 1200,
+      in_house: false
+    )
+
+    increment_build_number(
+      xcodeproj: "ios/App/App.xcodeproj",
+      build_number: latest_testflight_build_number(initial_build_number: 0) + 1
+    )
+
+    build_app(
+      workspace: "ios/App/App.xcworkspace",
+      scheme: "App",
+      export_method: "app-store",
+      output_directory: "build/ios",
+      clean: true
+    )
+
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      distribute_external: false
+    )
+  end
+end

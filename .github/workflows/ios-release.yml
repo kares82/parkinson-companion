@@ -1,0 +1,86 @@
+name: iOS — build & upload to TestFlight
+
+# Requires the Capacitor Xcode project to exist at ios/ — it has to be generated
+# once on a Mac and committed. The job says so clearly rather than failing deep
+# inside a build log. See store/CI.md.
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Why this build (shows in the run list)"
+        required: false
+        default: "TestFlight build"
+
+concurrency:
+  group: ios-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the iOS wrapper exists
+        run: |
+          if [ ! -d ios/App ]; then
+            echo "::error::No Xcode project at ios/App. Generate it once on a Mac:"
+            echo "  npm i @capacitor/core @capacitor/cli @capacitor/ios"
+            echo "  npx cap init 'Parkinson Companion' net.redtriangle.parkinson --web-dir=."
+            echo "  npx cap add ios"
+            echo "Then commit ios/. Full instructions in store/CI.md."
+            exit 1
+          fi
+
+      - name: Fail early if the store listing is out of sync
+        run: python3 tools/sync-store-metadata.py --check
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+
+      - uses: ruby/setup-ruby@v1
+        with: { ruby-version: '3.2' }
+
+      - name: Install tooling
+        run: |
+          npm ci || npm i
+          gem install fastlane --no-document
+
+      - name: Sync web assets into the iOS project
+        run: npx cap sync ios
+
+      - name: Write the App Store Connect API key
+        env:
+          ASC_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          if [ -z "$ASC_KEY" ]; then
+            echo "::error::ASC_PRIVATE_KEY is not set. See store/CI.md."
+            exit 1
+          fi
+          printf '%s' "$ASC_KEY" > asc_key.p8
+          head -1 asc_key.p8 | grep -q "BEGIN PRIVATE KEY" || {
+            echo "::error::ASC_PRIVATE_KEY does not look like a .p8 private key"; exit 1; }
+
+      - name: Build and upload to TestFlight
+        env:
+          ASC_KEY_ID:    ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_PATH:  asc_key.p8
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_URL:  ${{ secrets.MATCH_GIT_URL }}
+          FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: "120"
+        run: fastlane ios beta
+
+      - name: Shred credentials
+        if: always()
+        run: rm -P asc_key.p8 2>/dev/null || rm -f asc_key.p8
+
+      - name: Keep the build for inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: build/ios/*.ipa
+          if-no-files-found: warn
+          retention-days: 14

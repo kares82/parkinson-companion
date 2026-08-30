@@ -102,6 +102,108 @@ test.describe('correcting the record', () => {
   });
 });
 
+test.describe('editing an existing entry', () => {
+  test('an episode can be corrected, and derived values follow', async ({ page }) => {
+    await seed(page, {
+      meds_v5: [{ time: iso(1, 6), meds: [{ name: 'Levodopa', dose: '100mg' }] }],
+      crises_v5: [episode({ start: iso(1, 12), end: iso(1, 12) + 6e5 })],
+    });
+    await page.click('#histLink');
+    await page.click('#histList .ep .epEdit');
+    await expect(page.locator('#epModal')).toBeVisible();
+    // move the start to 07:00 - one hour after the 06:00 dose
+    const newStart = new Date(iso(1, 7));
+    const pad = n => String(n).padStart(2, '0');
+    const local = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    await page.fill('#epStart', local(newStart));
+    await page.fill('#epEnd', local(new Date(iso(1, 7) + 18e5)));
+    await page.click('#epTypes .incTypeBtn[data-t="dysk"]');
+    await page.click('#epPainYes');
+    await page.click('#epSave');
+    const ep = await page.evaluate(() => JSON.parse(localStorage.getItem('crises_v5'))[0]);
+    expect(ep.type).toBe('dysk');
+    expect(ep.pain).toBe(true);
+    expect((ep.end - ep.start) / 60000).toBeCloseTo(30, 0);
+    // the medication-latency figure must be recomputed against the new start
+    expect((ep.start - ep.lastMed) / 36e5).toBeCloseTo(1, 1);
+    expect(ep.lastMedLabel).toBe('Levodopa 100mg');
+  });
+
+  test('an episode ending before it starts is refused', async ({ page }) => {
+    await seed(page, { crises_v5: [episode()] });
+    await page.click('#histLink');
+    await page.click('#histList .ep .epEdit');
+    const d = new Date(iso(1, 12)); const pad = n => String(n).padStart(2, '0');
+    const local = x => `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}T${pad(x.getHours())}:${pad(x.getMinutes())}`;
+    await page.fill('#epStart', local(d));
+    await page.fill('#epEnd', local(new Date(iso(1, 10))));
+    await page.click('#epSave');
+    await expect(page.locator('#epWarn')).toBeVisible();
+    await expect(page.locator('#epModal')).toBeVisible();
+  });
+
+  test('a medication entry can be re-timed without duplicating it', async ({ page }) => {
+    await seed(page, {
+      medlist_v5: [{ name: 'Levodopa', dose: '100mg', times: '' }],
+      meds_v5: [{ time: iso(1, 12), meds: [{ name: 'Levodopa', dose: '100mg' }] }],
+    });
+    await page.click('#histLink');
+    await page.click('#histList .ep[data-kind="med"] .epEdit');
+    await expect(page.locator('#medModal')).toBeVisible();
+    await expect(page.locator('#medCheckRows .mcTick')).toBeChecked();
+    await page.click('#medTAdj .tAdjBtn[data-adj="30"]');
+    await page.click('#medSave');
+    const m = await page.evaluate(() => JSON.parse(localStorage.getItem('meds_v5')));
+    expect(m).toHaveLength(1);
+    expect((Date.now() - m[0].time) / 60000).toBeCloseTo(30, 0);
+  });
+
+  test('a dose removed from the list is still shown when editing an old entry', async ({ page }) => {
+    await seed(page, {
+      medlist_v5: [{ name: 'Levodopa', dose: '100mg', times: '' }],
+      meds_v5: [{ time: iso(1, 12), meds: [{ name: 'Entacapone', dose: '200mg' }] }],
+    });
+    await page.click('#histLink');
+    await page.click('#histList .ep[data-kind="med"] .epEdit');
+    await expect(page.locator('#medCheckRows')).toContainText('Entacapone');
+    await expect(page.locator('#medCheckRows')).toContainText('no longer in the list');
+  });
+
+  test('wellbeing and incidents can be edited', async ({ page }) => {
+    await seed(page, {
+      wellbeing_v5: [{ time: iso(1), appetite: 2, mood: 2, pain: 2, sleep: 2, weight: 60 }],
+      incidents_v5: [{ time: iso(1), type: 'chute', injury: false, note: 'hall' }],
+    });
+    await page.click('#histLink');
+    await page.click('#histList .ep[data-kind="well"] .epEdit');
+    await expect(page.locator('#weightInput')).toHaveValue('60');
+    await page.fill('#weightInput', '58');
+    await page.click('#wellSave');
+    let w = await page.evaluate(() => JSON.parse(localStorage.getItem('wellbeing_v5')));
+    expect(w).toHaveLength(1);
+    expect(w[0].weight).toBe(58);
+
+    await page.click('#histList .ep[data-kind="inc"] .epEdit');
+    await expect(page.locator('#incNote')).toHaveValue('hall');
+    await expect(page.locator('#incCard .incTypeBtn[data-t="chute"]')).toHaveClass(/sel/);
+    await page.click('#incCard .incTypeBtn[data-t="blocage"]');
+    await page.click('#incSave');
+    const i = await page.evaluate(() => JSON.parse(localStorage.getItem('incidents_v5')));
+    expect(i).toHaveLength(1);
+    expect(i[0].type).toBe('blocage');
+  });
+
+  test('cancelling an edit changes nothing', async ({ page }) => {
+    await seed(page, { crises_v5: [episode({ type: 'tremor' })] });
+    await page.click('#histLink');
+    await page.click('#histList .ep .epEdit');
+    await page.click('#epTypes .incTypeBtn[data-t="dysk"]');
+    await page.click('#epCancel');
+    const ep = await page.evaluate(() => JSON.parse(localStorage.getItem('crises_v5'))[0]);
+    expect(ep.type).toBe('tremor');
+  });
+});
+
 test.describe('figures the doctor relies on', () => {
   // Scoring 3 days of tracking against 30 days of expected doses made a
   // compliant patient look catastrophically non-adherent.

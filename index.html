@@ -186,6 +186,16 @@
   #startAdj .sa{flex:1 1 0;min-height:40px;padding:8px 4px;font-size:clamp(11px,3vw,13px);font-weight:700;border:2px solid #48607a;background:transparent;color:#cfd8e3;border-radius:9px;}
   #cancelBtn{margin-top:9px;padding:14px;font-size:clamp(13px,3.6vw,16px);font-weight:700;background:transparent;color:#cfd8e3;border:2px solid #48607a;border-radius:12px;width:100%;}
 
+  #epModal{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
+  #epModal.show{display:flex;}
+  #epCard{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;overscroll-behavior:contain;}
+  #epCard h3{font-size:20px;color:#1e2a38;margin-bottom:10px;}
+  #epCard .cBtns{display:flex;gap:10px;margin-top:4px;}
+  #epCard .cBtns button{flex:1;padding:16px 6px;font-size:16px;font-weight:800;border:none;border-radius:12px;}
+  #epCancel{background:#eee;color:#333;}#epSave{background:#2980b9;color:#fff;}
+  .editTime{width:100%;min-height:46px;padding:11px;font-size:15px;border:2px solid #ccc;border-radius:10px;font-family:inherit;margin-bottom:6px;color:#1e2a38;}
+  .epEdit{flex:0 0 44px;width:44px;height:44px;margin:-11px 0 -6px 0;border:none;background:transparent;color:#2980b9;font-size:17px;font-weight:800;border-radius:10px;}
+
   /* ---- history entry delete ---- */
   .epTop{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;}
   .epDel{flex:0 0 44px;width:44px;height:44px;margin:-11px -6px -6px 0;border:none;background:transparent;color:#c0392b;font-size:16px;font-weight:800;border-radius:10px;}
@@ -472,6 +482,34 @@
     </div>
   </div>
 
+  <div id="epModal">
+    <div id="epCard">
+      <h3 data-i18n="edit.epTitle">Modifier la crise</h3>
+      <div class="wellLabel" data-i18n="edit.start">Début</div>
+      <input type="datetime-local" id="epStart" class="editTime">
+      <div class="wellLabel" data-i18n="edit.end">Fin</div>
+      <input type="datetime-local" id="epEnd" class="editTime">
+      <div class="wellLabel" data-i18n="active.typeLabel">Type</div>
+      <div class="incTypeGrid" id="epTypes">
+        <button type="button" class="incTypeBtn" data-t="tremor" data-i18n="type.tremor">Tremblement</button>
+        <button type="button" class="incTypeBtn" data-t="dysk" data-i18n="type.dysk">Mouvements</button>
+        <button type="button" class="incTypeBtn" data-t="unk" data-i18n="type.unk">Je ne sais pas</button>
+      </div>
+      <div class="wellLabel" data-i18n="active.presLabel">Qui est présent ?</div>
+      <div class="incTypeGrid" id="epPres"></div>
+      <div class="wellLabel" data-i18n="well.pain">Douleur</div>
+      <div class="yn">
+        <button type="button" class="ynBtn" id="epPainYes" data-i18n="common.yes">Oui</button>
+        <button type="button" class="ynBtn" id="epPainNo" data-i18n="common.no">Non</button>
+      </div>
+      <p class="hint" id="epWarn" style="display:none;color:#c0392b;font-weight:700;"></p>
+      <div class="cBtns">
+        <button id="epCancel" data-i18n="common.cancel">Annuler</button>
+        <button id="epSave" data-i18n="common.save">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -490,6 +528,18 @@
     "common.yes":{fr:"Oui",en:"Yes"},
     "common.no":{fr:"Non",en:"No"},
     "common.delete":{fr:"Supprimer",en:"Delete"},
+    "common.edit":{fr:"Modifier",en:"Edit"},
+    "edit.epTitle":{fr:"Modifier la crise",en:"Edit episode"},
+    "edit.medTitle":{fr:"Modifier la prise",en:"Edit medication"},
+    "edit.wellTitle":{fr:"Modifier le bien-être",en:"Edit wellbeing"},
+    "edit.incTitle":{fr:"Modifier l'incident",en:"Edit incident"},
+    "edit.start":{fr:"Début",en:"Start"},
+    "edit.end":{fr:"Fin",en:"End"},
+    "edit.endBeforeStart":{fr:"La fin doit être après le début.",en:"The end must be after the start."},
+    "edit.future":{fr:"La date ne peut pas être dans le futur.",en:"The time cannot be in the future."},
+    "edit.tooLong":{fr:"Durée supérieure à 24 h — vérifiez les heures.",en:"Longer than 24 h — check the times."},
+    "edit.notInList":{fr:"(plus dans la liste)",en:"(no longer in the list)"},
+    "hist.editHint":{fr:"✎ pour corriger une entrée, ✕ pour la supprimer.",en:"✎ to correct an entry, ✕ to delete it."},
     "storage.failed":{fr:"⚠ ENREGISTREMENT IMPOSSIBLE — la mémoire de l'appareil est pleine ou bloquée. La dernière saisie n'a PAS été gardée. Libérez de l'espace, puis faites une sauvegarde.",en:"⚠ COULD NOT SAVE — the device's storage is full or blocked. The last entry was NOT kept. Free up space, then make a backup."},
     "start.tap":{fr:"Appuyer<br>ici",en:"Tap<br>here"},
     "start.tapSub":{fr:"quand la crise commence",en:"when the episode starts"},
@@ -790,6 +840,7 @@
         :tf("time.at",{v:fmtDate(ts)+" "+fmtClock(ts)});
     };
     api.reset=function(){api._custom=null;api._off=0;if(custom){custom.value="";custom.max=localInputValue(Date.now());}api.render();};
+    api.set=function(ts){api._custom=ts;api._off=-1;if(custom){custom.max=localInputValue(Date.now());custom.value=localInputValue(ts);}api.render();};
     wrap.addEventListener("click",function(e){
       var b=e.target&&e.target.closest?e.target.closest(".tAdjBtn"):null;if(!b)return;
       api._custom=null;api._off=parseInt(b.dataset.adj,10);if(custom)custom.value="";api.render();});
@@ -801,6 +852,7 @@
   }
   var medTAdj,wellTAdj,incTAdj;
 
+  function presenceOptions(){return [["alone","alone"],[nameH(),""],[nameC(),""],["other",""]];}
   // ---- apply names to UI ----
   function applyNames(){
     document.title="Parkinson Companion";
@@ -811,7 +863,7 @@
     $("caregiverLabel").textContent=nameC();
     document.querySelectorAll(".hnameLbl").forEach(function(e){e.textContent=nameH();});
     // presence options — data-p stores a stable code/name, label is translated
-    var opts=[["alone","alone"],[nameH(),""],[nameC(),""],["other",""]];
+    var opts=presenceOptions();
     var html="";opts.forEach(function(o){html+='<button class="presOpt '+o[1]+'" data-p="'+esc(o[0])+'">'+esc(presLabel(o[0]))+'</button>';});
     $("presOpts").innerHTML=html;
     document.querySelectorAll(".presOpt").forEach(function(b){b.addEventListener("click",function(){setPres(b.dataset.p);$("presencePick").classList.remove("show");});});
@@ -936,22 +988,41 @@
   function medLabel(m){if(!m||!m.meds||!m.meds.length)return"";return m.meds.map(function(x){return(x.name+(x.dose?(" "+x.dose):"")).trim();}).filter(Boolean).join(", ");}
   function refreshLastMed(){var m=normMed(load(MEDKEY));var last=m.length?m[m.length-1]:null;
     $("lastMed").textContent=tf("lastMed",{v:(last?(fmtDate(last.time)+" "+fmtClock(last.time)+(medLabel(last)?" — "+medLabel(last):"")):"—")});}
-  $("medBtn").addEventListener("click",function(){
-    var list=getMedList();
-    medTAdj.reset();
+  function openMedModal(editId){
+    var existing=null;
+    if(editId!=null){existing=normMed(load(MEDKEY)).filter(function(m){return m.time===editId;})[0]||null;}
+    if(editId!=null)medTAdj.set(existing?existing.time:Date.now());else medTAdj.reset();
+    document.querySelector('#medCard h3').textContent=t(editId!=null?"edit.medTitle":"med.title");
     $("medCheckWarn").style.display="none";
-    if(!list.length){$("medCheckEmpty").style.display="block";$("medCheckRows").innerHTML="";}
+    // show the current list, plus anything this entry recorded that has since
+    // been removed from it - otherwise editing would silently drop those doses
+    var rows=getMedList().map(function(m){return{name:m.name,dose:m.dose,on:false,gone:false};});
+    if(existing)existing.meds.forEach(function(x){
+      var hit=null;rows.forEach(function(r){if(r.name===x.name)hit=r;});
+      if(hit){hit.on=true;hit.dose=x.dose;}
+      else rows.push({name:x.name,dose:x.dose,on:true,gone:true});
+    });
+    if(!rows.length){$("medCheckEmpty").style.display="block";$("medCheckRows").innerHTML="";}
     else{$("medCheckEmpty").style.display="none";
-      var html="";list.forEach(function(m,i){html+='<label class="medCheckRow"><input type="checkbox" class="mcTick" data-i="'+i+'"><span class="mcName">'+esc(m.name)+'</span><input type="text" class="mcDose" data-i="'+i+'" value="'+esc(m.dose)+'"></label>';});
+      var html="";rows.forEach(function(m,i){
+        html+='<label class="medCheckRow"><input type="checkbox" class="mcTick" data-i="'+i+'"'+(m.on?" checked":"")+'>'
+             +'<span class="mcName">'+esc(m.name)+(m.gone?' <span style="font-weight:400;color:#999;font-size:12px">'+esc(t("edit.notInList"))+'</span>':'')+'</span>'
+             +'<input type="text" class="mcDose" data-i="'+i+'" value="'+esc(m.dose||"")+'"></label>';});
       $("medCheckRows").innerHTML=html;}
-    $("medModal").classList.add("show");});
-  $("medCancel").addEventListener("click",function(){$("medModal").classList.remove("show");});
+    $("medModal").classList.add("show");
+  }
+  $("medBtn").addEventListener("click",function(){editing=null;openMedModal(null);});
+  $("medCancel").addEventListener("click",function(){$("medModal").classList.remove("show");cancelEdit();});
   $("medSave").addEventListener("click",function(){
     var meds=[];document.querySelectorAll(".medCheckRow").forEach(function(row){var tick=row.querySelector(".mcTick");if(tick&&tick.checked){var doseEl=row.querySelector(".mcDose");meds.push({name:row.querySelector(".mcName").textContent,dose:doseEl?doseEl.value.trim():""});}});
     if(!meds.length){$("medCheckWarn").style.display="block";return;}
-    var m=load(MEDKEY);m.push({time:medTAdj.get(),meds:meds});
+    var m=normMed(load(MEDKEY));
+    if(editing&&editing.kind==="med"){m=m.filter(function(x){return x.time!==editing.id;});}
+    m.push({time:medTAdj.get(),meds:meds});
     m.sort(function(a,b){return a.time-b.time;});
-    save(MEDKEY,m);refreshLastMed();refreshDoseBar();refreshBackupNag();$("medModal").classList.remove("show");});
+    save(MEDKEY,m);refreshLastMed();refreshDoseBar();refreshBackupNag();
+    $("medModal").classList.remove("show");
+    if(editing){cancelEdit();renderHistory();}});
   function lastMedBefore(t){var m=normMed(load(MEDKEY)),best=null;for(var i=0;i<m.length;i++){if(m[i].time<=t&&(best===null||m[i].time>best.time))best=m[i];}return best;}
 
   // ---- WELLBEING (daily check-in: appetite / mood / pain) ----
@@ -961,23 +1032,39 @@
   function wellLbl(cat,i){return t(WELLLBLKEY[cat])[i];}
   var wellDraft={};
   function renderFaceRow(cat){var f=FACES[cat],html="";f.forEach(function(e,i){var v=i+1;html+='<button type="button" class="faceBtn" data-cat="'+cat+'" data-v="'+v+'" title="'+esc(wellLbl(cat,i))+'">'+e+'</button>';});return html;}
-  $("wellBtn").addEventListener("click",function(){
-    wellDraft={};$("wellWarn").style.display="none";$("weightInput").value="";
+  function openWellModal(editId){
+    var ex=editId!=null?loadWell().filter(function(w){return w.time===editId;})[0]:null;
+    wellDraft={};$("wellWarn").style.display="none";
+    document.querySelector('#wellCard h3').textContent=t(editId!=null?"edit.wellTitle":"well.title");
     document.querySelectorAll(".wellRow").forEach(function(row){row.querySelector(".faceRow").innerHTML=renderFaceRow(row.dataset.cat);});
-    wellTAdj.reset();
-    $("wellModal").classList.add("show");});
+    $("weightInput").value=(ex&&ex.weight)?ex.weight:"";
+    if(ex){
+      ["appetite","mood","pain","sleep"].forEach(function(cat){
+        var v=ex[cat];if(typeof v!=="number")return;
+        wellDraft[cat]=v;
+        var row=document.querySelector('.wellRow[data-cat="'+cat+'"]');
+        if(row)row.querySelectorAll(".faceBtn").forEach(function(b){b.classList.toggle("sel",parseInt(b.dataset.v,10)===v);});
+      });
+      wellTAdj.set(ex.time);
+    } else wellTAdj.reset();
+    $("wellModal").classList.add("show");
+  }
+  $("wellBtn").addEventListener("click",function(){editing=null;openWellModal(null);});
   document.querySelectorAll(".faceRow").forEach(function(fr){fr.addEventListener("click",function(e){
     if(!e.target.classList.contains("faceBtn"))return;
     var cat=e.target.dataset.cat,v=parseInt(e.target.dataset.v,10);
     wellDraft[cat]=v;
     fr.querySelectorAll(".faceBtn").forEach(function(b){b.classList.toggle("sel",parseInt(b.dataset.v,10)===v);});});});
-  $("wellCancel").addEventListener("click",function(){$("wellModal").classList.remove("show");});
+  $("wellCancel").addEventListener("click",function(){$("wellModal").classList.remove("show");cancelEdit();});
   $("wellSave").addEventListener("click",function(){
     var weight=parseFloat($("weightInput").value)||null;
     if(wellDraft.appetite==null&&wellDraft.mood==null&&wellDraft.pain==null&&wellDraft.sleep==null&&weight==null){$("wellWarn").style.display="block";return;}
-    var w=loadWell();w.push({time:wellTAdj.get(),appetite:wellDraft.appetite||null,mood:wellDraft.mood||null,pain:wellDraft.pain||null,sleep:wellDraft.sleep||null,weight:weight});
+    var w=loadWell();
+    if(editing&&editing.kind==="well"){w=w.filter(function(x){return x.time!==editing.id;});}
+    w.push({time:wellTAdj.get(),appetite:wellDraft.appetite||null,mood:wellDraft.mood||null,pain:wellDraft.pain||null,sleep:wellDraft.sleep||null,weight:weight});
     w.sort(function(a,b){return a.time-b.time;});
-    save(WELLKEY,w);refreshBackupNag();$("wellModal").classList.remove("show");});
+    save(WELLKEY,w);refreshBackupNag();$("wellModal").classList.remove("show");
+    if(editing){cancelEdit();renderHistory();}});
 
   // ---- INCIDENTS (falls, near-falls, freezing, choking) ----
   var INCKEY="incidents_v5";
@@ -985,23 +1072,36 @@
   function incLbl(k){return INCKEYMAP[k]?t(INCKEYMAP[k]):k;}
   var INCORDER=["chute","presque","blocage","fausse_route"];
   var incDraft={};
-  $("incBtn").addEventListener("click",function(){
-    incDraft={};$("incWarn").style.display="none";$("incNote").value="";
-    document.querySelectorAll(".incTypeBtn").forEach(function(b){b.classList.remove("sel");});
-    document.querySelectorAll(".ynBtn").forEach(function(b){b.classList.remove("sel");});
-    incTAdj.reset();
-    $("incModal").classList.add("show");});
-  document.querySelectorAll(".incTypeBtn").forEach(function(b){b.addEventListener("click",function(){
-    document.querySelectorAll(".incTypeBtn").forEach(function(x){x.classList.remove("sel");});
+  function openIncModal(editId){
+    var ex=editId!=null?loadInc().filter(function(i){return i.time===editId;})[0]:null;
+    incDraft={};$("incWarn").style.display="none";
+    document.querySelector('#incCard h3').textContent=t(editId!=null?"edit.incTitle":"inc.title");
+    $("incNote").value=ex?(ex.note||""):"";
+    document.querySelectorAll("#incCard .incTypeBtn").forEach(function(b){b.classList.remove("sel");});
+    document.querySelectorAll("#incCard .ynBtn").forEach(function(b){b.classList.remove("sel");});
+    if(ex){
+      incDraft.type=ex.type;incDraft.injury=ex.injury===true;
+      var tb=document.querySelector('#incCard .incTypeBtn[data-t="'+ex.type+'"]');if(tb)tb.classList.add("sel");
+      $(ex.injury===true?"incInjYes":"incInjNo").classList.add("sel");
+      incTAdj.set(ex.time);
+    } else incTAdj.reset();
+    $("incModal").classList.add("show");
+  }
+  $("incBtn").addEventListener("click",function(){editing=null;openIncModal(null);});
+  document.querySelectorAll("#incCard .incTypeBtn").forEach(function(b){b.addEventListener("click",function(){
+    document.querySelectorAll("#incCard .incTypeBtn").forEach(function(x){x.classList.remove("sel");});
     b.classList.add("sel");incDraft.type=b.dataset.t;});});
   $("incInjYes").addEventListener("click",function(){incDraft.injury=true;$("incInjYes").classList.add("sel");$("incInjNo").classList.remove("sel");});
   $("incInjNo").addEventListener("click",function(){incDraft.injury=false;$("incInjNo").classList.add("sel");$("incInjYes").classList.remove("sel");});
-  $("incCancel").addEventListener("click",function(){$("incModal").classList.remove("show");});
+  $("incCancel").addEventListener("click",function(){$("incModal").classList.remove("show");cancelEdit();});
   $("incSave").addEventListener("click",function(){
     if(!incDraft.type){$("incWarn").style.display="block";return;}
-    var l=loadInc();l.push({time:incTAdj.get(),type:incDraft.type,injury:incDraft.injury===true,note:$("incNote").value.trim()});
+    var l=loadInc();
+    if(editing&&editing.kind==="inc"){l=l.filter(function(x){return x.time!==editing.id;});}
+    l.push({time:incTAdj.get(),type:incDraft.type,injury:incDraft.injury===true,note:$("incNote").value.trim()});
     l.sort(function(a,b){return a.time-b.time;});
-    save(INCKEY,l);refreshBackupNag();$("incModal").classList.remove("show");});
+    save(INCKEY,l);refreshBackupNag();$("incModal").classList.remove("show");
+    if(editing){cancelEdit();renderHistory();}});
 
   // ---- CRISIS ----
   $("tapZone").addEventListener("click",function(){var now=Date.now();if(now-lastTrigger<DEBOUNCE_MS)return;lastTrigger=now;startCrisis(now);});
@@ -1085,17 +1185,17 @@
       var lat=ep.lastMed?tf("hist.afterMed",{n:Math.round((ep.start-ep.lastMed)/60000),lbl:(ep.lastMedLabel?(" ("+ep.lastMedLabel+")"):"")}):t("hist.noMedRec");
       var pcls=pv==="alone"?"alone":"acc";
       var regLine=ep.regimen?'<div class="meta">'+esc(tf("hist.treatment",{v:String(ep.regimen).replace(/\n/g,' / ')}))+'</div>':'';
-      html+='<div class="ep" data-kind="crisis" data-id="'+ep.start+'"><div class="epTop"><div class="d">'+fmtDate(ep.start)+' — '+fmtClock(ep.start)+(ep.end?' → '+fmtClock(ep.end):'')+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+esc(t("hist.duration"))+' <b>'+dur+'</b> <span class="pill '+cls+'">'+esc(typeLbl(ep.type))+'</span> <span class="pill '+pcls+'">'+esc(presLabel(pv))+'</span>'+(ep.pain?' <span class="pill pain">'+esc(t("pill.pain"))+'</span>':'')+'</div><div class="meta">'+esc(lat)+'</div>'+regLine+'</div>';}
-    $("histList").innerHTML=html||'<p style="padding:20px;color:#888">'+esc(t("hist.none"))+'</p>';
+      html+='<div class="ep" data-kind="crisis" data-id="'+ep.start+'"><div class="epTop"><div class="d">'+fmtDate(ep.start)+' — '+fmtClock(ep.start)+(ep.end?' → '+fmtClock(ep.end):'')+'</div><button type="button" class="epEdit" aria-label="'+esc(t("common.edit"))+'">✎</button><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+esc(t("hist.duration"))+' <b>'+dur+'</b> <span class="pill '+cls+'">'+esc(typeLbl(ep.type))+'</span> <span class="pill '+pcls+'">'+esc(presLabel(pv))+'</span>'+(ep.pain?' <span class="pill pain">'+esc(t("pill.pain"))+'</span>':'')+'</div><div class="meta">'+esc(lat)+'</div>'+regLine+'</div>';}
+    $("histList").innerHTML=(html?'<p class="hint" style="margin:0 0 8px">'+esc(t("hist.editHint"))+'</p>'+html:'')||'<p style="padding:20px;color:#888">'+esc(t("hist.none"))+'</p>';
     $("count").textContent=tf(list.length>1?"hist.countMany":"hist.countOne",{n:list.length});
     var mlist=normMed(load(MEDKEY)).slice().sort(function(a,b){return b.time-a.time;}),mh="";
-    mlist.forEach(function(m){mh+='<div class="ep" data-kind="med" data-id="'+m.time+'"><div class="epTop"><div class="d">'+fmtDate(m.time)+' — '+fmtClock(m.time)+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+esc(medLabel(m))+'</div></div>';});
+    mlist.forEach(function(m){mh+='<div class="ep" data-kind="med" data-id="'+m.time+'"><div class="epTop"><div class="d">'+fmtDate(m.time)+' — '+fmtClock(m.time)+'</div><button type="button" class="epEdit" aria-label="'+esc(t("common.edit"))+'">✎</button><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+esc(medLabel(m))+'</div></div>';});
     if(mlist.length){$("histList").insertAdjacentHTML("beforeend",'<div class="section-t" style="margin:16px 12px 4px">'+esc(t("set.meds"))+'</div>'+mh);}
     var wlist=loadWell().slice().sort(function(a,b){return b.time-a.time;}),wh="";
-    wlist.forEach(function(w){wh+='<div class="ep" data-kind="well" data-id="'+w.time+'"><div class="epTop"><div class="d">'+fmtDate(w.time)+' — '+fmtClock(w.time)+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+wellSummaryLine(w)+'</div></div>';});
+    wlist.forEach(function(w){wh+='<div class="ep" data-kind="well" data-id="'+w.time+'"><div class="epTop"><div class="d">'+fmtDate(w.time)+' — '+fmtClock(w.time)+'</div><button type="button" class="epEdit" aria-label="'+esc(t("common.edit"))+'">✎</button><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+wellSummaryLine(w)+'</div></div>';});
     if(wlist.length){$("histList").insertAdjacentHTML("beforeend",'<div class="section-t" style="margin:16px 12px 4px">'+esc(t("hist.daily"))+'</div>'+wh);}
     var ilist=loadInc().slice().sort(function(a,b){return b.time-a.time;}),ih="";
-    ilist.forEach(function(inc){ih+='<div class="ep" data-kind="inc" data-id="'+inc.time+'"><div class="epTop"><div class="d">'+fmtDate(inc.time)+' — '+fmtClock(inc.time)+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta"><span class="pill pain">'+esc(incLbl(inc.type))+'</span>'+(inc.injury?' <span class="pill pain" style="background:#c0392b">'+esc(t("pill.injury"))+'</span>':'')+'</div>'+(inc.note?'<div class="meta">'+esc(inc.note)+'</div>':'')+'</div>';});
+    ilist.forEach(function(inc){ih+='<div class="ep" data-kind="inc" data-id="'+inc.time+'"><div class="epTop"><div class="d">'+fmtDate(inc.time)+' — '+fmtClock(inc.time)+'</div><button type="button" class="epEdit" aria-label="'+esc(t("common.edit"))+'">✎</button><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta"><span class="pill pain">'+esc(incLbl(inc.type))+'</span>'+(inc.injury?' <span class="pill pain" style="background:#c0392b">'+esc(t("pill.injury"))+'</span>':'')+'</div>'+(inc.note?'<div class="meta">'+esc(inc.note)+'</div>':'')+'</div>';});
     if(ilist.length){$("histList").insertAdjacentHTML("beforeend",'<div class="section-t" style="margin:16px 12px 4px">'+esc(t("hist.incidents"))+'</div>'+ih);}}
   /* Per-entry delete: one mistaken tap used to be fixable only by erasing everything. */
   $("histList").addEventListener("click",function(e){
@@ -1107,6 +1207,78 @@
       save(k,l);renderHistory();refreshLastMed();refreshDoseBar();
     });});
   $("clearBtn").addEventListener("click",function(){confirmModal(t("hist.clearConfirm"),function(){save(KEY,[]);save(MEDKEY,[]);save(WELLKEY,[]);save(INCKEY,[]);renderHistory();refreshLastMed();refreshDoseBar();});});
+
+
+  /* ---- EDITING AN EXISTING ENTRY ----
+     Deleting and re-adding worked, but it costs the original timestamp and is
+     hostile with a tremor. The three logging modals are reused in edit mode;
+     episodes get their own editor because they carry a start AND an end. */
+  var editing=null;   // {kind:"crisis"|"med"|"well"|"inc", id:<timestamp>}
+
+  function fromLocalInput(v){var d=new Date(v);return isNaN(d.getTime())?null:d.getTime();}
+
+  function openEdit(kind,id){
+    editing={kind:kind,id:id};
+    if(kind==="crisis")return openEpisodeEdit(id);
+    if(kind==="med")return openMedModal(id);
+    if(kind==="well")return openWellModal(id);
+    if(kind==="inc")return openIncModal(id);
+  }
+  function cancelEdit(){editing=null;}
+
+  // --- episodes ---
+  function openEpisodeEdit(id){
+    var ep=loadCrises().filter(function(e){return e.start===id;})[0];
+    if(!ep){editing=null;return;}
+    $("epStart").value=localInputValue(ep.start);
+    $("epEnd").value=ep.end?localInputValue(ep.end):"";
+    $("epWarn").style.display="none";
+    document.querySelectorAll("#epTypes .incTypeBtn").forEach(function(b){b.classList.toggle("sel",b.dataset.t===(ep.type||"unk"));});
+    var pv=ep.presence==="Seule"?"alone":ep.presence;
+    var html="";presenceOptions().forEach(function(o){
+      html+='<button type="button" class="incTypeBtn'+(o[0]===pv?" sel":"")+'" data-p="'+esc(o[0])+'">'+esc(presLabel(o[0]))+'</button>';});
+    $("epPres").innerHTML=html;
+    $("epPainYes").classList.toggle("sel",ep.pain===true);
+    $("epPainNo").classList.toggle("sel",ep.pain!==true);
+    $("epModal").classList.add("show");
+  }
+  document.addEventListener("click",function(e){
+    var b=e.target&&e.target.closest?e.target.closest("#epTypes .incTypeBtn"):null;
+    if(b){document.querySelectorAll("#epTypes .incTypeBtn").forEach(function(x){x.classList.remove("sel");});b.classList.add("sel");return;}
+    var pb=e.target&&e.target.closest?e.target.closest("#epPres .incTypeBtn"):null;
+    if(pb){document.querySelectorAll("#epPres .incTypeBtn").forEach(function(x){x.classList.remove("sel");});pb.classList.add("sel");}
+  });
+  $("epPainYes").addEventListener("click",function(){this.classList.add("sel");$("epPainNo").classList.remove("sel");});
+  $("epPainNo").addEventListener("click",function(){this.classList.add("sel");$("epPainYes").classList.remove("sel");});
+  $("epCancel").addEventListener("click",function(){$("epModal").classList.remove("show");cancelEdit();});
+  $("epSave").addEventListener("click",function(){
+    var st=fromLocalInput($("epStart").value), en=fromLocalInput($("epEnd").value), w=$("epWarn");
+    function bad(k){w.textContent=t(k);w.style.display="block";return true;}
+    if(!st||!en)return bad("edit.endBeforeStart");
+    if(en<=st)return bad("edit.endBeforeStart");
+    if(st>Date.now()||en>Date.now())return bad("edit.future");
+    if(en-st>24*3600000)return bad("edit.tooLong");
+    var typeBtn=document.querySelector("#epTypes .incTypeBtn.sel");
+    var presBtn=document.querySelector("#epPres .incTypeBtn.sel");
+    var list=loadCrises(),i=-1;
+    for(var k=0;k<list.length;k++){if(list[k].start===editing.id){i=k;break;}}
+    if(i<0){$("epModal").classList.remove("show");cancelEdit();return;}
+    // start time drives the medication-latency figure and which treatment period
+    // the episode falls in, so both are re-derived rather than left stale
+    var lm=lastMedBefore(st);
+    list[i]={start:st,end:en,type:typeBtn?typeBtn.dataset.t:null,
+             pain:$("epPainYes").classList.contains("sel"),
+             presence:presBtn?presBtn.dataset.p:list[i].presence,
+             lastMed:lm?lm.time:null,lastMedLabel:medLabel(lm),regimen:regimenTextAt(st)};
+    list.sort(function(a,b){return a.start-b.start;});
+    save(KEY,list);$("epModal").classList.remove("show");cancelEdit();renderHistory();
+  });
+
+  // --- history wiring ---
+  $("histList").addEventListener("click",function(e){
+    var b=e.target&&e.target.closest?e.target.closest(".epEdit"):null;if(!b)return;
+    var row=b.closest(".ep");openEdit(row.dataset.kind,parseInt(row.dataset.id,10));
+  });
 
   // ---- REPORT ----
   var reportDays=30;   // a home-visit GP wants "since I last saw her", not all-time

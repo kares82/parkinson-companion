@@ -1,0 +1,16 @@
+{
+  "name": "parkinson-companion",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Offline diary for Parkinson's episodes, medication, wellbeing and incidents.",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "icons": "python3 tools/make-icons.py",
+    "metadata": "python3 tools/sync-store-metadata.py",
+    "metadata:check": "python3 tools/sync-store-metadata.py --check"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}

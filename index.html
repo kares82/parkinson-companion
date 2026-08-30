@@ -156,6 +156,10 @@
   .corner{flex:0 0 auto;background:rgba(255,255,255,.22);color:#fff;border:none;padding:9px 10px;border-radius:9px;font-size:clamp(11px,2.9vw,13px);font-weight:700;font-family:inherit;}
   #supplyTxt{flex:1;min-width:0;text-align:center;}
 
+  #storageWarn{display:none;position:fixed;top:0;left:0;right:0;margin:0 auto;max-width:480px;z-index:200;
+    background:#7b241c;color:#fff;font-size:13px;font-weight:700;line-height:1.4;padding:11px 13px;text-align:center;}
+  #storageWarn.show{display:block;}
+
   /* ---- dose schedule strip ---- */
   #doseBar{display:none;padding:9px 10px;text-align:center;font-weight:800;font-size:clamp(12px,3.3vw,15px);background:#2c3e50;color:#fff;}
   #doseBar.show{display:block;}#doseBar.late{background:#c0392b;}
@@ -216,6 +220,8 @@
 </head>
 <body>
 <div id="app">
+
+  <div id="storageWarn"></div>
 
   <div id="startScreen" class="screen show">
     <div id="supplyBar">
@@ -472,7 +478,7 @@
 (function(){
   var KEY="crises_v5",MEDKEY="meds_v5",PRESKEY="presence_v5",SUP="supply_v5",REG="regimen_v5",
       H="husband_v5",C="caregiver_v5",PNAME="pname_v5",HNAME="hname_v5",CNAME="cname_v5",LANGKEY="lang_v5",EMERG="emerg_v5",
-      BACKUPKEY="lastbackup_v5";
+      BACKUPKEY="lastbackup_v5",ACTIVEKEY="active_v5";
 
   // ---------- i18n ----------
   var STR={
@@ -484,6 +490,7 @@
     "common.yes":{fr:"Oui",en:"Yes"},
     "common.no":{fr:"Non",en:"No"},
     "common.delete":{fr:"Supprimer",en:"Delete"},
+    "storage.failed":{fr:"⚠ ENREGISTREMENT IMPOSSIBLE — la mémoire de l'appareil est pleine ou bloquée. La dernière saisie n'a PAS été gardée. Libérez de l'espace, puis faites une sauvegarde.",en:"⚠ COULD NOT SAVE — the device's storage is full or blocked. The last entry was NOT kept. Free up space, then make a backup."},
     "start.tap":{fr:"Appuyer<br>ici",en:"Tap<br>here"},
     "start.tapSub":{fr:"quand la crise commence",en:"when the episode starts"},
     "start.med":{fr:"Médicament donné",en:"Medication given"},
@@ -570,6 +577,7 @@
     "backup.restoreConfirm":{fr:"Remplacer TOUTES les données actuelles de cet appareil par cette sauvegarde ?",en:"Replace ALL current data on this device with this backup?"},
     "backup.restoreOk":{fr:"Sauvegarde restaurée.",en:"Backup restored."},
     "backup.badFile":{fr:"Ce fichier n'est pas une sauvegarde valide.",en:"That file is not a valid backup."},
+    "backup.tooNew":{fr:"Cette sauvegarde vient d'une version plus récente de l'application. Mettez l'application à jour avant de la restaurer.",en:"This backup came from a newer version of the app. Update the app before restoring it."},
     "backup.persistOn":{fr:"✓ Le navigateur a marqué ces données comme persistantes.",en:"✓ The browser has marked this data as persistent."},
     "backup.persistOff":{fr:"⚠ Le navigateur peut effacer ces données pour libérer de la place. Installez l'appli sur l'écran d'accueil et sauvegardez régulièrement.",en:"⚠ The browser may erase this data to free up space. Install the app to the Home Screen and back up regularly."},
     "backup.nag":{fr:"⚠ Vos données ne sont enregistrées que sur ce téléphone et ne sont pas sauvegardées.",en:"⚠ Your data is only on this phone and is not backed up."},
@@ -647,6 +655,13 @@
     "report.adherLine":{fr:"<b>{taken} / {exp}</b> doses prises ({pct} %)",en:"<b>{taken} / {exp}</b> doses taken ({pct}%)"},
     "report.adherOnTime":{fr:"dont {n} à l'heure (± 30 min)",en:"of which {n} on time (± 30 min)"},
     "report.adherNone":{fr:"Renseignez les horaires des médicaments dans Réglages pour calculer l'observance.",en:"Set medication times in Settings to work out adherence."},
+    "report.wellSec":{fr:"Bien-être (moyennes sur la période)",en:"Wellbeing (averages over the period)"},
+    "report.wellScale":{fr:"Sur 5. Douleur : 1 = aucune, 5 = intense. Autres : 1 = mauvais, 5 = bon.",en:"Out of 5. Pain: 1 = none, 5 = intense. Others: 1 = poor, 5 = good."},
+    "report.wellNone":{fr:"Aucun suivi de bien-être sur la période.",en:"No wellbeing entries in this period."},
+    "report.weightSec":{fr:"Poids",en:"Weight"},
+    "report.weightLine":{fr:"{first} kg le {d1} → <b>{last} kg</b> le {d2}",en:"{first} kg on {d1} → <b>{last} kg</b> on {d2}"},
+    "report.weightDelta":{fr:"Variation : <b>{v} kg</b> sur {n} j",en:"Change: <b>{v} kg</b> over {n} d"},
+    "report.weightOne":{fr:"<b>{v} kg</b> le {d} — une seule mesure, pas encore de tendance.",en:"<b>{v} kg</b> on {d} — a single reading, no trend yet."},
     "report.trendSec":{fr:"Évolution dans le temps",en:"Trend over time"},
     "report.trendTreatNote":{fr:"Ligne pointillée rouge = changement de traitement (survolez ou touchez pour le détail).",en:"Red dashed line = treatment change (hover or tap for detail)."},
     "report.trendRecent":{fr:"Affichage des {n} dernières périodes.",en:"Showing the last {n} periods."},
@@ -710,8 +725,32 @@
     yes.addEventListener("click",onY);no.addEventListener("click",onN);}
   var DEBOUNCE_MS=3000,current=null,lastTrigger=0,tick=null,wakeLock=null,helpFrom="startScreen";
   var $=function(id){return document.getElementById(id);};
-  function load(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return[];}}
-  function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function load(k){try{var v=JSON.parse(localStorage.getItem(k));return Array.isArray(v)?v:[];}catch(e){return[];}}
+  /* A failed write used to be swallowed, so a full or blocked localStorage lost the
+     entry with no sign anything had gone wrong. On a record the doctor relies on,
+     losing data quietly is worse than any visible error. */
+  function save(k,v){
+    try{localStorage.setItem(k,JSON.stringify(v));storageOK();return true;}
+    catch(e){storageFailed(e);return false;}
+  }
+  function setLS(k,v){
+    try{localStorage.setItem(k,v);storageOK();return true;}
+    catch(e){storageFailed(e);return false;}
+  }
+  function storageFailed(e){
+    var w=$("storageWarn");if(!w)return;
+    w.textContent=t("storage.failed");w.classList.add("show");
+    try{console.error("storage write failed",e);}catch(x){}
+  }
+  function storageOK(){var w=$("storageWarn");if(w)w.classList.remove("show");}
+
+  /* Records are read back from storage that a previous version, a partial write or a
+     hand-edited backup may have left malformed. Anything without a usable timestamp
+     is dropped rather than allowed to throw halfway through rendering the history. */
+  function ts(v){return (typeof v==="number"&&isFinite(v)&&v>0)?v:null;}
+  function loadCrises(){return load(KEY).filter(function(e){return e&&typeof e==="object"&&ts(e.start);});}
+  function loadWell(){return load(WELLKEY).filter(function(e){return e&&typeof e==="object"&&ts(e.time);});}
+  function loadInc(){return load(INCKEY).filter(function(e){return e&&typeof e==="object"&&ts(e.time);});}
   function nameP(){return localStorage.getItem(PNAME)||t("name.person");}
   function nameH(){return localStorage.getItem(HNAME)||t("name.partner");}
   function nameC(){return localStorage.getItem(CNAME)||t("name.carer");}
@@ -720,7 +759,7 @@
   function getNum(k){return localStorage.getItem(k)||"";}
   function getEmerg(){var v=localStorage.getItem(EMERG);return(v&&v.trim())?v.trim():"112";}
   function getSupply(){var s=load(SUP);if(!s||typeof s!=="object"||Array.isArray(s))s={bags:0,days:1,warn:5,installedAt:null};return s;}
-  function saveSupply(s){localStorage.setItem(SUP,JSON.stringify(s));}
+  function saveSupply(s){setLS(SUP,JSON.stringify(s));}
 
   // ---- REGIMEN (medication phases) ----
   function getRegimens(){return load(REG);}
@@ -887,7 +926,9 @@
   }
 
   // ---- MEDS GIVEN (tick-list logged from the medicine list) ----
-  function normMed(list){return list.map(function(e){
+  function normMed(list){return list.filter(function(e){
+    return typeof e==="number"?ts(e):(e&&typeof e==="object"&&ts(e.time));
+  }).map(function(e){
     if(typeof e==="number")return{time:e,meds:[]};
     if(e.meds)return{time:e.time,meds:e.meds};
     if(e.name||e.dose)return{time:e.time,meds:[{name:e.name||"",dose:e.dose||""}]};
@@ -934,7 +975,7 @@
   $("wellSave").addEventListener("click",function(){
     var weight=parseFloat($("weightInput").value)||null;
     if(wellDraft.appetite==null&&wellDraft.mood==null&&wellDraft.pain==null&&wellDraft.sleep==null&&weight==null){$("wellWarn").style.display="block";return;}
-    var w=load(WELLKEY);w.push({time:wellTAdj.get(),appetite:wellDraft.appetite||null,mood:wellDraft.mood||null,pain:wellDraft.pain||null,sleep:wellDraft.sleep||null,weight:weight});
+    var w=loadWell();w.push({time:wellTAdj.get(),appetite:wellDraft.appetite||null,mood:wellDraft.mood||null,pain:wellDraft.pain||null,sleep:wellDraft.sleep||null,weight:weight});
     w.sort(function(a,b){return a.time-b.time;});
     save(WELLKEY,w);refreshBackupNag();$("wellModal").classList.remove("show");});
 
@@ -958,14 +999,37 @@
   $("incCancel").addEventListener("click",function(){$("incModal").classList.remove("show");});
   $("incSave").addEventListener("click",function(){
     if(!incDraft.type){$("incWarn").style.display="block";return;}
-    var l=load(INCKEY);l.push({time:incTAdj.get(),type:incDraft.type,injury:incDraft.injury===true,note:$("incNote").value.trim()});
+    var l=loadInc();l.push({time:incTAdj.get(),type:incDraft.type,injury:incDraft.injury===true,note:$("incNote").value.trim()});
     l.sort(function(a,b){return a.time-b.time;});
     save(INCKEY,l);refreshBackupNag();$("incModal").classList.remove("show");});
 
   // ---- CRISIS ----
   $("tapZone").addEventListener("click",function(){var now=Date.now();if(now-lastTrigger<DEBOUNCE_MS)return;lastTrigger=now;startCrisis(now);});
+  /* An episode can run for an hour while the phone is locked in a pocket, and iOS
+     will happily kill a backgrounded PWA. Keeping the running episode only in a JS
+     variable meant that lost the whole thing - including its start time, which
+     cannot be reconstructed afterwards. It is now written on every change and
+     picked back up on load. */
+  function persistActive(){ if(current)setLS(ACTIVEKEY,JSON.stringify(current)); }
+  function clearActive(){ try{localStorage.removeItem(ACTIVEKEY);}catch(e){} }
+  function resumeActive(){
+    var raw;try{raw=JSON.parse(localStorage.getItem(ACTIVEKEY));}catch(e){raw=null;}
+    if(!raw||!ts(raw.start))return false;
+    if(Date.now()-raw.start>24*3600000){clearActive();return false;}  // stale: not a real episode
+    current={start:raw.start,tapped:ts(raw.tapped)||raw.start,type:raw.type||null,
+             pain:raw.pain===true,presence:raw.presence||getPres(),
+             lastMed:ts(raw.lastMed),lastMedLabel:raw.lastMedLabel||""};
+    show("activeScreen");
+    document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.toggle("sel",b.dataset.type===current.type);});
+    $("painBtn").classList.toggle("sel",current.pain);
+    $("painBtn").textContent=current.pain?t("active.painOn"):t("active.pain");
+    refreshActivePres();refreshStartAdj();refreshCrisisHead();
+    updateTimer();if(tick)clearInterval(tick);tick=setInterval(updateTimer,1000);
+    return true;
+  }
   function startCrisis(now){
     current={start:now,tapped:now,type:null,pain:false,presence:getPres(),lastMed:null,lastMedLabel:""};
+    persistActive();
     show("activeScreen");
     document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.remove("sel");});
     $("painBtn").classList.remove("sel");$("painBtn").textContent=t("active.pain");
@@ -974,6 +1038,7 @@
   /* Re-derived whenever the start time is corrected, so the med-latency figure
      always refers to the dose that actually preceded the episode. */
   function refreshCrisisHead(){
+    if(!current)return;
     var lm=lastMedBefore(current.start);
     current.lastMed=lm?lm.time:null;current.lastMedLabel=medLabel(lm);
     $("startedAt").textContent=tf("crisis.start",{t:fmtClock(current.start),p:presLabel(current.presence)});
@@ -985,24 +1050,24 @@
       b.style.background=parseInt(b.dataset.sadj,10)===off?"#f1c40f":"transparent";
       b.style.color=parseInt(b.dataset.sadj,10)===off?"#1e2a38":"#cfd8e3";});}
   $("apBtns").addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest(".apOpt"):null;if(!b||!current)return;
-    current.presence=b.dataset.p;setPres(b.dataset.p);refreshActivePres();refreshCrisisHead();});
+    current.presence=b.dataset.p;setPres(b.dataset.p);refreshActivePres();refreshCrisisHead();persistActive();});
   $("startAdj").addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest(".sa"):null;if(!b||!current)return;
-    current.start=current.tapped-parseInt(b.dataset.sadj,10)*60000;refreshStartAdj();refreshCrisisHead();updateTimer();});
+    current.start=current.tapped-parseInt(b.dataset.sadj,10)*60000;refreshStartAdj();refreshCrisisHead();updateTimer();persistActive();});
   function updateTimer(){if(current)$("timer").textContent=fmtDur(Date.now()-current.start);}
-  document.querySelectorAll(".typeBtn").forEach(function(btn){btn.addEventListener("click",function(){document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.remove("sel");});btn.classList.add("sel");current.type=btn.dataset.type;});});
-  $("painBtn").addEventListener("click",function(){current.pain=!current.pain;this.classList.toggle("sel",current.pain);this.textContent=current.pain?t("active.painOn"):t("active.pain");});
+  document.querySelectorAll(".typeBtn").forEach(function(btn){btn.addEventListener("click",function(){document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.remove("sel");});btn.classList.add("sel");current.type=btn.dataset.type;persistActive();});});
+  $("painBtn").addEventListener("click",function(){current.pain=!current.pain;this.classList.toggle("sel",current.pain);this.textContent=current.pain?t("active.painOn"):t("active.pain");persistActive();});
   $("endBtn").addEventListener("click",function(){confirmModal(t("crisis.endConfirm"),function(){
     var end=Date.now(),list=load(KEY);
     list.push({start:current.start,end:end,type:current.type,pain:current.pain,presence:current.presence,lastMed:current.lastMed,lastMedLabel:current.lastMedLabel,regimen:regimenTextAt(current.start)});
     list.sort(function(a,b){return a.start-b.start;});
-    save(KEY,list);clearInterval(tick);tick=null;current=null;
+    save(KEY,list);clearActive();clearInterval(tick);tick=null;current=null;
     refreshSupplyBar();refreshDoseBar();refreshBackupNag();show("startScreen");
   });});
   /* The home screen is one big button, so accidental starts happen. Without this the
      only way out is "episode ended", which would save a phantom episode into the
      record the doctor reads. */
   $("cancelBtn").addEventListener("click",function(){confirmModal(t("active.cancelConfirm"),function(){
-    clearInterval(tick);tick=null;current=null;lastTrigger=0;
+    clearActive();clearInterval(tick);tick=null;current=null;lastTrigger=0;
     refreshSupplyBar();refreshDoseBar();show("startScreen");
   });});
 
@@ -1013,7 +1078,7 @@
   // ---- HISTORY ----
   $("histLink").addEventListener("click",function(){renderHistory();show("historyScreen");});
   function wellSummaryLine(w){var parts=[];if(w.appetite)parts.push(FACES.appetite[w.appetite-1]+" "+t("well.appetite"));if(w.mood)parts.push(FACES.mood[w.mood-1]+" "+t("well.mood"));if(w.pain)parts.push(FACES.pain[w.pain-1]+" "+t("well.pain"));if(w.sleep)parts.push(FACES.sleep[w.sleep-1]+" "+t("well.sleep"));if(w.weight)parts.push("⚖️ "+w.weight+" kg");return parts.join("  •  ");}
-  function renderHistory(){var list=load(KEY).slice().sort(function(a,b){return b.start-a.start;}),html="";
+  function renderHistory(){var list=loadCrises().slice().sort(function(a,b){return b.start-a.start;}),html="";
     for(var i=0;i<list.length;i++){var ep=list[i];var dur=ep.end?fmtDur(ep.end-ep.start):"—";
       var cls=ep.type==="tremor"?"tremor":ep.type==="dysk"?"dysk":"unk";
       var pv=ep.presence==="Seule"?"alone":ep.presence;
@@ -1026,10 +1091,10 @@
     var mlist=normMed(load(MEDKEY)).slice().sort(function(a,b){return b.time-a.time;}),mh="";
     mlist.forEach(function(m){mh+='<div class="ep" data-kind="med" data-id="'+m.time+'"><div class="epTop"><div class="d">'+fmtDate(m.time)+' — '+fmtClock(m.time)+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+esc(medLabel(m))+'</div></div>';});
     if(mlist.length){$("histList").insertAdjacentHTML("beforeend",'<div class="section-t" style="margin:16px 12px 4px">'+esc(t("set.meds"))+'</div>'+mh);}
-    var wlist=load(WELLKEY).slice().sort(function(a,b){return b.time-a.time;}),wh="";
+    var wlist=loadWell().slice().sort(function(a,b){return b.time-a.time;}),wh="";
     wlist.forEach(function(w){wh+='<div class="ep" data-kind="well" data-id="'+w.time+'"><div class="epTop"><div class="d">'+fmtDate(w.time)+' — '+fmtClock(w.time)+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta">'+wellSummaryLine(w)+'</div></div>';});
     if(wlist.length){$("histList").insertAdjacentHTML("beforeend",'<div class="section-t" style="margin:16px 12px 4px">'+esc(t("hist.daily"))+'</div>'+wh);}
-    var ilist=load(INCKEY).slice().sort(function(a,b){return b.time-a.time;}),ih="";
+    var ilist=loadInc().slice().sort(function(a,b){return b.time-a.time;}),ih="";
     ilist.forEach(function(inc){ih+='<div class="ep" data-kind="inc" data-id="'+inc.time+'"><div class="epTop"><div class="d">'+fmtDate(inc.time)+' — '+fmtClock(inc.time)+'</div><button type="button" class="epDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="meta"><span class="pill pain">'+esc(incLbl(inc.type))+'</span>'+(inc.injury?' <span class="pill pain" style="background:#c0392b">'+esc(t("pill.injury"))+'</span>':'')+'</div>'+(inc.note?'<div class="meta">'+esc(inc.note)+'</div>':'')+'</div>';});
     if(ilist.length){$("histList").insertAdjacentHTML("beforeend",'<div class="section-t" style="margin:16px 12px 4px">'+esc(t("hist.incidents"))+'</div>'+ih);}}
   /* Per-entry delete: one mistaken tap used to be fixable only by erasing everything. */
@@ -1051,10 +1116,10 @@
      record reads as 5% adherence. */
   function trackingStart(){
     var ts=[];
-    load(KEY).forEach(function(e){ts.push(e.start);});
+    loadCrises().forEach(function(e){ts.push(e.start);});
     normMed(load(MEDKEY)).forEach(function(m){ts.push(m.time);});
-    load(WELLKEY).forEach(function(w){ts.push(w.time);});
-    load(INCKEY).forEach(function(i){ts.push(i.time);});
+    loadWell().forEach(function(w){ts.push(w.time);});
+    loadInc().forEach(function(i){ts.push(i.time);});
     return ts.length?Math.min.apply(null,ts):Date.now();
   }
   $("toReport").addEventListener("click",function(){renderReport();show("reportScreen");});
@@ -1128,9 +1193,62 @@
     return out;
   }
 
+  /* Wellbeing and weight were being collected and shown in History, but never
+     reached the report the doctor actually reads. Unintended weight loss matters
+     clinically in Parkinson's, so the trend belongs in front of them. */
+  function buildWellSection(fromT){
+    var w=loadWell().filter(function(x){return x.time>=fromT;}).sort(function(a,b){return a.time-b.time;});
+    var out='<div class="section-t">'+esc(t("report.wellSec"))+'</div>';
+    if(!w.length)return out+'<div class="stat" style="opacity:.75">'+esc(t("report.wellNone"))+'</div>';
+
+    var cats=[["appetite","well.appetite"],["mood","well.mood"],["pain","well.pain"],["sleep","well.sleep"]],any=false;
+    cats.forEach(function(c){
+      var vals=w.map(function(x){return x[c[0]];}).filter(function(v){return typeof v==="number"&&v>=1&&v<=5;});
+      if(!vals.length)return;
+      any=true;
+      var avg=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+      var face=FACES[c[0]][Math.min(4,Math.max(0,Math.round(avg)-1))];
+      out+='<div class="stat">'+face+' '+esc(t(c[1]))+' : <b>'+avg.toFixed(1)+'</b> / 5 <span style="opacity:.6">('+vals.length+')</span></div>';
+    });
+    if(any)out+='<p class="hint">'+esc(t("report.wellScale"))+'</p>';
+
+    var wt=w.filter(function(x){return typeof x.weight==="number"&&isFinite(x.weight)&&x.weight>0;});
+    if(wt.length){
+      out+='<div class="section-t">'+esc(t("report.weightSec"))+'</div>';
+      var f=wt[0],l=wt[wt.length-1];
+      if(wt.length===1){
+        out+='<div class="stat">'+tf("report.weightOne",{v:f.weight,d:fmtDate(f.time)})+'</div>';
+      }else{
+        var d=l.weight-f.weight, days=Math.max(1,Math.round((l.time-f.time)/86400000));
+        out+='<div class="stat">'+tf("report.weightLine",{first:f.weight,last:l.weight,d1:fmtDate(f.time),d2:fmtDate(l.time)})+'</div>';
+        out+='<div class="stat" style="color:'+(d<=-2?"#c0392b":"#1e2a38")+'">'+tf("report.weightDelta",{v:(d>0?"+":"")+d.toFixed(1),n:days})+'</div>';
+        out+=weightChart(wt);
+      }
+    }
+    return out;
+  }
+  function weightChart(wt){
+    var W=300,H=90,padL=6,padR=6,padT=12,padB=18,plotW=W-padL-padR,plotH=H-padT-padB;
+    var min=Math.min.apply(null,wt.map(function(x){return x.weight;}));
+    var max=Math.max.apply(null,wt.map(function(x){return x.weight;}));
+    if(max-min<0.5){var mid=(max+min)/2;min=mid-0.5;max=mid+0.5;}
+    var t0=wt[0].time,t1=wt[wt.length-1].time,span=Math.max(1,t1-t0);
+    function X(t){return padL+((t-t0)/span)*plotW;}
+    function Y(v){return padT+plotH-((v-min)/(max-min))*plotH;}
+    var pts=wt.map(function(x){return X(x.time).toFixed(1)+","+Y(x.weight).toFixed(1);}).join(" ");
+    var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" preserveAspectRatio="none">';
+    svg+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(W-padR)+'" y2="'+(padT+plotH)+'" stroke="#ddd" stroke-width="1"/>';
+    svg+='<polyline points="'+pts+'" fill="none" stroke="#2980b9" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    wt.forEach(function(x){svg+='<circle cx="'+X(x.time).toFixed(1)+'" cy="'+Y(x.weight).toFixed(1)+'" r="2.5" fill="#2980b9"><title>'+esc(fmtDate(x.time)+" — "+x.weight+" kg")+'</title></circle>';});
+    svg+='<text x="'+padL+'" y="9" font-size="7" fill="#999">'+max.toFixed(1)+' kg</text>';
+    svg+='<text x="'+padL+'" y="'+(H-4)+'" font-size="7" fill="#999">'+min.toFixed(1)+' kg</text>';
+    svg+='</svg>';
+    return svg;
+  }
+
   function renderReport(){
     refreshRangeBtns();
-    var all=load(KEY).filter(function(e){return e.end;});
+    var all=loadCrises().filter(function(e){return e.end;});
     var fromT=reportDays?(Date.now()-reportDays*86400000):0;
     var list=all.filter(function(e){return e.start>=fromT;});
     var since=Math.max(fromT,trackingStart());   // never measure over time we weren't tracking
@@ -1157,6 +1275,8 @@
     if(adh){h+='<div class="stat">'+tf("report.adherLine",{taken:adh.taken,exp:adh.exp,pct:adh.pct})+'</div>';
       h+='<div class="stat" style="opacity:.75">'+esc(tf("report.adherOnTime",{n:adh.onTime}))+'</div>';}
     else h+='<div class="stat" style="opacity:.75">'+esc(t("report.adherNone"))+'</div>';
+    h+=buildWellSection(fromT);
+
     h+='<div class="section-t">'+esc(tf("report.aloneSec",{name:nameP()}))+'</div><div class="big alone-num">'+alone+' / '+n+'</div>';
     h+='<div class="section-t">'+esc(t("report.painSec"))+'</div><div class="big" style="color:#8e44ad">'+pain+' / '+n+'</div>';
     h+='<div class="section-t">'+esc(t("report.hoursSec"))+'</div>';var any=false;
@@ -1165,7 +1285,7 @@
     h+='<div class="section-t">'+esc(t("report.latencySec"))+'</div><div class="stat">'+tf("report.median",{v:(medLat!==null?tf("report.min",{n:medLat}):t("report.notCalc"))})+'</div>';
     h+='<div class="section-t">'+esc(t("report.byPresSec"))+'</div>';Object.keys(byPres).forEach(function(k){h+='<div class="stat">'+esc(presLabel(k))+' : <b>'+byPres[k]+'</b></div>';});
 
-    var ilist=load(INCKEY).filter(function(inc){return inc.time>=fromT;});
+    var ilist=loadInc().filter(function(inc){return inc.time>=fromT;});
     if(ilist.length){var ic={};ilist.forEach(function(inc){ic[inc.type]=(ic[inc.type]||0)+1;});var injN=ilist.filter(function(inc){return inc.injury;}).length;
       h+='<div class="section-t">'+esc(t("report.incSec"))+'</div>';
       INCORDER.forEach(function(k){if(ic[k])h+='<div class="stat">'+esc(incLbl(k))+' : <b>'+ic[k]+'</b></div>';});
@@ -1197,7 +1317,7 @@
 
   // ---- EXPORT ----
   function csvField(s){s=String(s==null?"":s).replace(/\r?\n/g,' / ');if(s.indexOf(';')>-1||s.indexOf('"')>-1){s='"'+s.replace(/"/g,'""')+'"';}return s;}
-  function doExport(){var list=load(KEY).slice().sort(function(a,b){return a.start-b.start;});
+  function doExport(){var list=loadCrises().slice().sort(function(a,b){return a.start-b.start;});
     var FR=(lang==="fr");var YES=FR?"Oui":"Yes",NO=FR?"Non":"No";
     var head=FR?"Date;Debut;Fin;Duree;Type;Douleur;Presence;Delai_apres_medic_min;Medicament_avant_crise;Traitement"
                :"Date;Start;End;Duration;Type;Pain;Presence;Delay_after_med_min;Medication_before_episode;Treatment";
@@ -1213,12 +1333,12 @@
         rows.push(FR?"Observance (doses prises / doses prevues)":"Adherence (doses taken / doses scheduled)");
         rows.push((FR?"Prises;Prevues;Pourcentage;A_l_heure_+-30min":"Taken;Scheduled;Percent;On_time_+-30min"));
         rows.push([adh.taken,adh.exp,adh.pct+"%",adh.onTime].join(";"));}}
-    var wlist=load(WELLKEY).slice().sort(function(a,b){return a.time-b.time;});
+    var wlist=loadWell().slice().sort(function(a,b){return a.time-b.time;});
     if(wlist.length){rows.push("");
       rows.push(FR?"Suivi quotidien (Appetit / Humeur / Douleur / Sommeil, 1=faible/mauvaise/aucune a 5=bon/bonne/intense)":"Daily tracking (Appetite / Mood / Pain / Sleep, 1=low/poor/none to 5=good/strong/intense)");
       rows.push(FR?"Date;Heure;Appetit;Humeur;Douleur;Sommeil;Poids_kg":"Date;Time;Appetite;Mood;Pain;Sleep;Weight_kg");
       wlist.forEach(function(w){rows.push([fmtDate(w.time),fmtClock(w.time),w.appetite||"",w.mood||"",w.pain||"",w.sleep||"",w.weight||""].join(";"));});}
-    var ilist=load(INCKEY).slice().sort(function(a,b){return a.time-b.time;});
+    var ilist=loadInc().slice().sort(function(a,b){return a.time-b.time;});
     if(ilist.length){rows.push("");rows.push(FR?"Incidents":"Incidents");
       rows.push(FR?"Date;Heure;Type;Blessure;Description":"Date;Time;Type;Injury;Description");
       ilist.forEach(function(inc){rows.push([fmtDate(inc.time),fmtClock(inc.time),incLbl(inc.type),inc.injury?YES:NO,csvField(inc.note)].join(";"));});}
@@ -1259,7 +1379,7 @@
      not a backup — it cannot be read back in. This is the only route to the data
      surviving the device. */
   function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG];}
-  function hasAnyData(){return load(KEY).length||load(MEDKEY).length||load(WELLKEY).length||load(INCKEY).length;}
+  function hasAnyData(){return loadCrises().length||load(MEDKEY).length||loadWell().length||load(INCKEY).length;}
   function doBackup(){
     var data={_app:"parkinson-companion",_v:5,_at:Date.now()};
     allKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!==null)data[k]=v;});
@@ -1279,6 +1399,9 @@
       var data;
       try{data=JSON.parse(r.result);}catch(e){data=null;}
       if(!data||data._app!=="parkinson-companion"){alert(t("backup.badFile"));return;}
+      // A backup written by a newer version may hold keys this build does not
+      // understand; restoring it blindly would quietly drop them.
+      if(typeof data._v==="number"&&data._v>5){alert(t("backup.tooNew"));return;}
       confirmModal(t("backup.restoreConfirm"),function(){
         allKeys().forEach(function(k){
           if(Object.prototype.hasOwnProperty.call(data,k))localStorage.setItem(k,data[k]);
@@ -1380,6 +1503,7 @@
   wellTAdj=makeTimeAdj("wellTAdj","wellTimeDisplay");
   incTAdj=makeTimeAdj("incTAdj","incTimeDisplay");
   applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();
+  resumeActive();   // pick a running episode back up if the app was closed mid-crisis
   setInterval(function(){if($("startScreen").classList.contains("show")){refreshDoseBar();refreshSupplyBar();}},60000);
   document.addEventListener("visibilitychange",function(){if(!document.hidden){refreshDoseBar();refreshSupplyBar();refreshBackupNag();}});
 })();

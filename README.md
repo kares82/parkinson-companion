@@ -57,6 +57,16 @@ emergency services. It also does **not** monitor the person: being a web app it 
 run in the background, detect a fall, or raise an alarm by itself — use the iPhone's or
 Apple Watch's own fall detection for that.
 
+## Tests
+
+```bash
+npm ci && npx playwright install webkit chromium && npm test
+```
+
+End-to-end tests cover the paths where a silent failure would cost clinical data.
+They run on WebKit (what iPhones use) and Chromium (what the Android TWA uses) on
+every push — see [`tests/README.md`](tests/README.md).
+
 ## Publishing to the app stores
 
 The store assets, listing copy in both languages, the exact answers for Google's

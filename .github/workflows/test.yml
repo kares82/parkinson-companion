@@ -1,0 +1,69 @@
+name: Tests
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: npm }
+
+      - run: npm ci
+
+      # WebKit is the engine the app actually ships on (iPhone); Chromium is what
+      # the Android TWA runs. Both are installed so both projects can run.
+      - run: npx playwright install --with-deps webkit chromium
+
+      - name: Store listing must match the metadata fastlane uploads
+        run: python3 tools/sync-store-metadata.py --check
+
+      - name: Icons must be regenerable and store-compliant
+        run: |
+          python3 -m pip install --quiet Pillow
+          python3 tools/make-icons.py
+          python3 - <<'PY'
+          from PIL import Image
+          a = Image.open('icon-1024.png')
+          assert a.size == (1024, 1024) and a.mode == 'RGB', 'App Store icon must be 1024x1024 with no alpha'
+          assert a.getpixel((2, 2)) == (192, 57, 43), 'App Store icon must have opaque square corners'
+          m = Image.open('icon-maskable-512.png')
+          assert m.size == (512, 512), 'maskable icon must be 512x512'
+          print('icons OK')
+          PY
+          rm -f apple-touch-180.png
+          git diff --exit-code --stat -- icon-*.png \
+            || { echo "::error::Committed icons differ from tools/make-icons.py output"; exit 1; }
+
+      - name: Inline scripts must parse
+        run: |
+          node -e "
+          const s=require('fs').readFileSync('index.html','utf8');
+          const m=s.match(/<script>([\s\S]*?)<\/script>/g)||[];
+          m.forEach((b,i)=>{ new Function(b.replace(/<\/?script>/g,'')); });
+          console.log(m.length+' inline script block(s) parse');"
+
+      - name: No credential-shaped file may be committed
+        run: |
+          if git ls-files | grep -Ei '\.(keystore|jks|p8|p12|mobileprovision)$|play-key\.json|asc_key'; then
+            echo "::error::A credential file is tracked in git"; exit 1
+          fi
+          echo "no credential files tracked"
+
+      - run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

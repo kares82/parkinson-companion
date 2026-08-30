@@ -25,3 +25,6 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/
 fastlane/test_output/
+playwright-report/
+test-results/
+apple-touch-180.png

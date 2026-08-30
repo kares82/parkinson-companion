@@ -650,6 +650,7 @@
     "report.trendSec":{fr:"Évolution dans le temps",en:"Trend over time"},
     "report.trendTreatNote":{fr:"Ligne pointillée rouge = changement de traitement (survolez ou touchez pour le détail).",en:"Red dashed line = treatment change (hover or tap for detail)."},
     "report.trendRecent":{fr:"Affichage des {n} dernières périodes.",en:"Showing the last {n} periods."},
+    "report.trendTooSoon":{fr:"Pas encore assez d'historique pour une tendance — le graphique apparaît après quelques jours de suivi.",en:"Not enough history for a trend yet — the chart appears after a few days of tracking."},
     "report.aloneSec":{fr:"Crises pendant que {name} est SEUL(E)",en:"Episodes while {name} is ALONE"},
     "report.painSec":{fr:"Crises avec douleur",en:"Episodes with pain"},
     "report.hoursSec":{fr:"Heures des crises",en:"Times of day"},
@@ -1068,7 +1069,11 @@
   function monthLabel(d){return t("chart.months")[d.getMonth()]+" "+String(d.getFullYear()).slice(2);}
   function trendBuckets(minT,maxT,unit){
     var bounds=[];
-    if(unit==="week"){
+    if(unit==="day"){
+      var dd=new Date(minT);dd.setHours(0,0,0,0);
+      var c=dd.getTime();
+      while(c<=maxT){bounds.push({start:c,end:c+86400000,label:fmtDate(c).slice(0,5)});c+=86400000;}
+    } else if(unit==="week"){
       var d0=new Date(minT);d0.setHours(0,0,0,0);
       var day=d0.getDay();var diff=(day===0?-6:1-day);d0.setDate(d0.getDate()+diff);
       var cur=d0.getTime(),msWeek=7*86400000;
@@ -1091,7 +1096,7 @@
     var minT=list[0].start;for(var i=1;i<list.length;i++){if(list[i].start<minT)minT=list[i].start;}
     var maxT=Date.now();
     var spanDays=(maxT-minT)/86400000;
-    var unit=spanDays<=70?"week":(spanDays<=550?"month":"quarter");
+    var unit=spanDays<=21?"day":(spanDays<=70?"week":(spanDays<=550?"month":"quarter"));
     var full=trendBuckets(minT,maxT,unit);
     var truncated=full.length>40;
     var bounds=truncated?full.slice(full.length-40):full;
@@ -1116,6 +1121,7 @@
       svg+='<line x1="'+xm.toFixed(1)+'" y1="'+padT+'" x2="'+xm.toFixed(1)+'" y2="'+(padT+plotH)+'" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="3,2"><title>'+esc(fmtDate(m.r.start)+" — "+m.r.text)+'</title></line>';});
     svg+='</svg>';
     var out='<div class="section-t">'+esc(t("report.trendSec"))+'</div>';
+    if(n<3)return out+'<p class="hint">'+esc(t("report.trendTooSoon"))+'</p>';
     if(truncated)out+='<p class="hint">'+esc(tf("report.trendRecent",{n:n}))+'</p>';
     out+=svg;
     if(markers.length)out+='<p class="hint" style="margin-top:6px">'+esc(t("report.trendTreatNote"))+'</p>';

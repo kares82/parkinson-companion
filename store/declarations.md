@@ -85,6 +85,13 @@ Resulting label: **"Data Not Collected."**
 > The "Call for help" screen uses standard `tel:` links to a number the user
 > enters themselves; the app never dials automatically.
 
+## Apple — pricing
+
+**Free (price tier 0).** Set in `fastlane/Deliverfile`; reasoning in
+`pricing.md`. A free app needs only the standard Free Applications agreement —
+**no banking details and no tax forms**, which removes a whole class of launch
+blockers. No in-app purchases, no subscriptions, no ads.
+
 ## Apple — other answers
 - Export compliance / encryption: **No** — the app uses no encryption beyond
   standard HTTPS for loading itself.

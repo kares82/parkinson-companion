@@ -45,6 +45,22 @@ platform :android do
 end
 
 platform :ios do
+  desc "Push only the App Store listing text and screenshots (no binary)"
+  lane :metadata do
+    app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: ENV.fetch("ASC_KEY_PATH"),
+      duration: 1200
+    )
+    upload_to_app_store(
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      precheck_include_in_app_purchases: false,
+      force: true
+    )
+  end
+
   desc "Build the Capacitor app and upload it to TestFlight"
   lane :beta do
     unless Dir.exist?("../ios/App")

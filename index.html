@@ -808,7 +808,8 @@
   function setPres(p){localStorage.setItem(PRESKEY,p);$("presNow").textContent=presLabel(p);}
   function getNum(k){return localStorage.getItem(k)||"";}
   function getEmerg(){var v=localStorage.getItem(EMERG);return(v&&v.trim())?v.trim():"112";}
-  function getSupply(){var s=load(SUP);if(!s||typeof s!=="object"||Array.isArray(s))s={bags:0,days:1,warn:5,installedAt:null};return s;}
+  function loadObj(k){try{var v=JSON.parse(localStorage.getItem(k));return(v&&typeof v==="object"&&!Array.isArray(v))?v:null;}catch(e){return null;}}
+  function getSupply(){return loadObj(SUP)||{bags:0,days:1,warn:5,installedAt:null};}
   function saveSupply(s){setLS(SUP,JSON.stringify(s));}
 
   // ---- REGIMEN (medication phases) ----
@@ -1299,7 +1300,19 @@
     var b=e.target&&e.target.closest?e.target.closest("[data-r]"):null;if(!b)return;
     reportDays=parseInt(b.dataset.r,10);renderReport();});
   function refreshRangeBtns(){document.querySelectorAll("#reportRange button").forEach(function(b){b.classList.toggle("sel",parseInt(b.dataset.r,10)===reportDays);});}
-  $("printBtn").addEventListener("click",function(){window.print();});
+  /* window.print() is inert inside an iOS WKWebView, which is what the App Store
+     build is. The native side registers a "print" message handler; if it is there
+     we hand off to it, otherwise this is a normal browser and window.print works. */
+  function printReport(){
+    try{
+      if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.print){
+        window.webkit.messageHandlers.print.postMessage({title:tf("report.title",{name:nameP()})});
+        return;
+      }
+    }catch(e){}
+    window.print();
+  }
+  $("printBtn").addEventListener("click",printReport);
   function median(a){if(!a.length)return null;a=a.slice().sort(function(x,y){return x-y;});var m=Math.floor(a.length/2);return a.length%2?a[m]:Math.round((a[m-1]+a[m])/2);}
 
   // ---- TREND CHART (episodes over time, with treatment-change markers) ----

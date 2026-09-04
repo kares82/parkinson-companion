@@ -53,15 +53,17 @@ Verified legible down to 48px, and inside the circular adaptive-icon crop.
 
 ### Screenshots
 
-Both stores want them; Play will not publish without at least two.
+**Already generated** into `fastlane/screenshots/{en-US,fr-FR}/` at 1290×2796 —
+real captures of the running app with two months of plausible history, five
+shots per language. Regenerate after any UI change:
 
-- Play: phone 16:9 or 9:16, min 320px, max 3840px. 2–8 shots.
-- Apple: 6.7" (1290×2796) **and** 6.5" (1242×2688) are the practical minimum.
+```bash
+python3 -m http.server 8099 &
+node tools/make-screenshots.js
+```
 
-Suggested set, in both languages: home screen · episode timer running · report
-with the trend chart · medication list with dose times · the printed summary.
-
-**Do not annotate screenshots with clinical claims.** See `regulatory.md`.
+They are deliberately unannotated: overlaid marketing text on a health app
+screenshot is where clinical claims creep in. See `regulatory.md`.
 
 ---
 
@@ -92,6 +94,11 @@ Downloads, printing and storage all work in a TWA because it is Chrome.
 ---
 
 ## 3. Apple App Store
+
+Full checklist: **[`APPSTORE.md`](APPSTORE.md)**. Pricing: **free** — see
+[`pricing.md`](pricing.md). Screenshots and the native print bridge are already
+prepared; what remains needs a Mac.
+
 
 Harder. Two specific problems, both solvable but neither automatic.
 

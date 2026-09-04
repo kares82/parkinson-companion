@@ -1,0 +1,28 @@
+# App Store listing configuration.
+#
+# price_tier 0 = Free. See store/pricing.md for the reasoning; the short version
+# is that the growth channel is a clinician recommending it to patients, and a
+# price is the single biggest obstacle in that channel.
+price_tier(0)
+
+app_review_information(
+  first_name: "",
+  last_name: "",
+  phone_number: "",
+  email_address: "",
+  demo_user: "",
+  demo_password: "",
+  notes: "No account or sign-in is required. All data is stored locally on the device; the app makes no network requests. To exercise it: tap the large red area to start an episode timer, then 'Episode ended' to save it. History and Report are top-right, Settings top-left."
+)
+
+submission_information(
+  add_id_info_uses_idfa: false,
+  export_compliance_uses_encryption: false,
+  content_rights_contains_third_party_content: false
+)
+
+# Metadata and screenshots are generated - see tools/sync-store-metadata.py and
+# tools/make-screenshots.js. Do not hand-edit fastlane/metadata.
+copyright("#{Time.now.year} Red Triangle")
+primary_category("MZGenre.Medical")
+secondary_category("MZGenre.HealthcareFitness")

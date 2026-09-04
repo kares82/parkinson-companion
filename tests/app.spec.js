@@ -296,6 +296,36 @@ test.describe('not losing data', () => {
   });
 });
 
+test.describe('settings round-trip', () => {
+  // The supply is the one setting stored as an object rather than a list;
+  // an array-only loader silently reset it to "not set up" on every read.
+  test('pouch supply survives a reload and reaches the home screen', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.click('#setLink');
+    await page.fill('#bagsOnHand', '6');
+    await page.fill('#bagDays', '1');
+    await page.fill('#warnDays', '5');
+    await page.click('#saveSettings');
+    await expect(page.locator('#supplyTxt')).toContainText(/Pouches: ~6|Poches : ~6/);
+    await page.reload();
+    await expect(page.locator('#supplyTxt')).toContainText(/Pouches: ~6|Poches : ~6/);
+    const s = await page.evaluate(() => JSON.parse(localStorage.getItem('supply_v5')));
+    expect(s.bags).toBe(6);
+  });
+
+  test('names and phone numbers survive a reload', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.click('#setLink');
+    await page.fill('#patientInput', 'Marie');
+    await page.fill('#husbandInput', '06 12 34 56 78');
+    await page.click('#saveSettings');
+    await page.reload();
+    await page.click('#setLink');
+    await expect(page.locator('#patientInput')).toHaveValue('Marie');
+    await expect(page.locator('#husbandInput')).toHaveValue('06 12 34 56 78');
+  });
+});
+
 test.describe('both languages', () => {
   for (const [lang, marker, del] of [['fr', 'Historique', 'Supprimer'], ['en', 'History', 'Delete']]) {
     test(`${lang}: interface and delete labels are localised`, async ({ page }) => {
@@ -321,5 +351,32 @@ test.describe('the page itself', () => {
     const m = await (await request.get('/manifest.webmanifest')).json();
     expect(m.icons.filter(i => i.purpose === 'maskable')).toHaveLength(1);
     for (const ic of m.icons) expect((await request.get('/' + ic.src)).status()).toBe(200);
+  });
+});
+
+test.describe('iOS wrapper compatibility', () => {
+  // window.print() does nothing in a WKWebView; the build must hand off to the
+  // native handler when it exists, and fall back to window.print in a browser.
+  test('print falls back to window.print in a browser', async ({ page }) => {
+    await seed(page, { crises_v5: [episode()] });
+    await page.addInitScript(() => { window.__printed = false; window.print = () => { window.__printed = true; }; });
+    await page.reload();
+    await page.click('#histLink'); await page.click('#toReport');
+    await page.click('#printBtn');
+    expect(await page.evaluate(() => window.__printed)).toBe(true);
+  });
+
+  test('print prefers the native handler when the wrapper provides one', async ({ page }) => {
+    await seed(page, { crises_v5: [episode()] });
+    await page.addInitScript(() => {
+      window.__native = null; window.__printed = false;
+      window.print = () => { window.__printed = true; };
+      window.webkit = { messageHandlers: { print: { postMessage: m => { window.__native = m; } } } };
+    });
+    await page.reload();
+    await page.click('#histLink'); await page.click('#toReport');
+    await page.click('#printBtn');
+    expect(await page.evaluate(() => window.__native)).not.toBeNull();
+    expect(await page.evaluate(() => window.__printed)).toBe(false);
   });
 });

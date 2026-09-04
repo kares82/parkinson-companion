@@ -1,0 +1,25 @@
+<!-- Merge into ios/App/App/Info.plist.
+
+     WKAppBoundDomains is the important one: it opts the web view into
+     app-bound domain mode, which exempts localStorage from the eviction
+     Safari applies to ordinary web content. Without it the app's entire
+     history can be cleared by the system to reclaim space.
+
+     Capacitor serves from a custom scheme, so the app's own origin is
+     already app-bound; list the live domain too in case the wrapper is
+     ever pointed at it. -->
+<key>WKAppBoundDomains</key>
+<array>
+    <string>parkinson.red-triangle.net</string>
+</array>
+
+<!-- The app opens tel: links from the Call for help screen. -->
+<key>LSApplicationQueriesSchemes</key>
+<array>
+    <string>tel</string>
+</array>
+
+<!-- No device capabilities are used at all; declaring none keeps the
+     privacy report empty and matches the "Data Not Collected" label. -->
+<key>ITSAppUsesNonExemptEncryption</key>
+<false/>

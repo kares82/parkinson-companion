@@ -1,0 +1,14 @@
+{
+  "appId": "net.redtriangle.parkinson",
+  "appName": "Parkinson Companion",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "ios": {
+    "contentInset": "never",
+    "limitsNavigationsToAppBoundDomains": true,
+    "backgroundColor": "#c0392bff"
+  },
+  "server": {
+    "iosScheme": "app"
+  }
+}

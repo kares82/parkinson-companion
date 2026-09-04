@@ -1,7 +1,7 @@
 /* Parkinson Companion - service worker for full offline use.
    Caches the app so it opens instantly with no internet.
    Bump CACHE (v1 -> v2 ...) whenever index.html changes. */
-var CACHE = "parkinson-companion-v12";
+var CACHE = "parkinson-companion-v13";
 var ASSETS = [
   "./",
   "./index.html",

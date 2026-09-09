@@ -58,6 +58,23 @@ jobs:
           fi
           echo "bundle clean: $(ls www | wc -l) files"
 
+      # A .swift file sitting in the folder is NOT in the Xcode target: the
+      # Capacitor template lists sources explicitly and does not use Xcode's
+      # synchronized folders. Such a file compiles nowhere, ships nothing, and
+      # fails silently — which is how the print bridge was nearly lost.
+      - name: Every iOS source file must be in the Xcode target
+        run: |
+          fail=0
+          for f in ios/App/App/*.swift; do
+            n=$(basename "$f")
+            if ! grep -q "$n" ios/App/App.xcodeproj/project.pbxproj; then
+              echo "::error title=Swift file not in the Xcode target::$n is on disk but absent from project.pbxproj, so it will never be compiled. Put app-local Swift in AppDelegate.swift, which is already in the target."
+              fail=1
+            fi
+          done
+          [ "$fail" = 0 ] && echo "all iOS sources are in the target"
+          exit $fail
+
       - name: Inline scripts must parse
         run: |
           node -e "

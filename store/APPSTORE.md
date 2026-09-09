@@ -83,6 +83,20 @@ Overriding to "Apple Distribution" fails the other way with a conflicting
 identity error. The workflow archives with signing off and lets
 `-exportArchive` sign once. Do not "fix" this by adding a signing identity.
 
+**App-local Swift goes in `AppDelegate.swift`.** The Capacitor template lists
+its sources explicitly in `project.pbxproj` and does not use Xcode's
+synchronized folders, so a new `.swift` file dropped into `ios/App/App/` is not
+in the target: it compiles nowhere and fails silently. Editing `project.pbxproj`
+by hand from a machine with no Xcode is a good way to break a build that works.
+CI now fails if an on-disk Swift file is missing from the target.
+
+**Groovy parses `versionCode (x) as Integer` as `(versionCode(x)) as Integer`.**
+The cast lands on the call's result and the setter gets a String, which AGP
+reports as "Value is null" against a line that looks fine. Compute it as a local
+before the `android` block. Same for the keystore check — Gradle fails at
+configuration time on a missing file, so the check goes before the
+`signingConfigs` block, not inside it.
+
 **Build numbers are remembered forever.** Both stores refuse one they have seen.
 `github.run_number` supplies them, so they are never chosen by hand.
 

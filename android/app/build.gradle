@@ -1,5 +1,30 @@
 apply plugin: 'com.android.application'
 
+/* ---- the version, and the key that signs it ------------------------------
+   Both come from the environment when there is one, and fall back to something
+   that builds locally when there is not. Both are computed HERE, as plain
+   locals, rather than inline in the blocks below — each for a reason that cost
+   a build:
+
+   versionCode was written inline as `versionCode (getenv(..) ?: "1") as
+   Integer`. Groovy parses that as `(versionCode(...)) as Integer`: the cast
+   lands on the call's RESULT, the setter is handed a String, and the build
+   dies at configuration time with "Value is null" and a line number that looks
+   like a typo.
+
+   Play refuses a versionCode it has already accepted and remembers them for
+   the life of the app, so the number is never chosen by hand: CI passes its
+   run number, which only ever increases.
+
+   The signing block only exists when PC_KEYSTORE points at a real file. A
+   release build without it is unsigned — a perfectly good way to prove the
+   project compiles, and an impossible way to ship. Gradle fails at
+   configuration time on a missing file, so the check is before the block and
+   not inside it. */
+def pcVersionCode = (System.getenv("PC_VERSION_CODE") ?: "1") as Integer
+def pcKeystore = System.getenv("PC_KEYSTORE")
+def pcSigned = pcKeystore != null && !pcKeystore.isEmpty() && file(pcKeystore).exists()
+
 android {
     namespace = "net.redtriangle.parkinson"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,7 +32,7 @@ android {
         applicationId "net.redtriangle.parkinson"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode (System.getenv("PC_VERSION_CODE") ?: "1") as Integer
+        versionCode pcVersionCode
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
@@ -17,15 +42,10 @@ android {
         }
     }
 
-    // Release signing. The key never lives in the repo: CI decodes it from a
-    // secret into a temp file and passes the path in. With no key configured
-    // the build still runs and produces an UNSIGNED bundle, which proves the
-    // project compiles — Play will refuse the file, and the workflow says so.
-    signingConfigs {
-        release {
-            def ksPath = System.getenv("PC_KEYSTORE")
-            if (ksPath) {
-                storeFile file(ksPath)
+    if (pcSigned) {
+        signingConfigs {
+            release {
+                storeFile file(pcKeystore)
                 storePassword System.getenv("PC_KEYSTORE_PASSWORD")
                 keyAlias System.getenv("PC_KEY_ALIAS")
                 keyPassword System.getenv("PC_KEY_PASSWORD")
@@ -35,9 +55,7 @@ android {
 
     buildTypes {
         release {
-            if (System.getenv("PC_KEYSTORE")) {
-                signingConfig signingConfigs.release
-            }
+            if (pcSigned) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

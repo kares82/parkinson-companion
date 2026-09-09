@@ -1304,13 +1304,19 @@
      build is. The native side registers a "print" message handler; if it is there
      we hand off to it, otherwise this is a normal browser and window.print works. */
   function printReport(){
+    var title=tf("report.title",{name:nameP()});
     try{
+      // iOS wrapper: a WKScriptMessageHandler named "print".
       if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.print){
-        window.webkit.messageHandlers.print.postMessage({title:tf("report.title",{name:nameP()})});
-        return;
+        window.webkit.messageHandlers.print.postMessage({title:title});return;
+      }
+      // Android wrapper: a @JavascriptInterface. Asked for by name rather than
+      // through an injected window.webkit shim, which any navigation would wipe.
+      if(window.AndroidPrintBridge&&window.AndroidPrintBridge.postMessage){
+        window.AndroidPrintBridge.postMessage(JSON.stringify({title:title}));return;
       }
     }catch(e){}
-    window.print();
+    window.print();   // a real browser
   }
   $("printBtn").addEventListener("click",printReport);
   function median(a){if(!a.length)return null;a=a.slice().sort(function(x,y){return x-y;});var m=Math.floor(a.length/2);return a.length%2?a[m]:Math.round((a[m-1]+a[m])/2);}

@@ -1,0 +1,163 @@
+# =============================================================================
+# Build Parkinson Companion for Android.
+#
+# There is no Android SDK on the machine this was written on, so every version
+# number in variables.gradle is Capacitor's own default. A default that has
+# never been through javac is still a guess; this workflow is where it stops
+# being one. It runs on every push touching the Android side, so a break is
+# found by the commit that caused it.
+#
+# ---- what it produces -------------------------------------------------------
+#
+#   app-debug.apk    sideloadable, no secrets needed. Use this to test.
+#   app-release.aab  the format Play accepts. Signed only if the secrets below
+#                    are set; unsigned otherwise, which proves the build and
+#                    cannot be uploaded.
+#
+# ---- secrets, only needed for a signed bundle -------------------------------
+#
+#   ANDROID_KEYSTORE_BASE64    base64 -w0 upload.jks
+#   ANDROID_KEYSTORE_PASSWORD
+#   ANDROID_KEY_ALIAS
+#   ANDROID_KEY_PASSWORD
+#
+# Keep the .jks. With Play App Signing Google holds the key that signs what
+# users install, but this upload key is the only thing proving a bundle came
+# from you — losing it takes a support request to recover.
+# =============================================================================
+name: Android — build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "android/**"
+      - "index.html"
+      - "privacy.html"
+      - "tools/build-www.js"
+      - "capacitor.config.json"
+      - ".github/workflows/android-play.yml"
+
+concurrency:
+  group: android-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # AGP needs Java 17+. Capacitor 8's docs say 21, so 21 it is, rather than
+      # the oldest thing that happens to work.
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21" }
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm }
+
+      - run: npm ci
+
+      # www/ is not committed, so a fresh clone has no web assets until this
+      # runs. cap sync copies them into android/app/src/main/assets.
+      - name: Assemble the app bundle
+        run: |
+          node tools/build-www.js
+          npx cap sync android
+
+      # No `if:` on this step: the secrets context is not available to a
+      # step-level condition, so the expression evaluates to empty and the step
+      # runs anyway. The emptiness is checked in the shell, where it works, and
+      # a missing key is a normal outcome — an unsigned build still proves the
+      # project compiles.
+      - name: Write the upload key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          PC_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          PC_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "No upload key configured. The release bundle will be unsigned."
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          test -s "$RUNNER_TEMP/upload.jks" || {
+            echo "::error title=Keystore did not decode::ANDROID_KEYSTORE_BASE64 is set but produced an empty file. It must be base64 of the .jks with no line breaks and no byte-order mark — a BOM from a Windows editor is the usual cause."
+            exit 1; }
+
+          # Open it, with the password, before anything else runs. Gradle would
+          # find a wrong password too, four minutes later, in a stack trace that
+          # reads like a build failure rather than a typo in a secret. The alias
+          # is checked separately because a keystore that opens perfectly and
+          # has no such alias fails as "No key with alias found", which sounds
+          # like a corrupt file and is not.
+          if ! keytool -list -keystore "$RUNNER_TEMP/upload.jks" \
+                       -storepass "$PC_KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+            echo "::error title=Keystore will not open::The file decoded, but ANDROID_KEYSTORE_PASSWORD does not open it."
+            exit 1
+          fi
+          if ! keytool -list -keystore "$RUNNER_TEMP/upload.jks" \
+                       -storepass "$PC_KEYSTORE_PASSWORD" \
+                       -alias "$PC_KEY_ALIAS" >/dev/null 2>&1; then
+            echo "::error title=No such alias::The keystore opened but holds no key called '$PC_KEY_ALIAS'. It holds:"
+            keytool -list -keystore "$RUNNER_TEMP/upload.jks" \
+                    -storepass "$PC_KEYSTORE_PASSWORD" 2>/dev/null | grep -i PrivateKeyEntry || true
+            exit 1
+          fi
+
+          # Play requires a signing key valid past 22 October 2033, and an
+          # expiring key is the kind of thing nobody looks at until the year it
+          # matters.
+          keytool -list -v -keystore "$RUNNER_TEMP/upload.jks" \
+                  -storepass "$PC_KEYSTORE_PASSWORD" -alias "$PC_KEY_ALIAS" 2>/dev/null |
+            grep -E "Alias name:|Valid from:" || true
+
+          echo "PC_KEYSTORE=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+
+      # Debug first. It needs no secrets, so if the project itself is broken the
+      # failure lands here and says so, instead of arriving dressed as a signing
+      # problem.
+      - name: Build the debug APK
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Build the release bundle
+        working-directory: android
+        env:
+          PC_VERSION_CODE: ${{ github.run_number }}
+          PC_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          PC_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          PC_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew --no-daemon bundleRelease
+
+      # Say plainly which one came out. An unsigned .aab looks exactly like a
+      # signed one until Play rejects it, and by then the build log is gone.
+      - name: Say whether the bundle is signed
+        run: |
+          aab=android/app/build/outputs/bundle/release/app-release.aab
+          ls -l "$aab"
+          if unzip -l "$aab" | grep -qiE 'META-INF/.*\.(RSA|EC|DSA)'; then
+            echo "Signed with the upload key — this can go to Play."
+          else
+            echo "::warning title=Unsigned bundle::The build works, but nothing signed it. Play will refuse this file. Set ANDROID_KEYSTORE_BASE64 and the three password secrets."
+          fi
+
+      - name: Keep the builds
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-${{ github.run_number }}
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Remove the key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.jks"

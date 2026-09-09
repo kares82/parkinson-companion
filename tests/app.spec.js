@@ -366,6 +366,20 @@ test.describe('iOS wrapper compatibility', () => {
     expect(await page.evaluate(() => window.__printed)).toBe(true);
   });
 
+  test('print uses the Android bridge when the wrapper provides one', async ({ page }) => {
+    await seed(page, { crises_v5: [episode()] });
+    await page.addInitScript(() => {
+      window.__android = null; window.__printed = false;
+      window.print = () => { window.__printed = true; };
+      window.AndroidPrintBridge = { postMessage: m => { window.__android = m; } };
+    });
+    await page.reload();
+    await page.click('#histLink'); await page.click('#toReport');
+    await page.click('#printBtn');
+    expect(await page.evaluate(() => window.__android)).toContain('Report');
+    expect(await page.evaluate(() => window.__printed)).toBe(false);
+  });
+
   test('print prefers the native handler when the wrapper provides one', async ({ page }) => {
     await seed(page, { crises_v5: [episode()] });
     await page.addInitScript(() => {

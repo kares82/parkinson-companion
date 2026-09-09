@@ -1,85 +1,102 @@
-# App Store — what is ready, and what still needs a Mac
+# Shipping to both stores
 
-Pricing: **free**, `price_tier(0)` in `fastlane/Deliverfile`. See `pricing.md`.
+Pricing: **free**, both stores. See `pricing.md`.
 
-## Ready in this repo
+**Neither store needs a Mac or an Android SDK.** Both apps are built by GitHub
+Actions — macOS runners for iOS, Ubuntu for Android — following the setup
+already proven on OLI. The hardware requirement becomes a secret in a settings
+page instead of a purchase.
+
+One Capacitor project serves both. `ios/` and `android/` are committed; `www/`
+is not, because it is assembled from the repo by `tools/build-www.js` on every
+build.
+
+## What is in the repo already
 
 | | Where |
 |---|---|
-| Listing text, EN + FR | `fastlane/metadata/{en-US,fr-FR}/` — generated from `store/listing-*.md` |
-| **Screenshots, EN + FR** | `fastlane/screenshots/{en-US,fr-FR}/` — 1290×2796, real captures of the running app |
-| App icon | `icon-1024.png` — 1024×1024, no alpha, square corners |
-| Privacy policy | `privacy.html`, live at parkinson.red-triangle.net/privacy.html |
-| Privacy questionnaire answers | `declarations.md` → **Data Not Collected** |
-| Review notes | `fastlane/Deliverfile` and `declarations.md` |
-| Print bridge (web side) | `printReport()` in `index.html` — posts to the native handler, falls back to `window.print()` |
-| Print bridge (native side) | `ios-native/AppDelegate+Print.swift` |
-| Info.plist additions | `ios-native/Info.plist.additions.xml` |
-| Capacitor config | `capacitor.config.json` |
-| Upload pipeline | `.github/workflows/ios-release.yml` + `fastlane ios beta` |
+| iOS project | `ios/` — Xcode project, SPM (no CocoaPods) |
+| Android project | `android/` — Gradle |
+| App bundle assembly | `tools/build-www.js` |
+| Print bridge, iOS | `ios/App/App/PrintBridge.swift`, wired in `SceneDelegate` |
+| Print bridge, Android | `MainActivity.java` |
+| App icons, both | generated into the projects from `icon-1024.png` |
+| Listing text, EN + FR | `fastlane/metadata/` — generated from `store/listing-*.md` |
+| Screenshots, EN + FR | `fastlane/screenshots/` — 1290×2796, real captures |
+| Privacy policy | `privacy.html`, live on the site |
+| Declaration answers | `declarations.md` |
+| iOS build + upload | `.github/workflows/ios-testflight.yml` |
+| Android build | `.github/workflows/android-play.yml` |
 
-Regenerate screenshots after any UI change:
+## Secrets
+
+**iOS** — App Store Connect > Users and Access > Integrations > Keys, role
+**App Manager** (not Admin; it only uploads builds):
+
+| Secret | Where from |
+|---|---|
+| `APPLE_TEAM_ID` | developer.apple.com > Membership, 10 characters |
+| `ASC_KEY_ID` | the key's row |
+| `ASC_ISSUER_ID` | above the key list on that page |
+| `ASC_KEY_P8` | the whole `.p8`, BEGIN/END included — **downloadable once** |
+
+**Android** — create the upload key once, locally, and back it up:
 
 ```bash
-python3 -m http.server 8099 &
-node tools/make-screenshots.js
+keytool -genkeypair -v -keystore upload.jks -alias parkinson \
+        -keyalg RSA -keysize 2048 -validity 10000
+base64 -w0 upload.jks          # macOS: base64 -i upload.jks
 ```
 
-## Still needs a Mac (about an hour)
+`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
+`ANDROID_KEY_PASSWORD`. With Play App Signing, Google holds the key that signs
+what users install, but this upload key is the only thing proving a bundle came
+from you — losing it takes a support request.
 
-**1. Generate the Xcode project.** Cannot be done from Linux.
+## Order to do it in
 
-```bash
-npm i @capacitor/core @capacitor/cli @capacitor/ios
-npx cap add ios          # reads capacitor.config.json
-npx cap sync ios
-```
+**1. Android first.** It needs no secrets to prove itself: run **Android —
+build** and it produces a debug APK you can sideload. Set the four secrets and
+it produces a signed `.aab`. That validates the whole Capacitor project before
+Apple is involved at all.
 
-**2. Add the print bridge.** Drag `ios-native/AppDelegate+Print.swift` into the
-App target, then call it once the web view exists — in Capacitor, the simplest
-place is `AppDelegate.applicationDidBecomeActive` or a `CAPBridgeViewController`
-subclass:
+**2. Play Console.** Create the app, then upload that first `.aab` **by hand** —
+the Play Developer API cannot create an app's first release. Complete the store
+listing, content rating, Data safety and Health apps declarations
+(`declarations.md`) before the API will accept anything.
 
-```swift
-if let vc = window?.rootViewController as? CAPBridgeViewController,
-   let wv = vc.webView {
-    PrintBridge.attach(to: wv)
-}
-```
+**3. App Store Connect.** Create the app record with bundle id
+`net.redtriangle.parkinson`, then run **iOS — TestFlight**.
 
-Without this the **Print / PDF** button silently does nothing — and that page is
-the reason the GP was interested.
+**4. Submit**, using the review notes in `declarations.md`.
 
-**3. Merge `ios-native/Info.plist.additions.xml` into `ios/App/App/Info.plist`.**
-`WKAppBoundDomains` is the one that matters: it exempts the app's storage from
-the eviction the system otherwise applies, i.e. it stops the patient's history
-being cleared to reclaim space.
+## Things that will bite
 
-**4. Commit `ios/`.** The CI workflow checks for it and refuses to run without it.
+**Xcode 26+ or the upload is refused**, and the refusal arrives at the *end* of
+a ten-minute build. The workflow selects the newest Xcode on the runner and
+asserts the version up front so a too-old image fails in five seconds.
 
-**5. Test on a real device** before submitting:
-- Print / PDF actually produces a sheet
-- Backup and Export open the share sheet (they use the Web Share API, which
-  WKWebView supports; `<a download>` does not work there)
-- The app resumes a running episode after being force-quit
-- Text is legible at the largest accessibility text size
+**Never sign at archive time.** Capacitor sets `CODE_SIGN_IDENTITY = "iPhone
+Developer"` for Release too, so an App Store archive asks for a *development*
+profile — which needs a registered device, and a CI runner is not one.
+Overriding to "Apple Distribution" fails the other way with a conflicting
+identity error. The workflow archives with signing off and lets
+`-exportArchive` sign once. Do not "fix" this by adding a signing identity.
 
-## Then
+**Build numbers are remembered forever.** Both stores refuse one they have seen.
+`github.run_number` supplies them, so they are never chosen by hand.
 
-1. App Store Connect → create the app record, bundle id `net.redtriangle.parkinson`.
-2. Run **iOS — build & upload to TestFlight** (needs the `ASC_*` secrets from `CI.md`).
-3. `fastlane ios metadata` pushes the listing text, screenshots and price.
-4. Submit.
+**Test on a real device before submitting:** Print / PDF produces a sheet;
+Backup and Export open the share sheet; a running episode survives a force-quit;
+text is legible at the largest accessibility text size.
 
 ## The one real rejection risk
 
-**Guideline 4.2, Minimum Functionality** — Apple rejects apps that are "a
-repackaged website". Mitigations already in place: the app is genuinely
-offline-first and standalone, it uses native print and the native share sheet,
-and the review note states plainly that it requires no account and makes no
-network requests. If it is rejected anyway, the reply that usually resolves it is
-that the app functions entirely offline with no server component, which a
-website cannot.
+**Guideline 4.2, Minimum Functionality** — Apple rejects "a repackaged website".
+Mitigations in place: the app genuinely works offline with no server, uses native
+print and the native share sheet, and the review note says so plainly. If it is
+rejected anyway, answer with the offline behaviour, which is real and which a
+website cannot do. Do not bolt on a token native feature to win the argument.
 
-Do not argue the point by adding a token native feature. Point at the offline
-behaviour, which is real.
+Apple also asks for a way to see the whole app without an account. There is no
+account here at all, and the review note says so.

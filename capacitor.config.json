@@ -1,14 +1,17 @@
 {
   "appId": "net.redtriangle.parkinson",
   "appName": "Parkinson Companion",
-  "webDir": ".",
-  "bundledWebRuntime": false,
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
   "ios": {
     "contentInset": "never",
     "limitsNavigationsToAppBoundDomains": true,
     "backgroundColor": "#c0392bff"
   },
   "server": {
-    "iosScheme": "app"
+    "androidScheme": "https",
+    "iosScheme": "https"
   }
 }

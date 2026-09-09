@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- app-store-connect is the only destination TestFlight accepts. -->
+  <key>method</key>
+  <string>app-store-connect</string>
+
+  <!-- Upload straight from xcodebuild rather than exporting an .ipa and pushing
+       it with a second tool: one step, one authentication, no deprecated altool
+       in the middle. -->
+  <key>destination</key>
+  <string>upload</string>
+
+  <key>teamID</key>
+  <string>__TEAM_ID__</string>
+
+  <key>signingStyle</key>
+  <string>automatic</string>
+
+  <!-- What makes a TestFlight crash report readable rather than a column of
+       hex addresses. -->
+  <key>uploadSymbols</key>
+  <true/>
+
+  <key>manageAppVersionAndBuildNumber</key>
+  <false/>
+</dict>
+</plist>

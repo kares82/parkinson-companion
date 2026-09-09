@@ -1,0 +1,146 @@
+# =============================================================================
+# Build Parkinson Companion for iOS and send it to TestFlight.
+#
+# Building an iOS app needs macOS and this project is not developed on a Mac.
+# GitHub's macOS runners are, so the hardware requirement becomes a secret in a
+# settings page instead of a purchase.
+#
+# Run it from the Actions tab, or by pushing a tag like v1.0.0.
+#
+# ---- Settings > Secrets and variables > Actions -----------------------------
+#
+#   APPLE_TEAM_ID   10 characters, developer.apple.com > Membership
+#   ASC_KEY_ID      App Store Connect > Users and Access > Integrations > Keys
+#   ASC_ISSUER_ID   on that same page, above the key list
+#   ASC_KEY_P8      the WHOLE .p8, BEGIN/END lines included. Downloadable once.
+#
+# The key needs the App Manager role. Not Admin — it only has to upload builds.
+# =============================================================================
+name: iOS — TestFlight
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Apple refuses an upload built with an old SDK, and the refusal arrives
+      # at the END of a ten-minute build:
+      #
+      #   Validation failed. SDK version issue. This app was built with the iOS
+      #   18.5 SDK. All iOS and iPadOS apps must be built with the iOS 26 SDK or
+      #   later, included in Xcode 26 or later.
+      #
+      # A runner image ships several Xcodes and defaults to none in particular,
+      # so the newest is selected explicitly rather than hoped for, and the
+      # version asserted so a too-old image fails here in five seconds.
+      - name: Select the newest Xcode
+        run: |
+          ls -d /Applications/Xcode*.app
+          newest=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          sudo xcode-select -s "$newest/Contents/Developer"
+          xcodebuild -version
+          major=$(xcodebuild -version | head -1 | sed -E 's/Xcode ([0-9]+).*/\1/')
+          if [ "$major" -lt 26 ]; then
+            echo "::error title=Xcode too old::Apple requires Xcode 26+ to upload. This image's newest is $newest."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+
+      - run: npm ci
+
+      # www/ is not committed — ios/.gitignore excludes App/App/public — so a
+      # fresh clone has no web assets until this runs.
+      - name: Assemble the app bundle
+        run: |
+          node tools/build-www.js
+          npx cap sync ios
+
+      - name: Write the App Store Connect key
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          if [ -z "$ASC_KEY_P8" ]; then
+            echo "::error title=No App Store Connect key::Set ASC_KEY_P8. See store/CI.md."
+            exit 1
+          fi
+          mkdir -p ~/private_keys
+          printf '%s' "$ASC_KEY_P8" > ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+          # Fail here rather than three minutes into a build, with an
+          # authentication error that reads like a signing problem.
+          test -s ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+
+      # Archive UNSIGNED, and sign once at export.
+      #
+      # Signing at archive time is a trap with no exit. Capacitor's project sets
+      # CODE_SIGN_IDENTITY = "iPhone Developer" for Debug and Release alike, so
+      # an App Store archive asks Apple for a DEVELOPMENT profile — and a
+      # development profile needs at least one registered device, which a CI
+      # runner is not. Overriding to "Apple Distribution" fails the other way:
+      # "App is automatically signed for development, but a conflicting code
+      # signing identity Apple Distribution has been manually specified."
+      #
+      # Both errors come from signing something at archive time that only needs
+      # signing at export time. So nothing is signed here, and -exportArchive
+      # signs the whole thing once with the App Store profile that
+      # -allowProvisioningUpdates fetches. No device has to exist for that.
+      - name: Archive
+        run: |
+          xcodebuild archive \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8 \
+            -authenticationKeyID ${{ secrets.ASC_KEY_ID }} \
+            -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }} \
+            DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
+
+      # App Store Connect rejects a build number it has already seen, and
+      # remembers them forever. github.run_number only increases, so the build
+      # number is never chosen by hand and never collides.
+      - name: Upload to TestFlight
+        run: |
+          sed 's/__TEAM_ID__/${{ secrets.APPLE_TEAM_ID }}/' \
+            ios/ExportOptions.plist > "$RUNNER_TEMP/ExportOptions.plist"
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8 \
+            -authenticationKeyID ${{ secrets.ASC_KEY_ID }} \
+            -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }}
+
+      # The archive is what a crash report is symbolicated against. Kept so a
+      # TestFlight crash in build N can still be read after N+3 replaced it.
+      - name: Keep the archive
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: App-${{ github.run_number }}.xcarchive
+          path: ${{ runner.temp }}/App.xcarchive
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Remove the key
+        if: always()
+        run: rm -rf ~/private_keys

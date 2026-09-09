@@ -18,8 +18,22 @@ app-release-unsigned.apk
 /twa-manifest.json          # copied from store/ at build time
 build/
 node_modules/
-ios/App/Pods/
+www/
+
+# --- native build output (the ios/ and android/ PROJECTS are committed) ---
 ios/App/build/
+ios/App/output/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+ios/DerivedData/
+**/xcuserdata/
+android/app/build/
+android/build/
+android/.gradle/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
 .gradle/
 fastlane/report.xml
 fastlane/Preview.html

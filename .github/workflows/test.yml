@@ -42,6 +42,22 @@ jobs:
           git diff --exit-code --stat -- icon-*.png \
             || { echo "::error::Committed icons differ from tools/make-icons.py output"; exit 1; }
 
+      - name: The app bundle must assemble, and must not ship repo furniture
+        run: |
+          node tools/build-www.js
+          for d in store tests fastlane .github tools node_modules; do
+            if [ -e "www/$d" ]; then
+              echo "::error title=Repo furniture in the app bundle::www/$d would ship inside the binary"
+              exit 1
+            fi
+          done
+          # A service worker inside a native build would pin an old bundle.
+          if grep -q 'serviceWorker.register' www/index.html; then
+            echo "::error title=Service worker in the native bundle::build-www.js should have stripped the registration"
+            exit 1
+          fi
+          echo "bundle clean: $(ls www | wc -l) files"
+
       - name: Inline scripts must parse
         run: |
           node -e "

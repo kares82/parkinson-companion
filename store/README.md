@@ -5,10 +5,16 @@ Everything here is preparation for wrapping the PWA. **You cannot upload
 
 | | Google Play | Apple App Store |
 |---|---|---|
-| Wrapper | TWA (Bubblewrap) | WKWebView (Capacitor / PWABuilder) |
-| Engine | real Chrome | WKWebView |
-| Difficulty | straightforward | needs native work |
+| Wrapper | Capacitor | Capacitor |
+| Built by | `.github/workflows/android-play.yml` (ubuntu runner) | `.github/workflows/ios-testflight.yml` (macOS runner) |
+| Needs a Mac | no | **no** — GitHub's macOS runners |
 | Main risk | none significant | Guideline 4.2 rejection |
+
+Both platforms are one Capacitor project with `ios/` and `android/` committed,
+following the setup already proven on OLI. An earlier draft used a Trusted Web
+Activity for Android; that is gone. Two different Android wrappers meant two
+sets of behaviour to reason about, and the TWA needed `assetlinks.json` hosting
+that is one more thing to get wrong.
 
 Order to do this in: **Play first.** It is the easier path, it validates the
 listing copy and the declarations, and it gets the app in front of the GP's

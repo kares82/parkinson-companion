@@ -1,5 +1,16 @@
 # Automated publishing — setup
 
+> **Superseded in part.** Building is now done by
+> `.github/workflows/ios-testflight.yml` and `.github/workflows/android-play.yml`,
+> which build the committed Capacitor projects on GitHub runners — no Mac, no
+> Bubblewrap, no fastlane signing. **`store/APPSTORE.md` is the current guide,
+> including the exact secrets.**
+>
+> What remains useful here: the credential-handling rules below, and the
+> `fastlane` lanes, which are still how listing text and screenshots are pushed
+> once an app exists in each console.
+
+
 Two GitHub Actions workflows publish the app. **No credential is ever stored in
 this repo, pasted into a chat, or visible to anyone but you.** Everything
 sensitive lives in GitHub Secrets, is written to a temp file during the run, and

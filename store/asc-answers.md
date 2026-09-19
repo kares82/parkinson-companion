@@ -13,15 +13,18 @@ network, collects nothing, not a medical device.
 This app is a local-only diary for the family carer of a person with Parkinson's.
 
 - No account, no login, no sign-up. It opens straight to the main screen.
-- No network use: it works fully offline. You can test with Airplane Mode ON.
-- It collects no data and sends nothing anywhere. All entries are stored only
-  on the device (localStorage); "Exporter" / backup produces a file the user
-  chooses to share.
-- To see populated screens, open "Réglages" (Settings, top-left) and tap
-  "Charger des données d'exemple" (Load sample data); "Quitter la démo"
-  restores the empty state.
-- The "APPELER À L'AIDE" (Call for help) screen contains standard tel: links
-  (e.g. 15 / 112). Please do not place a real call.
+- No network use: the app makes no network calls and works fully offline. You
+  can test it with Airplane Mode ON.
+- It collects no data and sends nothing anywhere. All entries are stored only on
+  the device (localStorage). "Export" / "Backup" and "Send report" produce a
+  file and hand it to the system share sheet — the user chooses the recipient;
+  the app itself never transmits.
+- The interface auto-selects its language from the device (English, French,
+  German, Italian, Spanish) and can be changed under Settings.
+- To see populated screens: open "Settings" (top-left) and tap "Load sample
+  data"; "Leave demo and restore my data" returns to the empty state.
+- The "CALL FOR HELP" screen contains standard tel: links (e.g. 112 / 911).
+  Please do not place a real call.
 - This is a tracking diary, NOT a medical device. It makes no diagnosis and no
   treatment recommendation, and does not monitor the person or detect falls.
 

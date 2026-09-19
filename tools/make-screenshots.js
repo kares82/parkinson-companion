@@ -20,6 +20,7 @@ function seedScript(lang) {
   return `(() => {
     const now = Date.now(), D = 864e5;
     const at = (dAgo, h, m = 0) => { const d = new Date(now - dAgo * D); d.setHours(h, m, 0, 0); return d.getTime(); };
+    localStorage.setItem('introseen_v5', '1');   // skip the first-launch explainer overlay
     localStorage.setItem('lang_v5', ${JSON.stringify(lang)});
     localStorage.setItem('pname_v5', ${JSON.stringify(lang === 'fr' ? 'Marie' : 'Anna')});
     localStorage.setItem('hname_v5', ${JSON.stringify(lang === 'fr' ? 'Jean' : 'David')});

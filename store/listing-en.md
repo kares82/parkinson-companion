@@ -50,7 +50,7 @@ CALL FOR HELP
 An always-visible button calls the partner, the carer, or the emergency
 services. The emergency number is configurable (112, 999, 911, 15…).
 
-ENGLISH AND FRENCH
+ENGLISH, FRENCH AND GERMAN
 
 Switch the interface language in Settings.
 

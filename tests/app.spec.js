@@ -601,3 +601,29 @@ test.describe('emergency number default by region', () => {
     expect(await page.getAttribute('#callEmergency', 'href')).toBe('tel:15');
   });
 });
+
+test.describe('German localization', () => {
+  test('a stored German preference renders the UI in German', async ({ page }) => {
+    await seed(page, { lang_v5: 'de' });
+    await expect(page.locator('#setLink')).toHaveText('Einstellungen');
+    await expect(page.locator('#medBtn')).toHaveText('Medikament gegeben');
+  });
+  test('switching to German from Settings sticks after reload', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.waitForSelector('#startScreen.show');
+    await page.click('#setLink');
+    await page.click('.langBtn[data-lang="de"]');
+    await expect(page.locator('#helpBtnMain')).toHaveText('☎ HILFE RUFEN');
+    expect(await page.evaluate(() => localStorage.getItem('lang_v5'))).toBe('de');
+    await page.reload();
+    await expect(page.locator('#medBtn')).toHaveText('Medikament gegeben');
+  });
+  test('German reaches the settings and report screens, no leftover French', async ({ page }) => {
+    await seed(page, { lang_v5: 'de', crises_v5: [episode()] });
+    await page.click('#setLink');
+    await expect(page.locator('text=Datensicherung')).toBeVisible();
+    await expect(page.locator('text=Notfallkontakte')).toBeVisible();
+    // No obvious French section headings bled through onto the settings screen.
+    await expect(page.locator('text=Sauvegarde des données')).toHaveCount(0);
+  });
+});

@@ -52,7 +52,7 @@ APPELER À L'AIDE
 Un bouton toujours accessible appelle le conjoint, l'aidant ou les secours. Le
 numéro d'urgence est configurable (112, 15, 911, 999…).
 
-FRANÇAIS ET ANGLAIS
+FRANÇAIS, ANGLAIS ET ALLEMAND
 
 L'interface bascule d'une langue à l'autre dans les Réglages.
 

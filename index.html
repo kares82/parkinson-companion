@@ -1077,7 +1077,19 @@
   function getPres(){var p=localStorage.getItem(PRESKEY);if(p==="Seule")p="alone";return p||"alone";}
   function setPres(p){localStorage.setItem(PRESKEY,p);$("presNow").textContent=presLabel(p);}
   function getNum(k){return localStorage.getItem(k)||"";}
-  function getEmerg(){var v=localStorage.getItem(EMERG);if(v&&v.trim())return v.trim();return (lang==="fr")?"15":"112";}
+  /* A manual setting always wins. Otherwise guess from the device locale so the
+     number shown is the one the carer actually knows: 911 in the US, 999 in the
+     UK, 15 in France (SAMU), 112 across the rest of Europe. Fully offline — read
+     from navigator.language, never the network. Settable in Réglages either way. */
+  function getEmerg(){
+    var v=localStorage.getItem(EMERG);if(v&&v.trim())return v.trim();
+    if(lang==="fr")return "15";
+    var loc="";try{loc=(navigator.language||"").toLowerCase();}catch(e){}
+    if(loc.indexOf("-us")>=0||loc==="en-us")return "911";
+    if(loc.indexOf("-gb")>=0||loc.indexOf("-uk")>=0)return "999";
+    if(loc.indexOf("-fr")>=0)return "15";
+    return "112";
+  }
   function loadObj(k){try{var v=JSON.parse(localStorage.getItem(k));return(v&&typeof v==="object"&&!Array.isArray(v))?v:null;}catch(e){return null;}}
   function getSupply(){return loadObj(SUP)||{bags:0,days:1,warn:5,installedAt:null};}
   function saveSupply(s){setLS(SUP,JSON.stringify(s));}

@@ -572,3 +572,32 @@ test.describe('tremor accessibility', () => {
     await expect(page.locator('#app')).toHaveClass(/bigtouch/);
   });
 });
+
+test.describe('emergency number default by region', () => {
+  const emergOf = async (page, locale) => {
+    await page.addInitScript(loc => {
+      try { Object.defineProperty(Navigator.prototype, 'language', { get: () => loc, configurable: true }); } catch (e) {}
+    }, locale);
+    await page.goto('/index.html');
+    await page.waitForSelector('#startScreen.show');
+    await page.click('#helpBtnMain');
+    return page.getAttribute('#callEmergency', 'href');
+  };
+  test('US devices default to 911', async ({ page }) => {
+    expect(await emergOf(page, 'en-US')).toBe('tel:911');
+  });
+  test('UK devices default to 999', async ({ page }) => {
+    expect(await emergOf(page, 'en-GB')).toBe('tel:999');
+  });
+  test('other locales default to 112', async ({ page }) => {
+    expect(await emergOf(page, 'de-DE')).toBe('tel:112');
+  });
+  test('a manual setting always overrides the regional guess', async ({ page }) => {
+    await page.addInitScript(() => {
+      try { Object.defineProperty(Navigator.prototype, 'language', { get: () => 'en-US', configurable: true }); } catch (e) {}
+    });
+    await seed(page, { emerg_v5: '15' });
+    await page.click('#helpBtnMain');
+    expect(await page.getAttribute('#callEmergency', 'href')).toBe('tel:15');
+  });
+});

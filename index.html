@@ -439,6 +439,7 @@
       <p class="okMsg" id="backupMsg" style="display:none"></p>
 
       <p style="margin-top:12px"><a id="privacyLink" href="privacy.html" target="_blank" rel="noopener" style="color:#2471a3;font-size:14px;font-weight:700;" data-i18n="privacy.link">Politique de confidentialité</a></p>
+      <p id="donateWrap" style="margin-top:8px;display:none"><a id="donateLink" href="#" target="_blank" rel="noopener" style="color:#6c3483;font-size:14px;font-weight:800;" data-i18n="donate.link">♥ Soutenir le développement</a></p>
       <p class="disc" data-i18n="disclaimer">Cette application est un carnet de suivi. Elle n'établit aucun diagnostic, ne donne aucun conseil médical et ne remplace ni un professionnel de santé ni les services d'urgence. En cas d'urgence, appelez directement les secours. Elle ne surveille pas la personne : elle ne détecte pas les chutes et ne peut pas alerter quelqu'un toute seule — pour cela, utilisez la détection de chute intégrée à l'iPhone ou à l'Apple Watch.</p>
     </div>
     <div class="actions"><button class="backBtn" data-back data-i18n="common.back">Retour</button><button class="exportBtn" id="saveSettings" data-i18n="common.save">Enregistrer</button></div>
@@ -604,6 +605,11 @@
       H="husband_v5",C="caregiver_v5",PNAME="pname_v5",HNAME="hname_v5",CNAME="cname_v5",LANGKEY="lang_v5",EMERG="emerg_v5",
       BACKUPKEY="lastbackup_v5",ACTIVEKEY="active_v5",INTROKEY="introseen_v5",NAGKEY="nagsnooze_v5",
       DEMOKEY="demo_v5",DEMOSNAP="demosnap_v5";
+  /* Donations: set this to your Ko-fi / Liberapay / PayPal / Stripe link.
+     The link shows ONLY on the web/PWA build, never inside the native app
+     (App Store review rejects external donation links; Play and web are fine).
+     While it still contains REMPLACER the link stays hidden. */
+  var DONATE_URL="https://ko-fi.com/REMPLACER";
 
   // ---------- i18n ----------
   var STR={
@@ -733,6 +739,7 @@
     "wipe.confirm":{fr:"Tout effacer",en:"Erase everything"},
     "wipe.done":{fr:"Toutes les données ont été effacées.",en:"All data has been erased."},
     "privacy.link":{fr:"Politique de confidentialité",en:"Privacy policy"},
+    "donate.link":{fr:"♥ Soutenir le développement",en:"♥ Support the development"},
     "disclaimer":{fr:"Cette application est un carnet de suivi. Elle n'établit aucun diagnostic, ne donne aucun conseil médical et ne remplace ni un professionnel de santé ni les services d'urgence. En cas d'urgence, appelez directement les secours. Elle ne surveille pas la personne : elle ne détecte pas les chutes et ne peut pas alerter quelqu'un toute seule — pour cela, utilisez la détection de chute intégrée à l'iPhone ou à l'Apple Watch.",en:"This app is a tracking diary. It does not diagnose, does not give medical advice, and does not replace a healthcare professional or the emergency services. In an emergency, call the emergency services directly. It does not monitor the person: it cannot detect falls and cannot alert anyone on its own — for that, use the fall detection built into the iPhone or Apple Watch."},
     "dose.next":{fr:"Prochaine dose : {t} — dans {n}",en:"Next dose: {t} — in {n}"},
     "dose.late":{fr:"⚠ Dose de {t} en retard de {n}",en:"⚠ {t} dose overdue by {n}"},
@@ -1926,6 +1933,7 @@
   }
   $("introOk").addEventListener("click",function(){localStorage.setItem(INTROKEY,"1");$("introModal").classList.remove("show");});
   applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();updateDemoUI();
+  (function(){var w=$("donateWrap");if(!w)return;var native=!!(window.Capacitor);if(!native&&DONATE_URL.indexOf("REMPLACER")<0){$("donateLink").href=DONATE_URL;w.style.display="block";}})();
   resumeActive();   // pick a running episode back up if the app was closed mid-crisis
   setInterval(function(){if($("startScreen").classList.contains("show")){refreshDoseBar();refreshSupplyBar();}},60000);
   document.addEventListener("visibilitychange",function(){if(!document.hidden){if(current)requestCrisisWake();refreshDoseBar();refreshSupplyBar();refreshBackupNag();}});

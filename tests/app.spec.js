@@ -215,6 +215,16 @@ test.describe('editing an existing entry', () => {
     expect(i[0].type).toBe('blocage');
   });
 
+  test('the wellbeing time field is pre-filled with now, not left blank', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.waitForSelector('#startScreen.show');
+    await page.click('#wellBtn');
+    // The date/time box should already show the current date — never an empty
+    // jj/mm/aaaa that looks like a required field the user forgot.
+    const v = await page.inputValue('#wellTAdj .tAdjCustom');
+    expect(v).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+  });
+
   test('cancelling an edit changes nothing', async ({ page }) => {
     await seed(page, { crises_v5: [episode({ type: 'tremor' })] });
     await page.click('#histLink');

@@ -1154,11 +1154,14 @@
         ?tf("time.now",{v:fmtDate(ts)+" "+fmtClock(ts)})
         :tf("time.at",{v:fmtDate(ts)+" "+fmtClock(ts)});
     };
-    api.reset=function(){api._custom=null;api._off=0;if(custom){custom.value="";custom.max=localInputValue(Date.now());}api.render();};
+    // Pre-fill the field with "now" so it never looks like a blank required box.
+    // _custom stays null, so get() still returns the live time at save; the field
+    // only becomes the source of truth once the user actually edits it.
+    api.reset=function(){api._custom=null;api._off=0;if(custom){custom.max=localInputValue(Date.now());custom.value=localInputValue(Date.now());}api.render();};
     api.set=function(ts){api._custom=ts;api._off=-1;if(custom){custom.max=localInputValue(Date.now());custom.value=localInputValue(ts);}api.render();};
     wrap.addEventListener("click",function(e){
       var b=e.target&&e.target.closest?e.target.closest(".tAdjBtn"):null;if(!b)return;
-      api._custom=null;api._off=parseInt(b.dataset.adj,10);if(custom)custom.value="";api.render();});
+      api._custom=null;api._off=parseInt(b.dataset.adj,10);if(custom)custom.value=localInputValue(Date.now()-api._off*60000);api.render();});
     if(custom)custom.addEventListener("change",function(){
       if(custom.value){var d=new Date(custom.value);if(!isNaN(d.getTime())){api._custom=d.getTime();}}
       else api._custom=null;

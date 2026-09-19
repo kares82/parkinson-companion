@@ -789,6 +789,7 @@
     "set.warnPh":{fr:"ex : 5",en:"e.g. 5"},
     "set.screen":{fr:"Écran",en:"Screen"},
     "set.keepOn":{fr:"Garder allumé (actuellement : ",en:"Keep on (currently: "},
+    "resume.interrupted":{fr:"L'application s'est interrompue (batterie déchargée ?). Terminer la crise à {t} (dernier moment enregistré) ?",en:"The app was interrupted (battery died?). End the episode at {t} (the last recorded moment)?"},
     "a11y.section":{fr:"Accessibilité (tremblements)",en:"Accessibility (tremor)"},
     "a11y.hint":{fr:"Agrandit tous les boutons et le texte pour faciliter les gestes en cas de tremblements.",en:"Enlarges every button and the text to make tapping easier with a tremor."},
     "a11y.big":{fr:"Grande taille — actuellement : ",en:"Large touch — currently: "},
@@ -1402,17 +1403,24 @@
     current={start:raw.start,tapped:ts(raw.tapped)||raw.start,type:raw.type||null,
              pain:raw.pain===true,presence:raw.presence||getPres(),
              lastMed:ts(raw.lastMed),lastMedLabel:raw.lastMedLabel||"",
-             offType:raw.offType||null,nm:Array.isArray(raw.nm)?raw.nm:[]};
+             offType:raw.offType||null,nm:Array.isArray(raw.nm)?raw.nm:[],lastSeen:ts(raw.lastSeen)||raw.start};
+    var seenAt=current.lastSeen;   // capture before updateTimer() refreshes the heartbeat
     show("activeScreen");
     document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.toggle("sel",b.dataset.type===current.type);});
     $("painBtn").classList.toggle("sel",current.pain);
     $("painBtn").textContent=current.pain?t("active.painOn"):t("active.pain");
     refreshTags();refreshActivePres();refreshStartAdj();refreshCrisisHead();
     updateTimer();if(tick)clearInterval(tick);tick=setInterval(updateTimer,1000);
+    // If a long time passed since the last heartbeat, the phone was probably off
+    // (battery). Offer to end the episode at that last-known-alive moment, so the
+    // recorded duration is not inflated by the dead time.
+    if(Date.now()-(seenAt||current.start)>180000){
+      confirmModal(tf("resume.interrupted",{t:fmtClock(seenAt)}),function(){commitEpisode(seenAt);});
+    }
     return true;
   }
   function startCrisis(now){
-    current={start:now,tapped:now,type:null,pain:false,presence:getPres(),lastMed:null,lastMedLabel:"",offType:null,nm:[]};
+    current={start:now,tapped:now,type:null,pain:false,presence:getPres(),lastMed:null,lastMedLabel:"",offType:null,nm:[],lastSeen:now};
     persistActive();
     show("activeScreen");
     document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.remove("sel");});
@@ -1437,7 +1445,7 @@
     current.presence=b.dataset.p;setPres(b.dataset.p);refreshActivePres();refreshCrisisHead();persistActive();});
   $("startAdj").addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest(".sa"):null;if(!b||!current)return;
     current.start=current.tapped-parseInt(b.dataset.sadj,10)*60000;refreshStartAdj();refreshCrisisHead();updateTimer();persistActive();});
-  function updateTimer(){if(current)$("timer").textContent=fmtDur(Date.now()-current.start);}
+  function updateTimer(){if(!current)return;var nowt=Date.now();$("timer").textContent=fmtDur(nowt-current.start);if(nowt-(current.lastSeen||0)>=15000){current.lastSeen=nowt;persistActive();}}
   document.querySelectorAll(".typeBtn").forEach(function(btn){btn.addEventListener("click",function(){document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.remove("sel");});btn.classList.add("sel");current.type=btn.dataset.type;if(current.type!=="off")current.offType=null;refreshTags();persistActive();});});
   function refreshTags(){var isOff=current&&current.type==="off";
     $("offRow").style.display=isOff?"block":"none";
@@ -1460,14 +1468,16 @@
   document.querySelectorAll(".exOpt").forEach(function(b){b.addEventListener("click",function(){
     if(extraFor!=null){var l=load(KEY);for(var i=0;i<l.length;i++){if(l[i].start===extraFor){l[i].extra=b.dataset.ex;break;}}save(KEY,l);}
     extraFor=null;$("extraModal").classList.remove("show");});});
-  $("endBtn").addEventListener("click",function(){confirmModal(t("crisis.endConfirm"),function(){
-    var end=Date.now(),list=load(KEY),startId=current.start;
+  function commitEpisode(end){
+    if(!current)return;var list=load(KEY),startId=current.start;
+    if(end<current.start)end=current.start;
     list.push({start:current.start,end:end,type:current.type,pain:current.pain,presence:current.presence,lastMed:current.lastMed,lastMedLabel:current.lastMedLabel,regimen:regimenTextAt(current.start),offType:(current.type==="off"?current.offType:null),nm:(current.nm&&current.nm.length?current.nm.slice():[])});
     list.sort(function(a,b){return a.start-b.start;});
     save(KEY,list);clearActive();clearInterval(tick);tick=null;current=null;releaseCrisisWake();
     refreshSupplyBar();refreshDoseBar();refreshBackupNag();show("startScreen");
     if(load(KEY).some(function(x){return x.start===startId;}))openExtra(startId);
-  });});
+  }
+  $("endBtn").addEventListener("click",function(){confirmModal(t("crisis.endConfirm"),function(){commitEpisode(Date.now());});});
   /* The home screen is one big button, so accidental starts happen. Without this the
      only way out is "episode ended", which would save a phantom episode into the
      record the doctor reads. */

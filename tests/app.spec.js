@@ -84,6 +84,25 @@ test.describe('recording an episode', () => {
     await page.reload();
     await expect(page.locator('#startScreen')).toBeVisible();
   });
+
+  test('battery-death recovery: a running episode is ended at the last-alive moment', async ({ page }) => {
+    // Phone died 20 min ago mid-crisis; lastSeen is the last heartbeat before death.
+    const start = Date.now() - 40 * 6e4;      // crisis started 40 min ago
+    const lastSeen = Date.now() - 20 * 6e4;   // last heartbeat 20 min ago (battery died)
+    await page.goto('/index.html');
+    await page.evaluate(([s, ls]) => localStorage.setItem('active_v5', JSON.stringify({
+      start: s, tapped: s, type: 'tremor', pain: false, presence: 'alone', lastSeen: ls,
+    })), [start, lastSeen]);
+    await page.reload();
+    // Recovery prompt offers to end at the last recorded moment; accept it.
+    await expect(page.locator('#confirmModal')).toBeVisible();
+    await page.click('#confirmYes');
+    await expect(page.locator('#startScreen')).toBeVisible();
+    const ep = await page.evaluate(() => JSON.parse(localStorage.getItem('crises_v5'))[0]);
+    // Episode saved; end is the last-alive moment, not "now" — duration not inflated.
+    expect(Math.abs(ep.end - lastSeen)).toBeLessThan(2000);
+    expect(await page.evaluate(() => localStorage.getItem('active_v5'))).toBeNull();
+  });
 });
 
 test.describe('correcting the record', () => {

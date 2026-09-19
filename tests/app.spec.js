@@ -490,3 +490,54 @@ test.describe('dialogs never trap the user', () => {
     await expect(page.locator('#startScreen')).toBeVisible();
   });
 });
+
+test.describe('research-backed additions', () => {
+  test('OFF subtype and non-motor tags are recorded on an episode', async ({ page }) => {
+    page.on('dialog', d => d.accept());
+    await page.goto('/index.html');
+    await page.click('#tapZone');
+    await page.click('.typeBtn[data-type="off"]');
+    await expect(page.locator('#offRow')).toBeVisible();
+    await page.click('#offRow .tagChip[data-off="wearing"]');
+    await page.click('#nmRow .tagChip[data-nm="anxiety"]');
+    await page.click('#endBtn'); await page.click('#confirmYes');
+    await page.click('.exOpt[data-ex="none"]');
+    const ep = await page.evaluate(() => JSON.parse(localStorage.getItem('crises_v5'))[0]);
+    expect(ep.offType).toBe('wearing');
+    expect(ep.nm).toContain('anxiety');
+  });
+
+  test('WOQ-9 scores and flags wearing-off at two or more symptoms', async ({ page }) => {
+    page.on('dialog', d => d.accept());
+    await page.goto('/index.html');
+    await page.click('#setLink'); await page.click('#woqBtn');
+    await expect(page.locator('#woqModal')).toBeVisible();
+    await page.locator('#woqRows .woqChk').nth(0).check();
+    await page.locator('#woqRows .woqChk').nth(5).check();
+    await page.click('#woqSave');
+    const w = await page.evaluate(() => JSON.parse(localStorage.getItem('woq_v5'))[0]);
+    expect(w.score).toBe(2);
+    expect(w.positive).toBe(true);
+  });
+
+  test('a motor-state snapshot is saved', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.click('#stateBtn');
+    await expect(page.locator('#stateModal')).toBeVisible();
+    await page.click('.stOpt[data-st="on"]');
+    const m = await page.evaluate(() => JSON.parse(localStorage.getItem('motor_v5'))[0]);
+    expect(m.state).toBe('on');
+  });
+
+  test('research export omits the person name and free-text notes', async ({ page }) => {
+    const downloads = [];
+    await seed(page, { crises_v5: [episode()], pname_v5: 'Sylvie', incidents_v5: [{ time: iso(0), type: 'chute', injury: false, note: 'secret note' }] });
+    // capture the shared/downloaded blob via the download event
+    await page.click('#histLink');
+    const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#exportResearch')]);
+    const fs = require('fs'); const path = await dl.path();
+    const txt = fs.readFileSync(path, 'utf8');
+    expect(txt).not.toContain('secret note');
+    expect(txt.toLowerCase()).not.toContain('sylvie');
+  });
+});

@@ -27,8 +27,9 @@
   #helpBtnMain{padding:24px;font-size:clamp(21px,6.2vw,28px);font-weight:800;background:#111;color:#fff;border:none;border-top:4px solid #f1c40f;}
   #presenceBadge{text-align:center;font-size:clamp(13px,3.6vw,16px);padding:10px;background:#8e2a1a;color:#fff;font-weight:700;}
   #lastMed{text-align:center;font-size:clamp(11px,3vw,14px);opacity:.85;padding:5px;background:#a5311f;color:#fff;}
-  .startBtns{display:flex;gap:2px;}
-  .startBtns button{flex:1;padding:16px 4px;font-size:clamp(13px,3.6vw,16px);font-weight:800;border:none;color:#fff;}
+  .startBtns{display:flex;gap:2px;flex-wrap:wrap;}
+  .startBtns button{flex:1 1 40%;padding:16px 4px;font-size:clamp(13px,3.6vw,16px);font-weight:800;border:none;color:#fff;}
+  #stateBtn{background:#34495e;}
   #incBtn{width:100%;padding:14px;font-size:clamp(13px,3.4vw,15px);font-weight:800;border:none;color:#fff;background:#d35400;}
   #medBtn{background:#e67e22;}#newBagBtn{background:#8e44ad;}#wellBtn{background:#16a085;}#incBtn{background:#d35400;}
 
@@ -150,6 +151,11 @@
 
   #painBtn{margin-top:10px;padding:16px;font-size:clamp(14px,3.8vw,17px);font-weight:800;border:3px solid #7a2f2f;background:#3a1f1f;color:#fff;border-radius:13px;width:100%;}
   #painBtn.sel{background:#c0392b;border-color:#f1c40f;}
+  .tagRow{margin-top:12px;}
+  .tagLbl{font-size:clamp(12px,3.2vw,14px);opacity:.85;text-align:center;margin-bottom:7px;}
+  .tagChips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+  .tagChip{padding:9px 12px;font-size:clamp(12px,3.2vw,14px);font-weight:700;border:2px solid #48607a;background:#2b3c50;color:#fff;border-radius:20px;min-height:40px;}
+  .tagChip.sel{background:#f1c40f;color:#1e2a38;border-color:#f1c40f;}
   .pill.pain{background:#8e44ad;color:#fff;}
   .hint{font-size:13px;color:#777;margin-top:5px;}
   /* Nav chips sit in the flow of the supply bar. They used to be absolutely
@@ -189,6 +195,23 @@
   #extraCard h3{font-size:20px;margin-bottom:6px;}#extraBody{margin-bottom:14px;}
   .exOpt{display:block;width:100%;padding:16px;margin-bottom:10px;font-size:16px;font-weight:800;border:2px solid #ccc;border-radius:12px;background:#fafafa;color:#1e2a38;min-height:52px;}
   #demoBanner{padding:10px;text-align:center;font-weight:800;font-size:clamp(12px,3.3vw,15px);background:#6c3483;color:#fff;}
+  #stateModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
+  #stateModal.show{display:flex;}
+  #stateCard{background:#fff;color:#1e2a38;border-radius:18px;padding:20px;width:100%;max-width:440px;}
+  #stateCard h3{font-size:20px;margin-bottom:12px;}
+  .stOpt{display:block;width:100%;padding:18px;margin-bottom:10px;font-size:17px;font-weight:800;border:none;border-radius:14px;color:#fff;min-height:56px;}
+  .stOpt[data-st="on"]{background:#27ae60;}.stOpt[data-st="off"]{background:#e67e22;}.stOpt[data-st="dysk"]{background:#8e44ad;}
+  #stateCancel{display:block;width:100%;padding:14px;font-size:15px;font-weight:700;border:2px solid #ccc;border-radius:12px;background:#eee;color:#333;min-height:48px;}
+  #woqModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
+  #woqModal.show{display:flex;}
+  #woqCard{background:#fff;color:#1e2a38;border-radius:18px;padding:20px;width:100%;max-width:460px;max-height:88vh;max-height:88dvh;display:flex;flex-direction:column;}
+  #woqCard h3{font-size:20px;margin-bottom:6px;}
+  #woqRows{overflow-y:auto;margin:8px 0;}
+  .woqRow{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid #eee;}
+  .woqRow input{width:24px;height:24px;flex:none;}.woqRow span{font-size:15px;}
+  #woqCard .cBtns{display:flex;gap:10px;margin-top:6px;}
+  #woqCard .cBtns button{flex:1;padding:15px;font-size:16px;font-weight:800;border:none;border-radius:12px;min-height:50px;}
+  #woqCancel{background:#eee;color:#333;}#woqSave{background:#2980b9;color:#fff;}
 
   /* ---- time adjust (shared by med / wellbeing / incident) ---- */
   .tAdj{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
@@ -266,7 +289,8 @@
     .barRow .h{color:#9fb3c4;}
     input.num,textarea.num,.mcDose,.medRow input,.medListRow input,#wipeInput,#weightInput{background:#22303f;color:#e6edf3;border-color:#38495b;}
     .regBox{background:#152634;border-color:#24455e;color:#bfe0f5;}
-    #confirmCard,#medCard,#wellCard,#incCard,#epCard,#presenceCard,#introCard,#wipeCard,#extraCard{background:#17212b;color:#e6edf3;}
+    #confirmCard,#medCard,#wellCard,#incCard,#epCard,#presenceCard,#introCard,#wipeCard,#extraCard,#woqCard,#stateCard{background:#17212b;color:#e6edf3;}
+    .woqRow{border-bottom-color:#26333f;}
     #confirmMsg,#presenceCard h3,#introCard h3,#wipeCard h3,#extraCard h3,#medCard h3,#wellCard h3,#incCard h3,.wellLabel,.mcName{color:#e6edf3;}
     #introBody,#wipeBody,#extraBody,#medTimeDisplay,#wellTimeDisplay,#incTimeDisplay{color:#9fb3c4;}
     .faceBtn,.incTypeBtn,.ynBtn,.presOpt,.exOpt{background:#22303f;border-color:#38495b;color:#e6edf3;}
@@ -301,6 +325,7 @@
       <button id="medBtn" data-i18n="start.med">Médicament donné</button>
       <button id="wellBtn" data-i18n="start.well">Bien-être</button>
       <button id="newBagBtn" data-i18n="start.newBag">Nouvelle poche</button>
+      <button id="stateBtn" data-i18n="state.btn">État</button>
     </div>
     <button id="incBtn" data-i18n="start.incident">⚠ Signaler un incident (chute, blocage...)</button>
   </div>
@@ -331,6 +356,19 @@
       </div>
       <div class="typeHint" data-i18n-html="active.typeHint"><b>Tremblement</b> = secousses régulières.<br><b>Mouvements</b> = gestes involontaires.</div>
     </div>
+    <div id="offRow" class="tagRow" style="display:none"><div class="tagLbl" data-i18n="off.label">Type de blocage (OFF)</div><div class="tagChips">
+      <button type="button" class="tagChip" data-off="morning" data-i18n="off.morning">Matinal</button>
+      <button type="button" class="tagChip" data-off="wearing" data-i18n="off.wearing">Usure de dose</button>
+      <button type="button" class="tagChip" data-off="delayed" data-i18n="off.delayed">Retard d'effet</button>
+      <button type="button" class="tagChip" data-off="failure" data-i18n="off.failure">Échec de dose</button>
+      <button type="button" class="tagChip" data-off="sudden" data-i18n="off.sudden">Soudain</button>
+    </div></div>
+    <div id="nmRow" class="tagRow"><div class="tagLbl" data-i18n="nm.label">Symptômes non-moteurs (optionnel)</div><div class="tagChips">
+      <button type="button" class="tagChip" data-nm="anxiety" data-i18n="nm.anxiety">Anxiété</button>
+      <button type="button" class="tagChip" data-nm="fatigue" data-i18n="nm.fatigue">Fatigue</button>
+      <button type="button" class="tagChip" data-nm="urinary" data-i18n="nm.urinary">Urinaire</button>
+      <button type="button" class="tagChip" data-nm="fog" data-i18n="nm.fog">Esprit embrumé</button>
+    </div></div>
     <button id="painBtn" type="button" data-i18n="active.pain">Elle a mal</button>
     <button id="endBtn" data-i18n="active.end">Crise terminée</button>
     <button id="cancelBtn" type="button" data-i18n="active.cancel">Ce n'était pas une crise — annuler</button>
@@ -352,6 +390,7 @@
       <button class="backBtn" data-back data-i18n="common.back">Retour</button>
       <button class="reportBtn" id="toReport" data-i18n="hist.report">Rapport</button>
       <button class="exportBtn" id="exportBtn" data-i18n="hist.export">Exporter</button>
+      <button class="exportBtn" id="exportResearch" data-i18n="hist.exportResearch" style="background:#7f8c8d">Export recherche</button>
       <button class="clearBtn" id="clearBtn" data-i18n="hist.clear">Effacer</button>
     </div>
   </div>
@@ -425,6 +464,9 @@
       <div class="section-t" data-i18n="set.screen">Écran</div>
       <button id="wakeBtn" style="padding:14px 20px;font-size:16px;font-weight:700;border:2px solid #2980b9;background:#fff;color:#2980b9;border-radius:10px;"><span data-i18n="set.keepOn">Garder allumé (actuellement : </span><span id="wakeState">Non</span>)</button>
 
+      <div class="section-t" data-i18n="report.woqSec">Usure de dose (WOQ-9)</div>
+      <p class="hint" data-i18n="woq.note">Aide au dépistage, pas un diagnostic.</p>
+      <button id="woqBtn" type="button" class="addMedBtn" data-i18n="woq.btn">Test d'usure de dose (WOQ-9)</button>
       <div class="section-t" data-i18n="demo.section">Essayer l'application</div>
       <p class="hint" data-i18n="demo.hint">Chargez des données d'exemple pour vous entraîner sans crainte, y compris le bouton de crise. Vos vraies données sont mises de côté et restaurées quand vous quittez la démo.</p>
       <button id="demoLoadBtn" type="button" class="addMedBtn" data-i18n="demo.load">Charger des données d'exemple</button>
@@ -453,6 +495,24 @@
     </div>
   </div>
 
+  <div id="stateModal">
+    <div id="stateCard">
+      <h3 id="stateTitle"></h3>
+      <button type="button" class="stOpt" data-st="on"></button>
+      <button type="button" class="stOpt" data-st="off"></button>
+      <button type="button" class="stOpt" data-st="dysk"></button>
+      <button type="button" id="stateCancel"></button>
+    </div>
+  </div>
+  <div id="woqModal">
+    <div id="woqCard">
+      <h3 id="woqTitle"></h3>
+      <p class="hint" id="woqIntro"></p>
+      <div id="woqRows"></div>
+      <p class="hint" id="woqNote"></p>
+      <div class="cBtns"><button id="woqCancel" type="button"></button><button id="woqSave" type="button"></button></div>
+    </div>
+  </div>
   <div id="extraModal">
     <div id="extraCard">
       <h3 id="extraTitle"></h3>
@@ -558,6 +618,19 @@
       <div class="yn">
         <button type="button" class="ynBtn" id="incInjYes" data-i18n="common.yes">Oui</button>
         <button type="button" class="ynBtn" id="incInjNo" data-i18n="common.no">Non</button>
+      </div>
+      <div class="wellLabel" data-i18n="inc.trigger">Déclencheur (optionnel)</div>
+      <div class="incTypeGrid" id="incTrig">
+        <button type="button" class="incTypeBtn" data-tg="turn" data-i18n="inc.tgTurn">Demi-tour</button>
+        <button type="button" class="incTypeBtn" data-tg="door" data-i18n="inc.tgDoor">Passage de porte</button>
+        <button type="button" class="incTypeBtn" data-tg="dual" data-i18n="inc.tgDual">Double tâche</button>
+        <button type="button" class="incTypeBtn" data-tg="stand" data-i18n="inc.tgStand">Se lever</button>
+        <button type="button" class="incTypeBtn" data-tg="other" data-i18n="inc.tgOther">Autre</button>
+      </div>
+      <div class="wellLabel" data-i18n="inc.duringOff">Pendant une période OFF ?</div>
+      <div class="yn">
+        <button type="button" class="ynBtn" id="incOffYes" data-i18n="common.yes">Oui</button>
+        <button type="button" class="ynBtn" id="incOffNo" data-i18n="common.no">Non</button>
       </div>
       <div class="wellLabel" data-i18n="inc.desc">Description (optionnel)</div>
       <textarea id="incNote" data-i18n-ph="inc.descPh" placeholder="ex : dans la cuisine, en se levant du fauteuil..."></textarea>
@@ -805,6 +878,55 @@
     "extra.nohelp":{fr:"Oui, sans effet",en:"Yes, no effect"},
     "extra.unknown":{fr:"Ne sait pas",en:"Don't know"},
     "report.byTypeSec":{fr:"Par type de crise",en:"By episode type"},
+    "off.label":{fr:"Type de blocage (OFF)",en:"OFF type"},
+    "off.morning":{fr:"Matinal",en:"Morning"},
+    "off.wearing":{fr:"Usure de dose",en:"Wearing-off"},
+    "off.delayed":{fr:"Retard d'effet",en:"Delayed ON"},
+    "off.failure":{fr:"Échec de dose",en:"Dose failure"},
+    "off.sudden":{fr:"Soudain",en:"Sudden"},
+    "report.offSubSec":{fr:"Sous-types de blocage (OFF)",en:"OFF sub-types"},
+    "nm.label":{fr:"Symptômes non-moteurs (optionnel)",en:"Non-motor symptoms (optional)"},
+    "nm.anxiety":{fr:"Anxiété",en:"Anxiety"},
+    "nm.fatigue":{fr:"Fatigue",en:"Fatigue"},
+    "nm.urinary":{fr:"Urinaire",en:"Urinary"},
+    "nm.fog":{fr:"Esprit embrumé",en:"Brain fog"},
+    "report.nmSec":{fr:"Symptômes non-moteurs",en:"Non-motor symptoms"},
+    "inc.trigger":{fr:"Déclencheur (optionnel)",en:"Trigger (optional)"},
+    "inc.tgTurn":{fr:"Demi-tour",en:"Turning"},
+    "inc.tgDoor":{fr:"Passage de porte",en:"Doorway"},
+    "inc.tgDual":{fr:"Double tâche",en:"Dual-task"},
+    "inc.tgStand":{fr:"Se lever",en:"Standing up"},
+    "inc.tgOther":{fr:"Autre",en:"Other"},
+    "inc.duringOff":{fr:"Pendant une période OFF ?",en:"During an OFF period?"},
+    "woq.btn":{fr:"Test d'usure de dose (WOQ-9)",en:"Wearing-off test (WOQ-9)"},
+    "woq.title":{fr:"Usure de dose (WOQ-9)",en:"Wearing-off (WOQ-9)"},
+    "woq.intro":{fr:"Cochez les symptômes qui reviennent avant la prochaine dose et s'améliorent après le médicament.",en:"Tick the symptoms that come back before the next dose and improve after the medication."},
+    "woq.note":{fr:"Aide au dépistage, pas un diagnostic.",en:"A screening aid, not a diagnosis."},
+    "woq.tremor":{fr:"Tremblement",en:"Tremor"},
+    "woq.slow":{fr:"Lenteur des mouvements",en:"Slowness of movement"},
+    "woq.cramp":{fr:"Crampes musculaires",en:"Muscle cramps"},
+    "woq.dexterity":{fr:"Perte de dextérité",en:"Reduced dexterity"},
+    "woq.stiff":{fr:"Raideur",en:"Stiffness"},
+    "woq.anxiety":{fr:"Anxiété",en:"Anxiety"},
+    "woq.mood":{fr:"Changements d'humeur",en:"Mood changes"},
+    "woq.pain":{fr:"Douleurs",en:"Pain / aching"},
+    "woq.cloudy":{fr:"Esprit embrumé",en:"Cloudy mind"},
+    "woq.result":{fr:"Résultat : {n}/9 — {v}",en:"Result: {n}/9 — {v}"},
+    "woq.pos":{fr:"usure de dose probable",en:"wearing-off likely"},
+    "woq.neg":{fr:"pas d'usure nette",en:"no clear wearing-off"},
+    "report.woqSec":{fr:"Usure de dose (WOQ-9)",en:"Wearing-off (WOQ-9)"},
+    "report.woqLine":{fr:"Dernier test ({d}) : {n}/9 — {v}",en:"Latest test ({d}): {n}/9 — {v}"},
+    "report.woqNone":{fr:"Test WOQ-9 non effectué.",en:"WOQ-9 test not done."},
+    "state.btn":{fr:"État",en:"State"},
+    "state.title":{fr:"État moteur maintenant",en:"Motor state now"},
+    "state.on":{fr:"Bonne mobilité (ON)",en:"Good mobility (ON)"},
+    "state.off":{fr:"Bloqué / lent (OFF)",en:"Blocked / slow (OFF)"},
+    "state.dysk":{fr:"Mouvements involontaires",en:"Involuntary movements"},
+    "state.saved":{fr:"État enregistré.",en:"State saved."},
+    "report.stateSec":{fr:"Mobilité (instantanés)",en:"Mobility (snapshots)"},
+    "report.stateGoodOn":{fr:"Bonne mobilité : {p} % des relevés ({n})",en:"Good mobility: {p}% of snapshots ({n})"},
+    "report.stateLegend":{fr:"🟩 ON · 🟧 OFF · 🟪 Mouvements",en:"🟩 ON · 🟧 OFF · 🟪 Movements"},
+    "hist.exportResearch":{fr:"Export recherche",en:"Research export"},
     "report.extraSec":{fr:"Dose supplémentaire pendant la crise",en:"Extra dose during the episode"},
     "report.extraGiven":{fr:"Donnée : {g} / {n}",en:"Given: {g} / {n}"},
     "report.extraHelpedLine":{fr:"A aidé : {h} / {g}",en:"Helped: {h} / {g}"},
@@ -1217,9 +1339,11 @@
     document.querySelectorAll("#incCard .incTypeBtn").forEach(function(b){b.classList.remove("sel");});
     document.querySelectorAll("#incCard .ynBtn").forEach(function(b){b.classList.remove("sel");});
     if(ex){
-      incDraft.type=ex.type;incDraft.injury=ex.injury===true;
+      incDraft.type=ex.type;incDraft.injury=ex.injury===true;incDraft.trigger=ex.trigger||null;incDraft.off=(typeof ex.off==="boolean"?ex.off:null);
       var tb=document.querySelector('#incCard .incTypeBtn[data-t="'+ex.type+'"]');if(tb)tb.classList.add("sel");
       $(ex.injury===true?"incInjYes":"incInjNo").classList.add("sel");
+      if(ex.trigger){var gb=document.querySelector('#incTrig .incTypeBtn[data-tg="'+ex.trigger+'"]');if(gb)gb.classList.add("sel");}
+      if(typeof ex.off==="boolean")$(ex.off?"incOffYes":"incOffNo").classList.add("sel");
       incTAdj.set(ex.time);
     } else incTAdj.reset();
     $("incModal").classList.add("show");
@@ -1230,12 +1354,15 @@
     b.classList.add("sel");incDraft.type=b.dataset.t;});});
   $("incInjYes").addEventListener("click",function(){incDraft.injury=true;$("incInjYes").classList.add("sel");$("incInjNo").classList.remove("sel");});
   $("incInjNo").addEventListener("click",function(){incDraft.injury=false;$("incInjNo").classList.add("sel");$("incInjYes").classList.remove("sel");});
+  $("incTrig").addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest(".incTypeBtn"):null;if(!b)return;var was=b.classList.contains("sel");document.querySelectorAll("#incTrig .incTypeBtn").forEach(function(x){x.classList.remove("sel");});if(!was){b.classList.add("sel");incDraft.trigger=b.dataset.tg;}else incDraft.trigger=null;});
+  $("incOffYes").addEventListener("click",function(){incDraft.off=true;$("incOffYes").classList.add("sel");$("incOffNo").classList.remove("sel");});
+  $("incOffNo").addEventListener("click",function(){incDraft.off=false;$("incOffNo").classList.add("sel");$("incOffYes").classList.remove("sel");});
   $("incCancel").addEventListener("click",function(){$("incModal").classList.remove("show");cancelEdit();});
   $("incSave").addEventListener("click",function(){
     if(!incDraft.type){$("incWarn").style.display="block";return;}
     var l=loadInc();
     if(editing&&editing.kind==="inc"){l=l.filter(function(x){return x.time!==editing.id;});}
-    l.push({time:incTAdj.get(),type:incDraft.type,injury:incDraft.injury===true,note:$("incNote").value.trim()});
+    l.push({time:incTAdj.get(),type:incDraft.type,injury:incDraft.injury===true,note:$("incNote").value.trim(),trigger:incDraft.trigger||null,off:(typeof incDraft.off==="boolean"?incDraft.off:null)});
     l.sort(function(a,b){return a.time-b.time;});
     save(INCKEY,l);refreshBackupNag();$("incModal").classList.remove("show");
     if(editing){cancelEdit();renderHistory();}});
@@ -1260,22 +1387,23 @@
     if(Date.now()-raw.start>24*3600000){clearActive();return false;}  // stale: not a real episode
     current={start:raw.start,tapped:ts(raw.tapped)||raw.start,type:raw.type||null,
              pain:raw.pain===true,presence:raw.presence||getPres(),
-             lastMed:ts(raw.lastMed),lastMedLabel:raw.lastMedLabel||""};
+             lastMed:ts(raw.lastMed),lastMedLabel:raw.lastMedLabel||"",
+             offType:raw.offType||null,nm:Array.isArray(raw.nm)?raw.nm:[]};
     show("activeScreen");
     document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.toggle("sel",b.dataset.type===current.type);});
     $("painBtn").classList.toggle("sel",current.pain);
     $("painBtn").textContent=current.pain?t("active.painOn"):t("active.pain");
-    refreshActivePres();refreshStartAdj();refreshCrisisHead();
+    refreshTags();refreshActivePres();refreshStartAdj();refreshCrisisHead();
     updateTimer();if(tick)clearInterval(tick);tick=setInterval(updateTimer,1000);
     return true;
   }
   function startCrisis(now){
-    current={start:now,tapped:now,type:null,pain:false,presence:getPres(),lastMed:null,lastMedLabel:""};
+    current={start:now,tapped:now,type:null,pain:false,presence:getPres(),lastMed:null,lastMedLabel:"",offType:null,nm:[]};
     persistActive();
     show("activeScreen");
     document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.remove("sel");});
     $("painBtn").classList.remove("sel");$("painBtn").textContent=t("active.pain");
-    refreshActivePres();refreshStartAdj();refreshCrisisHead();
+    refreshTags();refreshActivePres();refreshStartAdj();refreshCrisisHead();
     requestCrisisWake();updateTimer();tick=setInterval(updateTimer,1000);}
   /* Re-derived whenever the start time is corrected, so the med-latency figure
      always refers to the dose that actually preceded the episode. */
@@ -1296,7 +1424,13 @@
   $("startAdj").addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest(".sa"):null;if(!b||!current)return;
     current.start=current.tapped-parseInt(b.dataset.sadj,10)*60000;refreshStartAdj();refreshCrisisHead();updateTimer();persistActive();});
   function updateTimer(){if(current)$("timer").textContent=fmtDur(Date.now()-current.start);}
-  document.querySelectorAll(".typeBtn").forEach(function(btn){btn.addEventListener("click",function(){document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.remove("sel");});btn.classList.add("sel");current.type=btn.dataset.type;persistActive();});});
+  document.querySelectorAll(".typeBtn").forEach(function(btn){btn.addEventListener("click",function(){document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.remove("sel");});btn.classList.add("sel");current.type=btn.dataset.type;if(current.type!=="off")current.offType=null;refreshTags();persistActive();});});
+  function refreshTags(){var isOff=current&&current.type==="off";
+    $("offRow").style.display=isOff?"block":"none";
+    document.querySelectorAll("#offRow .tagChip").forEach(function(b){b.classList.toggle("sel",isOff&&current.offType===b.dataset.off);});
+    document.querySelectorAll("#nmRow .tagChip").forEach(function(b){b.classList.toggle("sel",!!(current&&current.nm&&current.nm.indexOf(b.dataset.nm)>=0));});}
+  $("offRow").addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest(".tagChip"):null;if(!b||!current)return;current.offType=(current.offType===b.dataset.off)?null:b.dataset.off;refreshTags();persistActive();});
+  $("nmRow").addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest(".tagChip"):null;if(!b||!current)return;if(!current.nm)current.nm=[];var k=b.dataset.nm,i=current.nm.indexOf(k);if(i>=0)current.nm.splice(i,1);else current.nm.push(k);refreshTags();persistActive();});
   $("painBtn").addEventListener("click",function(){current.pain=!current.pain;this.classList.toggle("sel",current.pain);this.textContent=current.pain?t("active.painOn"):t("active.pain");persistActive();});
   /* The extra-dose question links medication to outcome — the single fact that
      changes a prescription. Asked AFTER the episode is already saved, so it never
@@ -1314,7 +1448,7 @@
     extraFor=null;$("extraModal").classList.remove("show");});});
   $("endBtn").addEventListener("click",function(){confirmModal(t("crisis.endConfirm"),function(){
     var end=Date.now(),list=load(KEY),startId=current.start;
-    list.push({start:current.start,end:end,type:current.type,pain:current.pain,presence:current.presence,lastMed:current.lastMed,lastMedLabel:current.lastMedLabel,regimen:regimenTextAt(current.start)});
+    list.push({start:current.start,end:end,type:current.type,pain:current.pain,presence:current.presence,lastMed:current.lastMed,lastMedLabel:current.lastMedLabel,regimen:regimenTextAt(current.start),offType:(current.type==="off"?current.offType:null),nm:(current.nm&&current.nm.length?current.nm.slice():[])});
     list.sort(function(a,b){return a.start-b.start;});
     save(KEY,list);clearActive();clearInterval(tick);tick=null;current=null;releaseCrisisWake();
     refreshSupplyBar();refreshDoseBar();refreshBackupNag();show("startScreen");
@@ -1332,6 +1466,10 @@
   // Export uses the precise clinical name so the CSV reads as a medical record.
   function typeCsvLbl(tp){var m={tremor:"typeCsv.tremor",dysk:"typeCsv.dysk",off:"typeCsv.off",unk:"typeCsv.unk"};return t(m[tp]||"typeCsv.unk");}
   function extraLbl(v){return v?t("extra."+v):"";}
+  function offLbl(v){return v?t("off."+v):"";}
+  function nmCsv(a){return (a&&a.length)?a.map(function(k){return t("nm."+k);}).join(" / "):"";}
+  var TGKEY={turn:"inc.tgTurn",door:"inc.tgDoor",dual:"inc.tgDual",stand:"inc.tgStand",other:"inc.tgOther"};
+  function trigLbl(k){return k&&TGKEY[k]?t(TGKEY[k]):"";}
   /* A self-contained inline-SVG 24-hour chart (no library, works offline, prints
      in black & white, adapts to dark mode). Bars per hour: crises (blue) with
      freezing (orange) stacked on top; dashed guides + a pill mark scheduled dose
@@ -1646,8 +1784,8 @@
     var periodLbl=reportDays?tf("report.pLast",{n:reportDays}):t("report.pAll");
     $("printName").textContent=tf("report.title",{name:nameP()});
     $("printMeta").textContent=tf("report.periodLine",{p:periodLbl,d:fmtDate(Date.now())});
-    var n=list.length,alone=0,pain=0,totalMs=0,hours=new Array(24).fill(0),lats=[],byPres={},byType={},ex={none:0,helped:0,nohelp:0,unknown:0};
-    list.forEach(function(e){var pv=e.presence==="Seule"?"alone":e.presence;if(pv==="alone")alone++;if(e.pain)pain++;totalMs+=(e.end-e.start);hours[new Date(e.start).getHours()]++;if(e.lastMed)lats.push(Math.round((e.start-e.lastMed)/60000));byPres[pv]=(byPres[pv]||0)+1;byType[e.type||"unk"]=(byType[e.type||"unk"]||0)+1;if(e.extra&&ex.hasOwnProperty(e.extra))ex[e.extra]++;});
+    var n=list.length,alone=0,pain=0,totalMs=0,hours=new Array(24).fill(0),lats=[],byPres={},byType={},ex={none:0,helped:0,nohelp:0,unknown:0},offSub={},nmCount={};
+    list.forEach(function(e){var pv=e.presence==="Seule"?"alone":e.presence;if(pv==="alone")alone++;if(e.pain)pain++;totalMs+=(e.end-e.start);hours[new Date(e.start).getHours()]++;if(e.lastMed)lats.push(Math.round((e.start-e.lastMed)/60000));byPres[pv]=(byPres[pv]||0)+1;byType[e.type||"unk"]=(byType[e.type||"unk"]||0)+1;if(e.extra&&ex.hasOwnProperty(e.extra))ex[e.extra]++;if(e.type==="off"&&e.offType)offSub[e.offType]=(offSub[e.offType]||0)+1;if(Array.isArray(e.nm))e.nm.forEach(function(k){nmCount[k]=(nmCount[k]||0)+1;});});
     var frz=new Array(24).fill(0);
     loadInc().filter(function(inc){return inc.time>=fromT&&inc.type==="blocage";}).forEach(function(inc){frz[new Date(inc.time).getHours()]++;});
     var maxH=Math.max.apply(null,hours.concat(frz).concat([1])),medLat=median(lats),h="";
@@ -1685,8 +1823,23 @@
     h+='<div class="section-t">'+esc(t("report.byPresSec"))+'</div>';Object.keys(byPres).forEach(function(k){h+='<div class="stat">'+esc(presLabel(k))+' : <b>'+byPres[k]+'</b></div>';});
 
     if(n){h+='<div class="section-t">'+esc(t("report.byTypeSec"))+'</div>';["off","tremor","dysk","unk"].forEach(function(k){if(byType[k])h+='<div class="stat">'+esc(typeLbl(k))+' : <b>'+byType[k]+'</b></div>';});}
+    if(byType.off){var oss=["morning","wearing","delayed","failure","sudden"].filter(function(k){return offSub[k];});if(oss.length){h+='<div class="section-t">'+esc(t("report.offSubSec"))+'</div>';oss.forEach(function(k){h+='<div class="stat">'+esc(t("off."+k))+' : <b>'+offSub[k]+'</b></div>';});}}
+    var nmk=["anxiety","fatigue","urinary","fog"].filter(function(k){return nmCount[k];});if(nmk.length){h+='<div class="section-t">'+esc(t("report.nmSec"))+'</div>';nmk.forEach(function(k){h+='<div class="stat">'+esc(t("nm."+k))+' : <b>'+nmCount[k]+'</b></div>';});}
     var exGiven=ex.helped+ex.nohelp+ex.unknown;
     if(exGiven){h+='<div class="section-t">'+esc(t("report.extraSec"))+'</div>';h+='<div class="stat">'+esc(tf("report.extraGiven",{g:exGiven,n:n}))+'</div>';h+='<div class="stat">'+esc(tf("report.extraHelpedLine",{h:ex.helped,g:exGiven}))+'</div>';}
+    var ms=load(MOTORKEY).filter(function(x){return x&&x.time>=fromT&&x.state;});
+    if(ms.length){var mc={on:0,off:0,dysk:0};ms.forEach(function(x){if(mc.hasOwnProperty(x.state))mc[x.state]++;});
+      var mtot=mc.on+mc.off+mc.dysk,goodPct=mtot?Math.round(mc.on/mtot*100):0;
+      h+='<div class="section-t">'+esc(t("report.stateSec"))+'</div>';
+      h+='<div class="big" style="color:#27ae60">'+goodPct+'%</div>';
+      h+='<div class="stat" style="opacity:.75">'+esc(tf("report.stateGoodOn",{p:goodPct,n:mtot}))+'</div>';
+      h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(t("report.stateLegend"))+'</div>';
+      var byDay={},order=[];ms.forEach(function(x){var d=fmtDate(x.time);if(!byDay[d]){byDay[d]={on:0,off:0,dysk:0};order.push(d);}if(byDay[d].hasOwnProperty(x.state))byDay[d][x.state]++;});
+      order.slice(-14).forEach(function(d){var g=byDay[d],tt=g.on+g.off+g.dysk;if(!tt)return;
+        h+='<div class="barRow"><span class="h">'+esc(d.slice(0,5))+'</span><span style="flex:1;display:flex;height:14px;border-radius:4px;overflow:hidden;background:#eee">'
+          +'<i style="width:'+(g.on/tt*100)+'%;background:#27ae60"></i><i style="width:'+(g.off/tt*100)+'%;background:#e67e22"></i><i style="width:'+(g.dysk/tt*100)+'%;background:#8e44ad"></i></span></div>';});
+    }
+    var wq=load(WOQKEY);if(wq.length){var lastwq=wq[wq.length-1];h+='<div class="section-t">'+esc(t("report.woqSec"))+'</div>';h+='<div class="stat">'+esc(tf("report.woqLine",{d:fmtDate(lastwq.time),n:lastwq.score,v:t(lastwq.positive?"woq.pos":"woq.neg")}))+'</div>';}
     var ilist=loadInc().filter(function(inc){return inc.time>=fromT;});
     if(ilist.length){var ic={};ilist.forEach(function(inc){ic[inc.type]=(ic[inc.type]||0)+1;});var injN=ilist.filter(function(inc){return inc.injury;}).length;
       h+='<div class="section-t">'+esc(t("report.incSec"))+'</div>';
@@ -1719,12 +1872,12 @@
 
   // ---- EXPORT ----
   function csvField(s){s=String(s==null?"":s).replace(/\r?\n/g,' / ');if(s.indexOf(';')>-1||s.indexOf('"')>-1){s='"'+s.replace(/"/g,'""')+'"';}return s;}
-  function doExport(){var list=loadCrises().slice().sort(function(a,b){return a.start-b.start;});
+  function doExport(anon){var list=loadCrises().slice().sort(function(a,b){return a.start-b.start;});
     var FR=(lang==="fr");var YES=FR?"Oui":"Yes",NO=FR?"Non":"No";
-    var head=FR?"Date;Debut;Fin;Duree;Type;Douleur;Presence;Delai_apres_medic_min;Medicament_avant_crise;Traitement;Dose_suppl"
-               :"Date;Start;End;Duration;Type;Pain;Presence;Delay_after_med_min;Medication_before_episode;Treatment;Extra_dose";
+    var head=FR?"Date;Debut;Fin;Duree;Type;Sous_type_OFF;Non_moteur;Douleur;Presence;Delai_apres_medic_min;Medicament_avant_crise;Traitement;Dose_suppl"
+               :"Date;Start;End;Duration;Type;OFF_subtype;Non_motor;Pain;Presence;Delay_after_med_min;Medication_before_episode;Treatment;Extra_dose";
     var rows=[head];
-    for(var i=0;i<list.length;i++){var e=list[i];var dur=e.end?fmtDur(e.end-e.start):"";var lat=e.lastMed?Math.round((e.start-e.lastMed)/60000):"";var pv=e.presence==="Seule"?"alone":e.presence;rows.push([fmtDate(e.start),fmtClock(e.start),e.end?fmtClock(e.end):"",dur,typeCsvLbl(e.type),e.pain?YES:NO,presLabel(pv),lat,csvField(e.lastMedLabel),csvField(e.regimen),csvField(extraLbl(e.extra))].join(";"));}
+    for(var i=0;i<list.length;i++){var e=list[i];var dur=e.end?fmtDur(e.end-e.start):"";var lat=e.lastMed?Math.round((e.start-e.lastMed)/60000):"";var pv=e.presence==="Seule"?"alone":e.presence;rows.push([fmtDate(e.start),fmtClock(e.start),e.end?fmtClock(e.end):"",dur,typeCsvLbl(e.type),csvField(offLbl(e.offType)),csvField(nmCsv(e.nm)),e.pain?YES:NO,(anon?(pv==="alone"?(FR?"Seul(e)":"Alone"):(FR?"Accompagne(e)":"Accompanied")):presLabel(pv)),lat,csvField(e.lastMedLabel),csvField(e.regimen),csvField(extraLbl(e.extra))].join(";"));}
     var mlist=normMed(load(MEDKEY)).slice().sort(function(a,b){return a.time-b.time;});
     if(mlist.length){rows.push("");
       rows.push(FR?"Medicaments donnes":"Medications given");
@@ -1740,13 +1893,20 @@
       rows.push(FR?"Suivi quotidien (Appetit / Humeur / Douleur / Sommeil, 1=faible/mauvaise/aucune a 5=bon/bonne/intense)":"Daily tracking (Appetite / Mood / Pain / Sleep, 1=low/poor/none to 5=good/strong/intense)");
       rows.push(FR?"Date;Heure;Appetit;Humeur;Douleur;Sommeil;Poids_kg":"Date;Time;Appetite;Mood;Pain;Sleep;Weight_kg");
       wlist.forEach(function(w){rows.push([fmtDate(w.time),fmtClock(w.time),w.appetite||"",w.mood||"",w.pain||"",w.sleep||"",w.weight||""].join(";"));});}
+    var mslist=load(MOTORKEY).slice().sort(function(a,b){return a.time-b.time;});
+    if(mslist.length){rows.push("");rows.push(FR?"Mobilite (instantanes)":"Mobility (snapshots)");rows.push(FR?"Date;Heure;Etat":"Date;Time;State");
+      mslist.forEach(function(x){rows.push([fmtDate(x.time),fmtClock(x.time),(x.state?t("state."+x.state):"")].join(";"));});}
+    var wqlist=load(WOQKEY).slice().sort(function(a,b){return a.time-b.time;});
+    if(wqlist.length){rows.push("");rows.push(FR?"WOQ-9 (usure de dose)":"WOQ-9 (wearing-off)");rows.push(FR?"Date;Heure;Score;Resultat;Symptomes":"Date;Time;Score;Result;Symptoms");
+      wqlist.forEach(function(w){rows.push([fmtDate(w.time),fmtClock(w.time),w.score,(w.positive?(FR?"Usure probable":"Wearing-off likely"):(FR?"Pas nette":"Not clear")),csvField((w.items||[]).map(function(k){return t("woq."+k);}).join(" / "))].join(";"));});}
     var ilist=loadInc().slice().sort(function(a,b){return a.time-b.time;});
     if(ilist.length){rows.push("");rows.push(FR?"Incidents":"Incidents");
-      rows.push(FR?"Date;Heure;Type;Blessure;Description":"Date;Time;Type;Injury;Description");
-      ilist.forEach(function(inc){rows.push([fmtDate(inc.time),fmtClock(inc.time),incLbl(inc.type),inc.injury?YES:NO,csvField(inc.note)].join(";"));});}
+      rows.push(FR?"Date;Heure;Type;Blessure;Declencheur;Pendant_OFF;Description":"Date;Time;Type;Injury;Trigger;During_OFF;Description");
+      ilist.forEach(function(inc){rows.push([fmtDate(inc.time),fmtClock(inc.time),incLbl(inc.type),inc.injury?YES:NO,csvField(trigLbl(inc.trigger)),(inc.off===true?YES:(inc.off===false?NO:"")),csvField(anon?"":inc.note)].join(";"));});}
     var blob=new Blob(["\ufeff"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
-    saveOrShare(blob,(FR?"crises_":"episodes_")+nameP().toLowerCase()+".csv");}
-  $("exportBtn").addEventListener("click",doExport);$("exportBtn2").addEventListener("click",doExport);
+    saveOrShare(blob,anon?(FR?"parkinson-recherche.csv":"parkinson-research.csv"):((FR?"crises_":"episodes_")+nameP().toLowerCase()+".csv"));}
+  $("exportBtn").addEventListener("click",function(){doExport(false);});$("exportBtn2").addEventListener("click",function(){doExport(false);});
+  $("exportResearch").addEventListener("click",function(){doExport(true);});
 
   /* Getting a file off the device.
      `<a download>` is a browser-only trick: it does nothing inside an iOS WKWebView
@@ -1780,7 +1940,7 @@
      a new phone, a reinstall, or "Clear Website Data". The CSV export is a report,
      not a backup — it cannot be read back in. This is the only route to the data
      surviving the device. */
-  function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG];}
+  function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG,WOQKEY,MOTORKEY];}
   // ---- DEMO MODE (Priority 5): practise safely; real data is snapshotted and restored ----
   function inDemo(){return localStorage.getItem(DEMOKEY)==="1";}
   function demoSample(){
@@ -1823,6 +1983,38 @@
   $("demoLoadBtn").addEventListener("click",function(){confirmModal(t("demo.loadConfirm"),loadDemo);});
   $("demoClearBtn").addEventListener("click",clearDemo);
   $("demoBanner").addEventListener("click",clearDemo);
+  // ---- WOQ-9 wearing-off screen (validated: 5 motor + 4 non-motor; positive at >=2) ----
+  var WOQKEY="woq_v5";
+  var WOQ_ITEMS=["tremor","slow","cramp","dexterity","stiff","anxiety","mood","pain","cloudy"];
+  function openWoq(){
+    $("woqTitle").textContent=t("woq.title");$("woqIntro").textContent=t("woq.intro");$("woqNote").textContent=t("woq.note");
+    $("woqCancel").textContent=t("common.cancel");$("woqSave").textContent=t("common.save");
+    var html="";WOQ_ITEMS.forEach(function(k){html+='<label class="woqRow"><input type="checkbox" class="woqChk" data-k="'+k+'"><span>'+esc(t("woq."+k))+'</span></label>';});
+    $("woqRows").innerHTML=html;$("woqModal").classList.add("show");
+  }
+  $("woqBtn").addEventListener("click",openWoq);
+  $("woqCancel").addEventListener("click",function(){$("woqModal").classList.remove("show");});
+  $("woqSave").addEventListener("click",function(){
+    var items=[];document.querySelectorAll("#woqRows .woqChk").forEach(function(c){if(c.checked)items.push(c.dataset.k);});
+    var l=load(WOQKEY);l.push({time:Date.now(),score:items.length,positive:items.length>=2,items:items});
+    save(WOQKEY,l);refreshBackupNag();$("woqModal").classList.remove("show");
+    alert(tf("woq.result",{n:items.length,v:t(items.length>=2?"woq.pos":"woq.neg")}));
+  });
+  // ---- Motor-state snapshots: quick ON/OFF/dyskinesia taps -> approximate good ON time ----
+  var MOTORKEY="motor_v5";
+  $("stateBtn").addEventListener("click",function(){
+    $("stateTitle").textContent=t("state.title");
+    document.querySelector('.stOpt[data-st="on"]').textContent=t("state.on");
+    document.querySelector('.stOpt[data-st="off"]').textContent=t("state.off");
+    document.querySelector('.stOpt[data-st="dysk"]').textContent=t("state.dysk");
+    $("stateCancel").textContent=t("common.cancel");
+    $("stateModal").classList.add("show");
+  });
+  $("stateCancel").addEventListener("click",function(){$("stateModal").classList.remove("show");});
+  document.querySelectorAll(".stOpt").forEach(function(b){b.addEventListener("click",function(){
+    var l=load(MOTORKEY);l.push({time:Date.now(),state:b.dataset.st});save(MOTORKEY,l);refreshBackupNag();
+    $("stateModal").classList.remove("show");
+  });});
   function hasAnyData(){return loadCrises().length||load(MEDKEY).length||loadWell().length||load(INCKEY).length;}
   function doBackup(){
     var data={_app:"parkinson-companion",_v:5,_at:Date.now()};

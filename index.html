@@ -808,7 +808,7 @@
     "report.extraSec":{fr:"Dose supplémentaire pendant la crise",en:"Extra dose during the episode"},
     "report.extraGiven":{fr:"Donnée : {g} / {n}",en:"Given: {g} / {n}"},
     "report.extraHelpedLine":{fr:"A aidé : {h} / {g}",en:"Helped: {h} / {g}"},
-    "report.hoursLegend":{fr:"Barres bleues = crises. Barres orange = blocages (freezing).",en:"Blue bars = episodes. Orange bars = freezing."},
+    "report.hoursLegend":{fr:"🟦 Crises · 🟧 Blocages (freezing) · 💊 Heure de prise prévue",en:"🟦 Episodes · 🟧 Freezing · 💊 Scheduled dose time"},
     "report.doseTimesLine":{fr:"💊 Doses prévues : {t}",en:"💊 Scheduled doses: {t}"},
     "demo.section":{fr:"Essayer l'application",en:"Try the app"},
     "demo.hint":{fr:"Chargez des données d'exemple pour vous entraîner sans crainte, y compris le bouton de crise. Vos vraies données sont mises de côté et restaurées quand vous quittez la démo.",en:"Load sample data to practise without fear, including the crisis button. Your real data is set aside and restored when you leave the demo."},
@@ -1332,6 +1332,27 @@
   // Export uses the precise clinical name so the CSV reads as a medical record.
   function typeCsvLbl(tp){var m={tremor:"typeCsv.tremor",dysk:"typeCsv.dysk",off:"typeCsv.off",unk:"typeCsv.unk"};return t(m[tp]||"typeCsv.unk");}
   function extraLbl(v){return v?t("extra."+v):"";}
+  /* A self-contained inline-SVG 24-hour chart (no library, works offline, prints
+     in black & white, adapts to dark mode). Bars per hour: crises (blue) with
+     freezing (orange) stacked on top; dashed guides + a pill mark scheduled dose
+     hours, so wearing-off against the dosing clock is readable at a glance. */
+  function hoursChartSVG(hours,frz,doseHrs){
+    var W=340,H=152,L=8,R=8,T=18,B=24,pw=W-L-R,ph=H-T-B,bw=pw/24,max=1,i;
+    for(i=0;i<24;i++){var v=(hours[i]||0)+(frz[i]||0);if(v>max)max=v;}
+    function X(i){return L+i*bw;}
+    var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="'+esc(t("report.hoursSec"))+'" style="display:block;max-width:100%;font-family:inherit;color:#1e2a38">';
+    s+='<line x1="'+L+'" y1="'+(T+ph)+'" x2="'+(W-R)+'" y2="'+(T+ph)+'" stroke="currentColor" stroke-opacity="0.35"/>';
+    for(i=0;i<24;i++){ if(doseHrs[i]){ var cx=(X(i)+bw/2).toFixed(1);
+      s+='<line x1="'+cx+'" y1="'+T+'" x2="'+cx+'" y2="'+(T+ph)+'" stroke="currentColor" stroke-opacity="0.18" stroke-dasharray="2 2"/>';
+      s+='<text x="'+cx+'" y="'+(T-6)+'" text-anchor="middle" font-size="9">💊</text>'; } }
+    for(i=0;i<24;i++){ var cH=hours[i]||0, fH=frz[i]||0, cxb=(X(i)+bw/2).toFixed(1), bWi=(bw*0.68).toFixed(1), yb=T+ph;
+      if(cH){var hc=cH/max*ph; s+='<line x1="'+cxb+'" x2="'+cxb+'" y1="'+yb.toFixed(1)+'" y2="'+(yb-hc).toFixed(1)+'" stroke="#2980b9" stroke-width="'+bWi+'"/>'; yb-=hc;}
+      if(fH){var hf=fH/max*ph; s+='<line x1="'+cxb+'" x2="'+cxb+'" y1="'+yb.toFixed(1)+'" y2="'+(yb-hf).toFixed(1)+'" stroke="#e67e22" stroke-width="'+bWi+'"/>';} }
+    [0,6,12,18].forEach(function(hh){ s+='<text x="'+(X(hh)+bw/2).toFixed(1)+'" y="'+(H-7)+'" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">'+pad(hh)+'h</text>'; });
+    s+='<text x="'+(W-R)+'" y="'+(H-7)+'" text-anchor="end" font-size="9" fill="currentColor" fill-opacity="0.7">23h</text>';
+    s+='<text x="'+L+'" y="'+(T-6)+'" font-size="9" fill="currentColor" fill-opacity="0.7">'+max+'</text>';
+    return s+'</svg>';
+  }
 
   // ---- HISTORY ----
   $("histLink").addEventListener("click",function(){renderHistory();show("historyScreen");});
@@ -1651,12 +1672,14 @@
     h+='<div class="section-t">'+esc(tf("report.aloneSec",{name:nameP()}))+'</div><div class="big alone-num">'+alone+' / '+n+'</div>';
     h+='<div class="section-t">'+esc(t("report.painSec"))+'</div><div class="big" style="color:#8e44ad">'+pain+' / '+n+'</div>';
     h+='<div class="section-t">'+esc(t("report.hoursSec"))+'</div>';
-    h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(t("report.hoursLegend"))+'</div>';
     var slots=scheduleSlots(),doseHrs={};slots.forEach(function(s){doseHrs[Math.floor(s.min/60)]=true;});
-    if(slots.length)h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(tf("report.doseTimesLine",{t:slots.map(function(s){return pad(Math.floor(s.min/60))+":"+pad(s.min%60);}).join(", ")}))+'</div>';
-    var any=false;
-    for(var i=0;i<24;i++){if(!hours[i]&&!frz[i])continue;any=true;var row='<div class="barRow"><span class="h">'+pad(i)+'h'+(doseHrs[i]?" 💊":"")+'</span>';if(hours[i])row+='<span class="bar" style="width:'+(hours[i]/maxH*160)+'px"></span><span>'+hours[i]+'</span>';if(frz[i])row+='<span class="bar bar-frz" style="width:'+(frz[i]/maxH*160)+'px"></span><span style="color:#b9631a">'+frz[i]+' \u2744</span>';h+=row+'</div>';}
-    if(!any)h+='<div class="stat">'+esc(t("report.noData"))+'</div>';
+    var anyH=false;for(var hi=0;hi<24;hi++){if(hours[hi]||frz[hi]){anyH=true;break;}}
+    if(anyH){
+      h+='<div style="margin:6px 0 2px">'+hoursChartSVG(hours,frz,doseHrs)+'</div>';
+      h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(t("report.hoursLegend"))+'</div>';
+      if(slots.length)h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(tf("report.doseTimesLine",{t:slots.map(function(s){return pad(Math.floor(s.min/60))+":"+pad(s.min%60);}).join(", ")}))+'</div>';
+    }
+    if(!anyH)h+='<div class="stat">'+esc(t("report.noData"))+'</div>';
     h+='<div class="section-t">'+esc(t("report.latencySec"))+'</div><div class="stat">'+tf("report.median",{v:(medLat!==null?tf("report.min",{n:medLat}):t("report.notCalc"))})+'</div>';
     h+='<div class="section-t">'+esc(t("report.byPresSec"))+'</div>';Object.keys(byPres).forEach(function(k){h+='<div class="stat">'+esc(presLabel(k))+' : <b>'+byPres[k]+'</b></div>';});
 

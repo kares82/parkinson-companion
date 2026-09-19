@@ -465,3 +465,28 @@ test.describe('no dead-ends', () => {
     expect(await page.evaluate(() => localStorage.getItem('presence_v5'))).toBe('alone');
   });
 });
+
+test.describe('dialogs never trap the user', () => {
+  // Open each dialog and confirm it can be dismissed — a swept guard against
+  // any future dead-end.
+  test('each dialog opens and can be dismissed', async ({ page }) => {
+    page.on('dialog', d => d.accept());
+    await seed(page, { crises_v5: [episode()], medlist_v5: [{ name: 'Levodopa', dose: '100mg', times: '08:00' }] });
+    const cycle = async (open, modal, close) => {
+      await page.click(open);
+      await expect(page.locator(modal)).toBeVisible();
+      await page.click(close);
+      await expect(page.locator(modal)).not.toBeVisible();
+    };
+    await cycle('#medBtn', '#medModal', '#medCancel');
+    await cycle('#wellBtn', '#wellModal', '#wellCancel');
+    await cycle('#incBtn', '#incModal', '#incCancel');
+    await cycle('#presenceBadge', '#presencePick', '#presCancel');
+    await page.click('#histLink');
+    await expect(page.locator('#historyScreen')).toBeVisible();
+    await cycle('#histList .ep .epEdit', '#epModal', '#epCancel');
+    await cycle('#clearBtn', '#wipeModal', '#wipeCancel');
+    await page.click('#historyScreen [data-back]');
+    await expect(page.locator('#startScreen')).toBeVisible();
+  });
+});

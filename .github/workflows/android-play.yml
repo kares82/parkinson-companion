@@ -56,13 +56,18 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: "21" }
 
-      # The runner image already ships a full Android SDK at
-      # /usr/local/lib/android/sdk with licenses pre-accepted. Older
-      # android-actions/setup-android@v3 additionally ran `sdkmanager tools`,
-      # and GitHub removed that obsolete package from the image on 2025-09-19 —
-      # so the action now dies with "Failed to find package 'tools'" before the
-      # build even starts. Pin the version that stopped installing it.
-      - uses: android-actions/setup-android@v3.2.2
+      # Do NOT use android-actions/setup-android: every v3.x of it runs
+      # `sdkmanager tools`, and GitHub removed that obsolete package from the
+      # runner image (2025-09), so the action dies with "Failed to find package
+      # 'tools'" before the build starts. The ubuntu-24.04 image already ships a
+      # full Android SDK (ANDROID_SDK_ROOT) with licenses accepted; Gradle uses
+      # it directly. We only re-accept licenses defensively, with the SDK that
+      # is already installed, and never fail the build if that is a no-op.
+      - name: Accept Android SDK licenses (using the preinstalled SDK)
+        run: |
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT ANDROID_HOME=$ANDROID_HOME"
+          SDKM=$(ls "${ANDROID_SDK_ROOT:-$ANDROID_HOME}"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | head -1)
+          if [ -n "$SDKM" ]; then yes | "$SDKM" --licenses >/dev/null 2>&1 || true; fi
 
       - uses: actions/setup-node@v4
         with: { node-version: "22", cache: npm }

@@ -191,6 +191,12 @@
   #wipeConfirm{background:#c0392b;color:#fff;opacity:.45;}#wipeConfirm.on{opacity:1;}
   #extraModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
   #extraModal.show{display:flex;}
+  #sendModal,#contribModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
+  #sendModal.show,#contribModal.show{display:flex;}
+  #sendCard,#contribCard{background:#fff;color:#1e2a38;border-radius:18px;padding:22px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;}
+  #sendCard h3,#contribCard h3{font-size:20px;margin-bottom:6px;}
+  .modalBody{font-size:15px;line-height:1.5;margin-bottom:16px;}
+  .sendBtn{display:block;width:100%;padding:16px;margin-bottom:10px;font-size:16px;font-weight:800;border:none;border-radius:12px;min-height:52px;}
   #extraCard{background:#fff;color:#1e2a38;border-radius:18px;padding:22px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;}
   #extraCard h3{font-size:20px;margin-bottom:6px;}#extraBody{margin-bottom:14px;}
   .exOpt{display:block;width:100%;padding:16px;margin-bottom:10px;font-size:16px;font-weight:800;border:2px solid #ccc;border-radius:12px;background:#fafafa;color:#1e2a38;min-height:52px;}
@@ -419,6 +425,28 @@
       <button class="backBtn" data-back data-i18n="common.back">Retour</button>
       <button class="reportBtn" id="printBtn" data-i18n="report.print">Imprimer / PDF</button>
       <button class="exportBtn" id="exportBtn2" data-i18n="report.exportCsv">Exporter (CSV)</button>
+      <button class="reportBtn" id="sendReportBtn" data-i18n="send.btn" style="background:#16a085">Envoyer le rapport</button>
+      <button class="exportBtn" id="contribBtn" data-i18n="contrib.btn" style="display:none;background:#8e44ad;color:#fff">Contribuer à la recherche</button>
+    </div>
+  </div>
+
+  <div id="sendModal">
+    <div id="sendCard">
+      <h3 id="sendTitle">Envoyer le rapport</h3>
+      <p id="sendBody" class="modalBody">Envoyer à qui vous voulez (médecin, association…). Choisissez si le nom doit figurer.</p>
+      <button type="button" id="sendNamed" class="sendBtn" style="background:#16a085;color:#fff">Avec le nom</button>
+      <button type="button" id="sendAnon" class="sendBtn" style="background:#8e44ad;color:#fff">Anonyme</button>
+      <button type="button" id="sendCancel" class="sendBtn" style="background:#eee;color:#333">Annuler</button>
+    </div>
+  </div>
+
+  <div id="contribModal">
+    <div id="contribCard">
+      <h3 id="contribTitle">Contribuer à la recherche</h3>
+      <p id="contribBody" class="modalBody">Envoie une copie anonyme (sans nom ni notes) à l'adresse de recherche. Volontaire.</p>
+      <button type="button" id="contribCopy" class="sendBtn" style="background:#eee;color:#333">Copier l'adresse</button>
+      <button type="button" id="contribSend" class="sendBtn" style="background:#8e44ad;color:#fff">Envoyer une copie anonyme</button>
+      <button type="button" id="contribCancel" class="sendBtn" style="background:#eee;color:#333">Annuler</button>
     </div>
   </div>
 
@@ -698,6 +726,10 @@
      (App Store review rejects external donation links; Play and web are fine).
      While it still contains REMPLACER the link stays hidden. */
   var DONATE_URL="https://www.paypal.com/donate/?business=kares82%40gmail.com&item_name=Parkinson+Companion&currency_code=EUR";
+  /* Optional research-contribution address. While it contains REMPLACER the
+     "Contribute anonymised data" button stays hidden. Only ever receives the
+     de-identified export, and only when a patient explicitly chooses to send. */
+  var RESEARCH_EMAIL="REMPLACER@exemple.org";
 
   // ---------- i18n ----------
   var STR={
@@ -728,6 +760,18 @@
     "start.well":{fr:"Bien-être",en:"Wellbeing",de:"Befinden",it:"Benessere",es:"Bienestar"},
     "start.newBag":{fr:"Nouvelle poche",en:"New pouch",de:"Neuer Beutel",it:"Nuova sacca",es:"Nueva bolsa"},
     "start.incident":{fr:"⚠ Signaler un incident (chute, blocage...)",en:"⚠ Report an incident (fall, freezing…)",de:"⚠ Vorfall melden (Sturz, Freezing…)",it:"⚠ Segnala un incidente (caduta, freezing…)",es:"⚠ Notificar un incidente (caída, freezing…)"},
+    "send.btn":{fr:"Envoyer le rapport",en:"Send report",de:"Bericht senden",it:"Invia il rapporto",es:"Enviar el informe"},
+    "send.title":{fr:"Envoyer le rapport",en:"Send report",de:"Bericht senden",it:"Invia il rapporto",es:"Enviar el informe"},
+    "send.body":{fr:"Vous choisissez le destinataire (médecin, association…) dans le menu de partage de votre téléphone. Le rapport et le fichier de données seront joints. Le nom doit-il figurer ?",en:"You choose the recipient (doctor, association…) in your phone's share menu. The report and the data file will be attached. Should the name be included?",de:"Sie wählen den Empfänger (Arzt, Verein…) im Teilen-Menü Ihres Telefons. Der Bericht und die Datendatei werden angehängt. Soll der Name enthalten sein?",it:"Scegli il destinatario (medico, associazione…) nel menu di condivisione del telefono. Il rapporto e il file di dati saranno allegati. Includere il nome?",es:"Eliges el destinatario (médico, asociación…) en el menú de compartir del teléfono. Se adjuntarán el informe y el archivo de datos. ¿Incluir el nombre?"},
+    "send.withName":{fr:"Avec le nom",en:"With the name",de:"Mit Namen",it:"Con il nome",es:"Con el nombre"},
+    "send.anon":{fr:"Anonyme (sans nom)",en:"Anonymous (no name)",de:"Anonym (ohne Namen)",it:"Anonimo (senza nome)",es:"Anónimo (sin nombre)"},
+    "send.footer":{fr:"Généré par l'application Parkinson Companion (carnet de suivi, sans diagnostic).",en:"Generated by the Parkinson Companion app (tracking diary, not a diagnosis).",de:"Erstellt mit der App Parkinson Companion (Beobachtungstagebuch, keine Diagnose).",it:"Generato dall'app Parkinson Companion (diario di monitoraggio, non una diagnosi).",es:"Generado por la app Parkinson Companion (diario de seguimiento, no un diagnóstico)."},
+    "contrib.btn":{fr:"Contribuer à la recherche",en:"Contribute to research",de:"Zur Forschung beitragen",it:"Contribuisci alla ricerca",es:"Contribuir a la investigación"},
+    "contrib.title":{fr:"Contribuer des données anonymes",en:"Contribute anonymous data",de:"Anonyme Daten beitragen",it:"Contribuisci con dati anonimi",es:"Contribuir con datos anónimos"},
+    "contrib.body":{fr:"Envoie une copie ANONYME de vos données (sans nom, sans notes) à {email} pour aider la recherche. C'est volontaire et ponctuel — rien n'est envoyé automatiquement. Choisissez « Mail » dans le menu de partage ; l'adresse a été copiée pour vous.",en:"Sends an ANONYMOUS copy of your data (no name, no notes) to {email} to help research. It is voluntary and one-off — nothing is sent automatically. Pick “Mail” in the share menu; the address has been copied for you.",de:"Sendet eine ANONYME Kopie Ihrer Daten (ohne Namen, ohne Notizen) an {email}, um die Forschung zu unterstützen. Freiwillig und einmalig — nichts wird automatisch gesendet. Wählen Sie „Mail“ im Teilen-Menü; die Adresse wurde für Sie kopiert.",it:"Invia una copia ANONIMA dei tuoi dati (senza nome, senza note) a {email} per aiutare la ricerca. È volontario e occasionale — nulla viene inviato automaticamente. Scegli «Mail» nel menu di condivisione; l'indirizzo è stato copiato.",es:"Envía una copia ANÓNIMA de tus datos (sin nombre, sin notas) a {email} para ayudar a la investigación. Es voluntario y puntual — no se envía nada automáticamente. Elige «Mail» en el menú de compartir; la dirección se ha copiado."},
+    "contrib.send":{fr:"Envoyer une copie anonyme",en:"Send an anonymous copy",de:"Anonyme Kopie senden",it:"Invia una copia anonima",es:"Enviar una copia anónima"},
+    "contrib.copy":{fr:"Copier l'adresse",en:"Copy the address",de:"Adresse kopieren",it:"Copia l'indirizzo",es:"Copiar la dirección"},
+    "contrib.copied":{fr:"✓ Adresse copiée",en:"✓ Address copied",de:"✓ Adresse kopiert",it:"✓ Indirizzo copiato",es:"✓ Dirección copiada"},
     "help.callBtn":{fr:"☎ APPELER À L'AIDE",en:"☎ CALL FOR HELP",de:"☎ HILFE RUFEN",it:"☎ CHIEDI AIUTO",es:"☎ PEDIR AYUDA"},
     "help.title":{fr:"Appeler à l'aide",en:"Call for help",de:"Hilfe rufen",it:"Chiedi aiuto",es:"Pedir ayuda"},
     "help.note":{fr:"Touchez une personne pour l'appeler tout de suite.",en:"Tap a person to call them right away.",de:"Tippen Sie auf eine Person, um sie sofort anzurufen.",it:"Tocca una persona per chiamarla subito.",es:"Toca a una persona para llamarla de inmediato."},
@@ -1916,7 +1960,8 @@
 
   // ---- EXPORT ----
   function csvField(s){s=String(s==null?"":s).replace(/\r?\n/g,' / ');if(s.indexOf(';')>-1||s.indexOf('"')>-1){s='"'+s.replace(/"/g,'""')+'"';}return s;}
-  function doExport(anon){var list=loadCrises().slice().sort(function(a,b){return a.start-b.start;});
+  function doExport(anon){var r=buildCsvBlob(anon);saveOrShare(r.blob,r.filename);}
+  function buildCsvBlob(anon){var list=loadCrises().slice().sort(function(a,b){return a.start-b.start;});
     var FR=(lang==="fr");var YESMAP={fr:"Oui",en:"Yes",de:"Ja",it:"Sì",es:"Sí"},NOMAP={fr:"Non",en:"No",de:"Nein",it:"No",es:"No"};var YES=YESMAP[lang]||YESMAP.en,NO=NOMAP[lang]||NOMAP.en;
     var head=FR?"Date;Debut;Fin;Duree;Type;Sous_type_OFF;Non_moteur;Douleur;Presence;Delai_apres_medic_min;Medicament_avant_crise;Traitement;Dose_suppl"
                :"Date;Start;End;Duration;Type;OFF_subtype;Non_motor;Pain;Presence;Delay_after_med_min;Medication_before_episode;Treatment;Extra_dose";
@@ -1948,9 +1993,71 @@
       rows.push(FR?"Date;Heure;Type;Blessure;Declencheur;Pendant_OFF;Description":"Date;Time;Type;Injury;Trigger;During_OFF;Description");
       ilist.forEach(function(inc){rows.push([fmtDate(inc.time),fmtClock(inc.time),incLbl(inc.type),inc.injury?YES:NO,csvField(trigLbl(inc.trigger)),(inc.off===true?YES:(inc.off===false?NO:"")),csvField(anon?"":inc.note)].join(";"));});}
     var blob=new Blob(["\ufeff"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
-    saveOrShare(blob,anon?(FR?"parkinson-recherche.csv":"parkinson-research.csv"):((FR?"crises_":"episodes_")+nameP().toLowerCase()+".csv"));}
+    return {blob:blob,filename:anon?(FR?"parkinson-recherche.csv":"parkinson-research.csv"):((FR?"crises_":"episodes_")+nameP().toLowerCase()+".csv")};}
   $("exportBtn").addEventListener("click",function(){doExport(false);});$("exportBtn2").addEventListener("click",function(){doExport(false);});
   $("exportResearch").addEventListener("click",function(){doExport(true);});
+
+  /* ---- SEND / CONTRIBUTE (patient-initiated only) ----
+     The app itself never transmits. These build the report as files and hand them
+     to the phone's own share sheet / mail app, and only when the patient taps.
+     A readable one-page summary (from what is already on the report screen) plus
+     the CSV data file. "Anonymous" reuses the de-identified export (no name, no
+     free-text notes). This is the only way data leaves the device other than a
+     backup, and always by an explicit choice. */
+  function buildSummaryBlob(anon){
+    var who=anon?"\u2014":nameP();
+    var lines=[tf("report.title",{name:who}),""];
+    var body=$("reportBody")?($("reportBody").innerText||$("reportBody").textContent||""):"";
+    // Collapse the runs of blank lines the HTML-to-text conversion leaves behind.
+    body=body.replace(/\n{3,}/g,"\n\n").trim();
+    // The report body repeats the person's name (e.g. "…while Marie is ALONE").
+    // For an anonymous send, strip every occurrence so nothing identifies them.
+    if(anon){var nm=nameP();if(nm&&nm.trim())body=body.split(nm).join("—");}
+    lines.push(body);
+    lines.push("");lines.push(t("send.footer"));
+    var blob=new Blob([lines.join("\n")],{type:"text/plain;charset=utf-8"});
+    return {blob:blob,filename:(anon?"parkinson-report":("parkinson-"+(who||"report").toLowerCase()))+".txt"};
+  }
+  function shareFiles(blobs,names,title,onDone){
+    var files=[];
+    try{for(var i=0;i<blobs.length;i++)files.push(new File([blobs[i]],names[i],{type:blobs[i].type}));}catch(e){files=[];}
+    if(files.length&&navigator.share&&navigator.canShare&&navigator.canShare({files:files})){
+      navigator.share({files:files,title:title}).then(function(){if(onDone)onDone(true);})
+        .catch(function(err){if(err&&err.name==="AbortError"){if(onDone)onDone(false);return;}
+          for(var j=0;j<blobs.length;j++)downloadBlob(blobs[j],names[j]);if(onDone)onDone(true);});
+      return;
+    }
+    for(var k=0;k<blobs.length;k++)downloadBlob(blobs[k],names[k]);if(onDone)onDone(true);
+  }
+  function sendReport(anon){
+    var sum=buildSummaryBlob(anon),csv=buildCsvBlob(anon);
+    shareFiles([sum.blob,csv.blob],[sum.filename,csv.filename],t("send.title"));
+  }
+  // Send report \u2014 the patient picks the recipient (their doctor, an association\u2026)
+  // in the share sheet. Ask name-or-anonymous first.
+  $("sendReportBtn").addEventListener("click",function(){
+    $("sendTitle").textContent=t("send.title");$("sendBody").textContent=t("send.body");
+    $("sendNamed").textContent=t("send.withName");$("sendAnon").textContent=t("send.anon");
+    $("sendCancel").textContent=t("common.cancel");
+    $("sendModal").classList.add("show");
+  });
+  $("sendNamed").addEventListener("click",function(){$("sendModal").classList.remove("show");sendReport(false);});
+  $("sendAnon").addEventListener("click",function(){$("sendModal").classList.remove("show");sendReport(true);});
+  $("sendCancel").addEventListener("click",function(){$("sendModal").classList.remove("show");});
+  // Contribute anonymised data to research \u2014 always de-identified, always opt-in,
+  // sent to the address in RESEARCH_EMAIL (hidden until that is set).
+  $("contribBtn").addEventListener("click",function(){
+    $("contribTitle").textContent=t("contrib.title");$("contribBody").textContent=tf("contrib.body",{email:RESEARCH_EMAIL});
+    $("contribSend").textContent=t("contrib.send");$("contribCopy").textContent=t("contrib.copy");
+    $("contribCancel").textContent=t("common.cancel");
+    $("contribModal").classList.add("show");
+  });
+  $("contribCopy").addEventListener("click",function(){try{if(navigator.clipboard)navigator.clipboard.writeText(RESEARCH_EMAIL);}catch(e){}
+    this.textContent=t("contrib.copied");});
+  $("contribSend").addEventListener("click",function(){$("contribModal").classList.remove("show");
+    try{if(navigator.clipboard)navigator.clipboard.writeText(RESEARCH_EMAIL);}catch(e){}
+    var csv=buildCsvBlob(true);shareFiles([csv.blob],[csv.filename],t("contrib.title"));});
+  $("contribCancel").addEventListener("click",function(){$("contribModal").classList.remove("show");});
 
   /* Getting a file off the device.
      `<a download>` is a browser-only trick: it does nothing inside an iOS WKWebView
@@ -2204,6 +2311,8 @@
   $("introOk").addEventListener("click",function(){localStorage.setItem(INTROKEY,"1");$("introModal").classList.remove("show");});
   applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();updateDemoUI();applyBig();
   (function(){var w=$("donateWrap");if(!w)return;var native=!!(window.Capacitor);if(!native&&DONATE_URL.indexOf("REMPLACER")<0){$("donateLink").href=DONATE_URL;w.style.display="block";}})();
+  // Show "Contribute to research" only once a real collection address is set.
+  (function(){var b=$("contribBtn");if(b&&RESEARCH_EMAIL.indexOf("REMPLACER")<0)b.style.display="";})();
   resumeActive();   // pick a running episode back up if the app was closed mid-crisis
   setInterval(function(){if($("startScreen").classList.contains("show")){refreshDoseBar();refreshSupplyBar();}},60000);
   document.addEventListener("visibilitychange",function(){if(!document.hidden){if(current)requestCrisisWake();refreshDoseBar();refreshSupplyBar();refreshBackupNag();}});

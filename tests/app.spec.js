@@ -693,3 +693,64 @@ test.describe('language auto-detection by device / store region', () => {
     await expect(page.locator('#setLink')).toHaveText('Ajustes');
   });
 });
+
+test.describe('sending and contributing reports', () => {
+  // Capture what the app hands to the OS share sheet, without anything leaving.
+  const stubShare = () => {
+    window.__shared = null;
+    const read = f => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsText(f); });
+    navigator.canShare = () => true;
+    navigator.share = async (data) => {
+      const files = data.files || [];
+      const texts = await Promise.all(files.map(read));
+      window.__shared = { title: data.title, names: files.map(f => f.name), texts };
+    };
+  };
+  const openReport = async (page) => {
+    await page.click('#histLink'); await page.click('#toReport');
+    await expect(page.locator('#reportScreen')).toBeVisible();
+  };
+
+  test('Send report is patient-initiated and asks name-or-anonymous', async ({ page }) => {
+    await page.addInitScript(stubShare);
+    await seed(page, { crises_v5: [episode()], pname_v5: 'Marie' });
+    await openReport(page);
+    await page.click('#sendReportBtn');
+    await expect(page.locator('#sendModal')).toBeVisible();
+    // Nothing has been shared just by opening the dialog.
+    expect(await page.evaluate(() => window.__shared)).toBeNull();
+    await page.click('#sendNamed');
+    await page.waitForFunction(() => window.__shared);
+    const shared = await page.evaluate(() => window.__shared);
+    expect(shared.names.length).toBe(2);                 // readable summary + CSV
+    expect(shared.texts.join('\n')).toContain('Marie');  // named report includes the name
+  });
+
+  test('an anonymous send strips the person name from the summary', async ({ page }) => {
+    await page.addInitScript(stubShare);
+    await seed(page, { crises_v5: [episode()], pname_v5: 'Marie' });
+    await openReport(page);
+    await page.click('#sendReportBtn');
+    await page.click('#sendAnon');
+    await page.waitForFunction(() => window.__shared);
+    const shared = await page.evaluate(() => window.__shared);
+    expect(shared.texts[0]).not.toContain('Marie');      // summary is de-identified
+  });
+
+  test('cancelling the send dialog shares nothing', async ({ page }) => {
+    await page.addInitScript(stubShare);
+    await seed(page, { crises_v5: [episode()] });
+    await openReport(page);
+    await page.click('#sendReportBtn');
+    await page.click('#sendCancel');
+    await expect(page.locator('#sendModal')).toBeHidden();
+    expect(await page.evaluate(() => window.__shared)).toBeNull();
+  });
+
+  test('the research-contribution button stays hidden until an address is configured', async ({ page }) => {
+    await seed(page, { crises_v5: [episode()] });
+    await openReport(page);
+    // RESEARCH_EMAIL ships as a placeholder, so collection is off by default.
+    await expect(page.locator('#contribBtn')).toBeHidden();
+  });
+});

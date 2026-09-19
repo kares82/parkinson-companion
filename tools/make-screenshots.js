@@ -12,7 +12,10 @@ const path = require('path');
 
 const BASE = process.env.BASE_URL || 'http://127.0.0.1:8099';
 const OUT = 'fastlane/screenshots';
-const SIZES = [{ name: 'iphone69', w: 430, h: 932, scale: 3 }];   // 1290x2796
+const SIZES = [
+  { name: 'iphone69', w: 430, h: 932, scale: 3 },   // 1290x2796 (6.7"/6.9" slot)
+  { name: 'iphone65', w: 414, h: 896, scale: 3 },   // 1242x2688 (6.5" slot)
+];
 
 // Plausible two months of history. Deliberately unremarkable numbers: a store
 // screenshot must not read as a clinical claim.

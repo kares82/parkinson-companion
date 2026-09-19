@@ -168,6 +168,20 @@
   #backupNag{display:none;padding:9px 10px;background:#f1c40f;color:#4d3c00;font-size:clamp(11px,3vw,13px);font-weight:700;text-align:center;line-height:1.35;}
   #backupNag.show{display:block;}
   #backupNagBtn{margin-top:6px;padding:9px 16px;font-size:13px;font-weight:800;border:none;border-radius:8px;background:#4d3c00;color:#fff;min-height:38px;}
+  #backupNag{position:relative;}
+  #backupNagClose{position:absolute;top:2px;right:4px;background:transparent;border:none;color:#4d3c00;font-size:16px;font-weight:800;line-height:1;padding:4px 8px;min-height:32px;min-width:32px;}
+  #lastBackupState.warn{color:#c0392b;font-weight:800;}
+  #introModal,#wipeModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
+  #introModal.show,#wipeModal.show{display:flex;}
+  #introCard,#wipeCard{background:#fff;color:#1e2a38;border-radius:18px;padding:22px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;}
+  #introCard h3,#wipeCard h3{font-size:21px;margin-bottom:12px;}
+  #introBody,#wipeBody{font-size:15px;line-height:1.5;white-space:pre-line;margin-bottom:18px;}
+  #introOk{width:100%;padding:18px;font-size:17px;font-weight:800;border:none;border-radius:12px;background:#27ae60;color:#fff;min-height:52px;}
+  #wipeInput{width:100%;padding:14px;font-size:18px;text-align:center;letter-spacing:.05em;border:2px solid #ccc;border-radius:10px;margin-bottom:14px;text-transform:uppercase;}
+  #wipeCard .cBtns{display:flex;gap:10px;}
+  #wipeCard .cBtns button{flex:1;padding:16px 6px;font-size:16px;font-weight:800;border:none;border-radius:12px;min-height:52px;}
+  #wipeCancel{background:#eee;color:#333;}
+  #wipeConfirm{background:#c0392b;color:#fff;opacity:.45;}#wipeConfirm.on{opacity:1;}
 
   /* ---- time adjust (shared by med / wellbeing / incident) ---- */
   .tAdj{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
@@ -240,7 +254,7 @@
       <button type="button" id="histLink" class="corner" data-i18n="nav.history">Historique</button>
     </div>
     <div id="doseBar"></div>
-    <div id="backupNag"><span id="backupNagTxt"></span><br><button id="backupNagBtn" type="button">Sauvegarder</button></div>
+    <div id="backupNag"><button id="backupNagClose" type="button" aria-label="Fermer">✕</button><span id="backupNagTxt"></span><br><button id="backupNagBtn" type="button">Sauvegarder</button></div>
     <div id="presenceBadge">Avec la personne : <span id="presNow">Seule</span> — toucher pour changer</div>
     <div id="tapZone"><h1 data-i18n-html="start.tap">Appuyer<br>ici</h1><p data-i18n="start.tapSub">quand la crise commence</p></div>
     <button id="helpBtnMain" data-i18n="help.callBtn">☎ APPELER À L'AIDE</button>
@@ -394,6 +408,24 @@
     </div>
   </div>
 
+  <div id="introModal">
+    <div id="introCard">
+      <h3 id="introTitle"></h3>
+      <div id="introBody"></div>
+      <button id="introOk" type="button"></button>
+    </div>
+  </div>
+  <div id="wipeModal">
+    <div id="wipeCard">
+      <h3 id="wipeTitle"></h3>
+      <div id="wipeBody"></div>
+      <input id="wipeInput" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <div class="cBtns">
+        <button id="wipeCancel" type="button"></button>
+        <button id="wipeConfirm" type="button"></button>
+      </div>
+    </div>
+  </div>
   <div id="confirmModal">
     <div id="confirmCard">
       <div id="confirmMsg"></div>
@@ -516,7 +548,7 @@
 (function(){
   var KEY="crises_v5",MEDKEY="meds_v5",PRESKEY="presence_v5",SUP="supply_v5",REG="regimen_v5",
       H="husband_v5",C="caregiver_v5",PNAME="pname_v5",HNAME="hname_v5",CNAME="cname_v5",LANGKEY="lang_v5",EMERG="emerg_v5",
-      BACKUPKEY="lastbackup_v5",ACTIVEKEY="active_v5";
+      BACKUPKEY="lastbackup_v5",ACTIVEKEY="active_v5",INTROKEY="introseen_v5",NAGKEY="nagsnooze_v5";
 
   // ---------- i18n ----------
   var STR={
@@ -632,6 +664,19 @@
     "backup.persistOff":{fr:"⚠ Le navigateur peut effacer ces données pour libérer de la place. Installez l'appli sur l'écran d'accueil et sauvegardez régulièrement.",en:"⚠ The browser may erase this data to free up space. Install the app to the Home Screen and back up regularly."},
     "backup.nag":{fr:"⚠ Vos données ne sont enregistrées que sur ce téléphone et ne sont pas sauvegardées.",en:"⚠ Your data is only on this phone and is not backed up."},
     "backup.nagBtn":{fr:"Sauvegarder maintenant",en:"Back up now"},
+    "backup.dismiss":{fr:"Plus tard",en:"Later"},
+    "backup.lastToday":{fr:"Dernière sauvegarde : aujourd'hui.",en:"Last backup: today."},
+    "backup.lastYesterday":{fr:"Dernière sauvegarde : hier.",en:"Last backup: yesterday."},
+    "backup.lastDays":{fr:"Dernière sauvegarde : il y a {n} jours.",en:"Last backup: {n} days ago."},
+    "backup.lastNever":{fr:"Aucune sauvegarde effectuée pour l'instant.",en:"No backup has been made yet."},
+    "intro.title":{fr:"Bienvenue",en:"Welcome"},
+    "intro.body":{fr:"Cette application enregistre tout uniquement sur ce téléphone. Rien n'est envoyé sur Internet.\n\nCela veut dire que si vous changez de téléphone, réinstallez l'application, ou effacez les données du navigateur, tout l'historique sera perdu.\n\nPour éviter cela : ouvrez « Réglages » et touchez « Enregistrer une sauvegarde » de temps en temps. Vous obtiendrez un fichier à envoyer par e-mail ou à garder ailleurs. L'application vous le rappellera.",en:"This app saves everything on this phone only. Nothing is sent to the Internet.\n\nThis means that if you change phone, reinstall the app, or clear the browser's data, the whole history will be lost.\n\nTo prevent this: open 'Settings' and tap 'Save a backup' now and then. You will get a file you can e-mail or keep somewhere safe. The app will remind you."},
+    "intro.ok":{fr:"J'ai compris",en:"Got it"},
+    "wipe.title":{fr:"Tout effacer",en:"Erase everything"},
+    "wipe.body":{fr:"Ceci supprimera définitivement TOUT l'historique de cet appareil (crises, médicaments, bien-être, incidents). Cela ne peut pas être annulé. Faites d'abord une sauvegarde.\n\nPour confirmer, écrivez {w} ci-dessous.",en:"This will permanently delete ALL history on this device (episodes, medication, wellbeing, incidents). This cannot be undone. Make a backup first.\n\nTo confirm, type {w} below."},
+    "wipe.word":{fr:"EFFACER",en:"ERASE"},
+    "wipe.confirm":{fr:"Tout effacer",en:"Erase everything"},
+    "wipe.done":{fr:"Toutes les données ont été effacées.",en:"All data has been erased."},
     "privacy.link":{fr:"Politique de confidentialité",en:"Privacy policy"},
     "disclaimer":{fr:"Cette application est un carnet de suivi. Elle n'établit aucun diagnostic, ne donne aucun conseil médical et ne remplace ni un professionnel de santé ni les services d'urgence. En cas d'urgence, appelez directement les secours. Elle ne surveille pas la personne : elle ne détecte pas les chutes et ne peut pas alerter quelqu'un toute seule — pour cela, utilisez la détection de chute intégrée à l'iPhone ou à l'Apple Watch.",en:"This app is a tracking diary. It does not diagnose, does not give medical advice, and does not replace a healthcare professional or the emergency services. In an emergency, call the emergency services directly. It does not monitor the person: it cannot detect falls and cannot alert anyone on its own — for that, use the fall detection built into the iPhone or Apple Watch."},
     "dose.next":{fr:"Prochaine dose : {t} — dans {n}",en:"Next dose: {t} — in {n}"},
@@ -1207,7 +1252,28 @@
       var l=(kind==="med"?normMed(load(k)):load(k)).filter(function(x){return(kind==="crisis"?x.start:x.time)!==id;});
       save(k,l);renderHistory();refreshLastMed();refreshDoseBar();
     });});
-  $("clearBtn").addEventListener("click",function(){confirmModal(t("hist.clearConfirm"),function(){save(KEY,[]);save(MEDKEY,[]);save(WELLKEY,[]);save(INCKEY,[]);renderHistory();refreshLastMed();refreshDoseBar();});});
+  function openWipe(){
+    $("wipeTitle").textContent=t("wipe.title");
+    $("wipeBody").textContent=tf("wipe.body",{w:t("wipe.word")});
+    $("wipeCancel").textContent=t("common.cancel");
+    $("wipeConfirm").textContent=t("wipe.confirm");
+    $("wipeInput").value="";
+    var c=$("wipeConfirm");c.classList.remove("on");c.disabled=true;
+    $("wipeModal").classList.add("show");try{$("wipeInput").focus();}catch(e){}
+  }
+  $("wipeInput").addEventListener("input",function(){
+    var ok=this.value.trim().toUpperCase()===t("wipe.word").toUpperCase();
+    var c=$("wipeConfirm");c.classList.toggle("on",ok);c.disabled=!ok;
+  });
+  $("wipeCancel").addEventListener("click",function(){$("wipeModal").classList.remove("show");});
+  $("wipeConfirm").addEventListener("click",function(){
+    if(this.disabled||$("wipeInput").value.trim().toUpperCase()!==t("wipe.word").toUpperCase())return;
+    save(KEY,[]);save(MEDKEY,[]);save(WELLKEY,[]);save(INCKEY,[]);
+    $("wipeModal").classList.remove("show");
+    renderHistory();refreshLastMed();refreshDoseBar();
+    alert(t("wipe.done"));
+  });
+  $("clearBtn").addEventListener("click",openWipe);
 
 
   /* ---- EDITING AN EXISTING ENTRY ----
@@ -1608,16 +1674,22 @@
   $("restoreBtn").addEventListener("click",function(){$("restoreFile").click();});
   $("restoreFile").addEventListener("change",function(){if(this.files&&this.files[0])doRestore(this.files[0]);this.value="";});
   $("backupNagBtn").addEventListener("click",doBackup);
+  $("backupNagClose").addEventListener("click",function(){localStorage.setItem(NAGKEY,String(Date.now()));refreshBackupNag();});
   function lastBackupAt(){var v=parseInt(localStorage.getItem(BACKUPKEY),10);return isNaN(v)?null:v;}
   function refreshBackupNag(){
     var nag=$("backupNag"),lb=lastBackupAt();
-    var stale=hasAnyData()&&(lb===null||(Date.now()-lb)>14*86400000);
+    var sn=parseInt(localStorage.getItem(NAGKEY),10);
+    var snoozed=!isNaN(sn)&&(Date.now()-sn)<7*86400000;
+    var stale=hasAnyData()&&(lb===null||(Date.now()-lb)>14*86400000)&&!snoozed;
     nag.classList.toggle("show",!!stale);
-    if(stale){$("backupNagTxt").textContent=t("backup.nag");$("backupNagBtn").textContent=t("backup.nagBtn");}
+    if(stale){$("backupNagTxt").textContent=t("backup.nag");$("backupNagBtn").textContent=t("backup.nagBtn");$("backupNagClose").setAttribute("aria-label",t("backup.dismiss"));}
   }
   function refreshBackupState(){
-    var lb=lastBackupAt();
-    $("lastBackupState").textContent=tf("backup.last",{d:lb?(fmtDate(lb)+" "+fmtClock(lb)):t("backup.never")});
+    var lb=lastBackupAt(),el=$("lastBackupState");el.classList.remove("warn");
+    if(lb===null){el.textContent=t("backup.lastNever");el.classList.add("warn");return;}
+    var days=Math.floor((Date.now()-lb)/86400000);
+    el.textContent=days<=0?t("backup.lastToday"):(days===1?t("backup.lastYesterday"):tf("backup.lastDays",{n:days}));
+    if(days>30)el.classList.add("warn");
   }
   function initPersist(){
     var el=$("persistState");
@@ -1693,7 +1765,15 @@
   medTAdj=makeTimeAdj("medTAdj","medTimeDisplay");
   wellTAdj=makeTimeAdj("wellTAdj","wellTimeDisplay");
   incTAdj=makeTimeAdj("incTAdj","incTimeDisplay");
-  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();
+  function maybeShowIntro(){
+    if(localStorage.getItem(INTROKEY))return;
+    $("introTitle").textContent=t("intro.title");
+    $("introBody").textContent=t("intro.body");
+    $("introOk").textContent=t("intro.ok");
+    $("introModal").classList.add("show");
+  }
+  $("introOk").addEventListener("click",function(){localStorage.setItem(INTROKEY,"1");$("introModal").classList.remove("show");});
+  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();
   resumeActive();   // pick a running episode back up if the app was closed mid-crisis
   setInterval(function(){if($("startScreen").classList.contains("show")){refreshDoseBar();refreshSupplyBar();}},60000);
   document.addEventListener("visibilitychange",function(){if(!document.hidden){refreshDoseBar();refreshSupplyBar();refreshBackupNag();}});

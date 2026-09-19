@@ -23,6 +23,9 @@ const episode = (o = {}) => ({ start: iso(1), end: iso(1) + 6e5, type: 'tremor',
   presence: 'alone', lastMed: null, lastMedLabel: '', regimen: '', ...o });
 
 test.beforeEach(async ({ page }) => {
+  // The first-launch data-safety explanation is onboarding, not part of any flow
+  // under test; mark it seen so it never overlays the screen during tests.
+  await page.addInitScript(() => { try { localStorage.setItem('introseen_v5', '1'); } catch (e) {} });
   page.on('pageerror', e => { throw new Error('uncaught page error: ' + e.message); });
 });
 
@@ -392,5 +395,25 @@ test.describe('iOS wrapper compatibility', () => {
     await page.click('#printBtn');
     expect(await page.evaluate(() => window.__native)).not.toBeNull();
     expect(await page.evaluate(() => window.__printed)).toBe(false);
+  });
+});
+
+test.describe('destructive-action safety', () => {
+  // A single mistaken tap must never wipe the record. The confirmation word has
+  // to be typed — the guarantee for a carer with their own tremor.
+  test('clearing history needs the typed word, not one tap', async ({ page }) => {
+    page.on('dialog', d => d.accept());
+    await seed(page, { crises_v5: [episode()], lang_v5: 'en' });
+    await page.click('#histLink');
+    await page.click('#clearBtn');
+    await expect(page.locator('#wipeModal')).toBeVisible();
+    // with nothing typed, the confirm button is inert — one tap cannot wipe
+    await expect(page.locator('#wipeConfirm')).toBeDisabled();
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('crises_v5') || '[]').length)).toBe(1);
+    // typing the word arms it, and only then does it wipe
+    await page.fill('#wipeInput', 'erase');
+    await expect(page.locator('#wipeConfirm')).toBeEnabled();
+    await page.click('#wipeConfirm');
+    await page.waitForFunction(() => JSON.parse(localStorage.getItem('crises_v5') || '[]').length === 0);
   });
 });

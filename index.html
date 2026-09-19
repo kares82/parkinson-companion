@@ -38,8 +38,8 @@
   #sinceMed{text-align:center;font-size:clamp(12px,3.4vw,15px);opacity:.7;margin-top:3px;}
   #helpBtnActive{margin-top:14px;padding:20px;font-size:clamp(20px,5.6vw,26px);font-weight:800;background:#111;color:#fff;border:none;border-radius:16px;border-top:4px solid #f1c40f;}
   .typeRow{margin-top:2.5vh;}.typeRow .label{font-size:clamp(13px,3.6vw,16px);opacity:.85;text-align:center;margin-bottom:9px;}
-  .typeBtns{display:flex;gap:9px;}
-  .typeBtn{flex:1;padding:16px 4px;font-size:clamp(13px,3.6vw,16px);font-weight:700;border:3px solid #48607a;background:#2b3c50;color:#fff;border-radius:13px;}
+  .typeBtns{display:flex;gap:9px;flex-wrap:wrap;}
+  .typeBtn{flex:1 1 40%;padding:16px 4px;font-size:clamp(13px,3.6vw,16px);font-weight:700;border:3px solid #48607a;background:#2b3c50;color:#fff;border-radius:13px;}
   .typeBtn.sel{background:#f1c40f;color:#1e2a38;border-color:#f1c40f;}
   .typeHint{font-size:clamp(11px,2.8vw,13px);opacity:.7;text-align:center;margin-top:9px;line-height:1.4;}
   #endBtn{margin-top:14px;padding:22px;font-size:clamp(20px,5.6vw,26px);font-weight:800;background:#95a5a6;color:#1e2a38;border:none;border-radius:16px;}
@@ -70,6 +70,7 @@
   .ep .d{font-weight:700;}.ep .meta{color:#666;margin-top:3px;}
   .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:700;}
   .pill.tremor{background:#e8f4fd;color:#1c6ea4;}.pill.dysk{background:#fdecea;color:#b03a2e;}.pill.unk{background:#eee;color:#555;}
+  .pill.off{background:#e8eaf0;color:#3d4a63;}.bar-frz{background:#e67e22;}
   .pill.alone{background:#c0392b;color:#fff;}.pill.acc{background:#eafaf1;color:#1e8449;}
   .stat{font-size:15px;margin:6px 0;}.big{font-size:30px;font-weight:800;}.alone-num{color:#c0392b;}
   .barRow{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:13px;}
@@ -182,6 +183,12 @@
   #wipeCard .cBtns button{flex:1;padding:16px 6px;font-size:16px;font-weight:800;border:none;border-radius:12px;min-height:52px;}
   #wipeCancel{background:#eee;color:#333;}
   #wipeConfirm{background:#c0392b;color:#fff;opacity:.45;}#wipeConfirm.on{opacity:1;}
+  #extraModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
+  #extraModal.show{display:flex;}
+  #extraCard{background:#fff;color:#1e2a38;border-radius:18px;padding:22px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;}
+  #extraCard h3{font-size:20px;margin-bottom:6px;}#extraBody{margin-bottom:14px;}
+  .exOpt{display:block;width:100%;padding:16px;margin-bottom:10px;font-size:16px;font-weight:800;border:2px solid #ccc;border-radius:12px;background:#fafafa;color:#1e2a38;min-height:52px;}
+  #demoBanner{padding:10px;text-align:center;font-weight:800;font-size:clamp(12px,3.3vw,15px);background:#6c3483;color:#fff;}
 
   /* ---- time adjust (shared by med / wellbeing / incident) ---- */
   .tAdj{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
@@ -240,6 +247,36 @@
     .regBox,.barRow,.stat{break-inside:avoid;page-break-inside:avoid;}
     @page{margin:14mm;}
   }
+
+  /* ---- Automatic dark mode (Priority 4) ----
+     Scoped to screen so the printed report stays black-on-white. The crisis and
+     active screens are already dark; this darkens the white sheets, dialogs and
+     inputs so the app is not a white flare in a dark bedroom at 3am. Triggered by
+     the phone's own light/dark setting (which most people schedule to flip at
+     night), so it needs no separate switch. */
+  @media screen and (prefers-color-scheme: dark){
+    .sheet{background:#17212b;color:#e6edf3;}
+    .sheet header{border-bottom-color:#2b3a49;}
+    .actions{border-top-color:#2b3a49;background:#17212b;}
+    .ep{border-bottom-color:#26333f;}
+    .ep .meta{color:#9fb3c4;}
+    .hint{color:#9fb3c4;}
+    .section-t{border-top-color:#2b3a49;color:#e6edf3;}
+    label.f{color:#e6edf3;}
+    .barRow .h{color:#9fb3c4;}
+    input.num,textarea.num,.mcDose,.medRow input,.medListRow input,#wipeInput,#weightInput{background:#22303f;color:#e6edf3;border-color:#38495b;}
+    .regBox{background:#152634;border-color:#24455e;color:#bfe0f5;}
+    #confirmCard,#medCard,#wellCard,#incCard,#epCard,#presenceCard,#introCard,#wipeCard,#extraCard{background:#17212b;color:#e6edf3;}
+    #confirmMsg,#presenceCard h3,#introCard h3,#wipeCard h3,#extraCard h3,#medCard h3,#wellCard h3,#incCard h3,.wellLabel,.mcName{color:#e6edf3;}
+    #introBody,#wipeBody,#extraBody,#medTimeDisplay,#wellTimeDisplay,#incTimeDisplay{color:#9fb3c4;}
+    .faceBtn,.incTypeBtn,.ynBtn,.presOpt,.exOpt{background:#22303f;border-color:#38495b;color:#e6edf3;}
+    .addMedBtn{background:#22303f;border-color:#4a5b6d;color:#cdd9e5;}
+    #confirmNo,#medCancel,#wellCancel,#incCancel,#epCancel,#wipeCancel{background:#2b3a49;color:#e6edf3;}
+    .medCheckRow{border-bottom-color:#26333f;}
+    .pill.unk{background:#2b3a49;color:#cdd9e5;}
+    .pill.off{background:#2a3550;color:#c7d0ff;}
+    a{color:#6db3f2;}
+  }
 </style>
 </head>
 <body>
@@ -255,6 +292,7 @@
     </div>
     <div id="doseBar"></div>
     <div id="backupNag"><button id="backupNagClose" type="button" aria-label="Fermer">✕</button><span id="backupNagTxt"></span><br><button id="backupNagBtn" type="button">Sauvegarder</button></div>
+    <div id="demoBanner" style="display:none"></div>
     <div id="presenceBadge">Avec la personne : <span id="presNow">Seule</span> — toucher pour changer</div>
     <div id="tapZone"><h1 data-i18n-html="start.tap">Appuyer<br>ici</h1><p data-i18n="start.tapSub">quand la crise commence</p></div>
     <button id="helpBtnMain" data-i18n="help.callBtn">☎ APPELER À L'AIDE</button>
@@ -288,6 +326,7 @@
       <div class="typeBtns">
         <button class="typeBtn" data-type="tremor" data-i18n="type.tremor">Tremblement</button>
         <button class="typeBtn" data-type="dysk" data-i18n="type.dysk">Mouvements</button>
+        <button class="typeBtn" data-type="off" data-i18n="type.off">Blocage / raideur</button>
         <button class="typeBtn" data-type="unk" data-i18n="type.unk">Je ne sais pas</button>
       </div>
       <div class="typeHint" data-i18n-html="active.typeHint"><b>Tremblement</b> = secousses régulières.<br><b>Mouvements</b> = gestes involontaires.</div>
@@ -386,6 +425,10 @@
       <div class="section-t" data-i18n="set.screen">Écran</div>
       <button id="wakeBtn" style="padding:14px 20px;font-size:16px;font-weight:700;border:2px solid #2980b9;background:#fff;color:#2980b9;border-radius:10px;"><span data-i18n="set.keepOn">Garder allumé (actuellement : </span><span id="wakeState">Non</span>)</button>
 
+      <div class="section-t" data-i18n="demo.section">Essayer l'application</div>
+      <p class="hint" data-i18n="demo.hint">Chargez des données d'exemple pour vous entraîner sans crainte, y compris le bouton de crise. Vos vraies données sont mises de côté et restaurées quand vous quittez la démo.</p>
+      <button id="demoLoadBtn" type="button" class="addMedBtn" data-i18n="demo.load">Charger des données d'exemple</button>
+      <button id="demoClearBtn" type="button" class="addMedBtn" style="display:none;border-style:solid;border-color:#6c3483;color:#6c3483" data-i18n="demo.clear">Quitter la démo et restaurer mes données</button>
       <div class="section-t" data-i18n="backup.section">Sauvegarde des données</div>
       <p class="hint" data-i18n="backup.hint">Toutes les données ne sont enregistrées que sur ce téléphone. Elles seront perdues en cas de changement de téléphone, de réinstallation de l'appli, ou d'effacement des données du navigateur. Enregistrez une sauvegarde régulièrement et conservez le fichier ailleurs (e-mail, cloud).</p>
       <p class="hint" id="persistState"></p>
@@ -408,6 +451,16 @@
     </div>
   </div>
 
+  <div id="extraModal">
+    <div id="extraCard">
+      <h3 id="extraTitle"></h3>
+      <p id="extraBody" class="hint"></p>
+      <button type="button" class="exOpt" data-ex="none"></button>
+      <button type="button" class="exOpt" data-ex="helped"></button>
+      <button type="button" class="exOpt" data-ex="nohelp"></button>
+      <button type="button" class="exOpt" data-ex="unknown"></button>
+    </div>
+  </div>
   <div id="introModal">
     <div id="introCard">
       <h3 id="introTitle"></h3>
@@ -525,6 +578,7 @@
       <div class="incTypeGrid" id="epTypes">
         <button type="button" class="incTypeBtn" data-t="tremor" data-i18n="type.tremor">Tremblement</button>
         <button type="button" class="incTypeBtn" data-t="dysk" data-i18n="type.dysk">Mouvements</button>
+        <button type="button" class="incTypeBtn" data-t="off" data-i18n="type.off">Blocage / raideur</button>
         <button type="button" class="incTypeBtn" data-t="unk" data-i18n="type.unk">Je ne sais pas</button>
       </div>
       <div class="wellLabel" data-i18n="active.presLabel">Qui est présent ?</div>
@@ -548,7 +602,8 @@
 (function(){
   var KEY="crises_v5",MEDKEY="meds_v5",PRESKEY="presence_v5",SUP="supply_v5",REG="regimen_v5",
       H="husband_v5",C="caregiver_v5",PNAME="pname_v5",HNAME="hname_v5",CNAME="cname_v5",LANGKEY="lang_v5",EMERG="emerg_v5",
-      BACKUPKEY="lastbackup_v5",ACTIVEKEY="active_v5",INTROKEY="introseen_v5",NAGKEY="nagsnooze_v5";
+      BACKUPKEY="lastbackup_v5",ACTIVEKEY="active_v5",INTROKEY="introseen_v5",NAGKEY="nagsnooze_v5",
+      DEMOKEY="demo_v5",DEMOSNAP="demosnap_v5";
 
   // ---------- i18n ----------
   var STR={
@@ -587,7 +642,7 @@
     "type.tremor":{fr:"Tremblement",en:"Tremor"},
     "type.dysk":{fr:"Mouvements",en:"Movements"},
     "type.unk":{fr:"Je ne sais pas",en:"I don't know"},
-    "active.typeHint":{fr:"<b>Tremblement</b> = secousses régulières.<br><b>Mouvements</b> = gestes involontaires.",en:"<b>Tremor</b> = regular shaking.<br><b>Movements</b> = involuntary gestures."},
+    "active.typeHint":{fr:"<b>Tremblement</b> = secousses régulières.<br><b>Mouvements</b> = gestes involontaires (souvent trop de dopamine).<br><b>Blocage / raideur</b> = lent, figé, difficile à démarrer (période OFF, souvent pas assez de dopamine).",en:"<b>Tremor</b> = regular shaking.<br><b>Movements</b> = involuntary movements (often too much dopamine).<br><b>Blocked / stiff</b> = slow, frozen, hard to start moving (OFF period, often too little dopamine)."},
     "active.pain":{fr:"Douleur",en:"In pain"},
     "active.painOn":{fr:"✓ Douleur",en:"✓ In pain"},
     "active.end":{fr:"Crise terminée",en:"Episode ended"},
@@ -632,7 +687,7 @@
     "set.phonePh2":{fr:"ex : 06 98 76 54 32",en:"e.g. 06 98 76 54 32"},
     "set.emergNumber":{fr:"Numéro des services d'urgence",en:"Emergency services number"},
     "set.emergPh":{fr:"ex : 112, 15, 911, 999",en:"e.g. 112, 15, 911, 999"},
-    "set.emergHint":{fr:"Réglez le numéro d'urgence de votre pays (112 en Europe, 15 en France, 911, 999...). Par défaut : 112.",en:"Set your country's emergency number (112 in Europe, 911 in the US, 999 in the UK…). Default: 112."},
+    "set.emergHint":{fr:"Réglez le numéro d'urgence de votre pays. Par défaut : 15 en France (SAMU), 112 ailleurs en Europe. (911 aux États-Unis, 999 au Royaume-Uni.)",en:"Set your country's emergency number. Default: 15 in France (SAMU), 112 elsewhere in Europe. (911 in the US, 999 in the UK.)"},
     "set.supply":{fr:"Stock de poches",en:"Pouch supply"},
     "set.bagsOnHand":{fr:"Poches en réserve",en:"Pouches in stock"},
     "set.bagsPh":{fr:"ex : 6",en:"e.g. 6"},
@@ -726,8 +781,33 @@
     "typeCsv.tremor":{fr:"Tremblement",en:"Tremor"},
     "typeCsv.dysk":{fr:"Dyskinesie (mouvements involontaires)",en:"Dyskinesia (involuntary movements)"},
     "typeCsv.unk":{fr:"Non precise",en:"Unspecified"},
+    "type.off":{fr:"Blocage / raideur",en:"Blocked / stiff"},
+    "typeFull.off":{fr:"Blocage / raideur (période OFF)",en:"Blocked / stiff (OFF period)"},
+    "typeCsv.off":{fr:"Blocage / raideur (periode OFF)",en:"Off period (blocked / stiff)"},
     "pill.pain":{fr:"Douleur",en:"Pain"},
     "pill.injury":{fr:"Blessure",en:"Injury"},
+    "crisis.extraTitle":{fr:"Fin de la crise",en:"End of episode"},
+    "crisis.extraBody":{fr:"Une dose supplémentaire de médicament a-t-elle été donnée pendant la crise, et a-t-elle aidé ?",en:"Was an extra dose of medication given during the episode, and did it help?"},
+    "crisis.extraNone":{fr:"Non, aucune dose en plus",en:"No extra dose"},
+    "crisis.extraHelped":{fr:"Oui — et ça a aidé",en:"Yes — and it helped"},
+    "crisis.extraNoHelp":{fr:"Oui — mais sans effet",en:"Yes — but no effect"},
+    "crisis.extraUnknown":{fr:"Je ne sais pas",en:"I don't know"},
+    "extra.none":{fr:"Non",en:"No"},
+    "extra.helped":{fr:"Oui, a aidé",en:"Yes, helped"},
+    "extra.nohelp":{fr:"Oui, sans effet",en:"Yes, no effect"},
+    "extra.unknown":{fr:"Ne sait pas",en:"Don't know"},
+    "report.byTypeSec":{fr:"Par type de crise",en:"By episode type"},
+    "report.extraSec":{fr:"Dose supplémentaire pendant la crise",en:"Extra dose during the episode"},
+    "report.extraGiven":{fr:"Donnée : {g} / {n}",en:"Given: {g} / {n}"},
+    "report.extraHelpedLine":{fr:"A aidé : {h} / {g}",en:"Helped: {h} / {g}"},
+    "report.hoursLegend":{fr:"Barres bleues = crises. Barres orange = blocages (freezing).",en:"Blue bars = episodes. Orange bars = freezing."},
+    "report.doseTimesLine":{fr:"💊 Doses prévues : {t}",en:"💊 Scheduled doses: {t}"},
+    "demo.section":{fr:"Essayer l'application",en:"Try the app"},
+    "demo.hint":{fr:"Chargez des données d'exemple pour vous entraîner sans crainte, y compris le bouton de crise. Vos vraies données sont mises de côté et restaurées quand vous quittez la démo.",en:"Load sample data to practise without fear, including the crisis button. Your real data is set aside and restored when you leave the demo."},
+    "demo.load":{fr:"Charger des données d'exemple",en:"Load sample data"},
+    "demo.clear":{fr:"Quitter la démo et restaurer mes données",en:"Leave demo and restore my data"},
+    "demo.loadConfirm":{fr:"Charger des données d'exemple ? Vos données actuelles seront mises de côté et restaurées quand vous quitterez la démo.",en:"Load sample data? Your current data will be set aside and restored when you leave the demo."},
+    "demo.banner":{fr:"● MODE DÉMO — données d'exemple. Toucher pour quitter et restaurer vos données.",en:"● DEMO MODE — sample data. Tap to leave and restore your data."},
     "hist.treatment":{fr:"Traitement : {v}",en:"Treatment: {v}"},
     "hist.duration":{fr:"Durée",en:"Duration"},
     "hist.afterMed":{fr:"{n} min après médic.{lbl}",en:"{n} min after med.{lbl}"},
@@ -818,7 +898,7 @@
     function onY(){cleanup();onYes();}
     function onN(){cleanup();}
     yes.addEventListener("click",onY);no.addEventListener("click",onN);}
-  var DEBOUNCE_MS=3000,current=null,lastTrigger=0,tick=null,wakeLock=null,helpFrom="startScreen";
+  var DEBOUNCE_MS=3000,current=null,lastTrigger=0,tick=null,wakeLock=null,crisisWakeLock=null,helpFrom="startScreen";
   var $=function(id){return document.getElementById(id);};
   function load(k){try{var v=JSON.parse(localStorage.getItem(k));return Array.isArray(v)?v:[];}catch(e){return[];}}
   /* A failed write used to be swallowed, so a full or blocked localStorage lost the
@@ -852,7 +932,7 @@
   function getPres(){var p=localStorage.getItem(PRESKEY);if(p==="Seule")p="alone";return p||"alone";}
   function setPres(p){localStorage.setItem(PRESKEY,p);$("presNow").textContent=presLabel(p);}
   function getNum(k){return localStorage.getItem(k)||"";}
-  function getEmerg(){var v=localStorage.getItem(EMERG);return(v&&v.trim())?v.trim():"112";}
+  function getEmerg(){var v=localStorage.getItem(EMERG);if(v&&v.trim())return v.trim();return (lang==="fr")?"15":"112";}
   function loadObj(k){try{var v=JSON.parse(localStorage.getItem(k));return(v&&typeof v==="object"&&!Array.isArray(v))?v:null;}catch(e){return null;}}
   function getSupply(){return loadObj(SUP)||{bags:0,days:1,warn:5,installedAt:null};}
   function saveSupply(s){setLS(SUP,JSON.stringify(s));}
@@ -1158,6 +1238,11 @@
      picked back up on load. */
   function persistActive(){ if(current)setLS(ACTIVEKEY,JSON.stringify(current)); }
   function clearActive(){ try{localStorage.removeItem(ACTIVEKEY);}catch(e){} }
+  /* Screen keep-awake, on automatically for the duration of a crisis so the
+     carer never has to fight a locking screen at 3am. Independent of the manual
+     Réglages toggle (wakeLock) so it never clobbers that setting. */
+  function requestCrisisWake(){ if(wakeLock||crisisWakeLock)return; try{ if("wakeLock" in navigator){ navigator.wakeLock.request("screen").then(function(w){crisisWakeLock=w;if(w.addEventListener)w.addEventListener("release",function(){crisisWakeLock=null;});}).catch(function(){}); } }catch(e){} }
+  function releaseCrisisWake(){ if(crisisWakeLock){ try{ crisisWakeLock.release&&crisisWakeLock.release(); }catch(e){} crisisWakeLock=null; } }
   function resumeActive(){
     var raw;try{raw=JSON.parse(localStorage.getItem(ACTIVEKEY));}catch(e){raw=null;}
     if(!raw||!ts(raw.start))return false;
@@ -1180,7 +1265,7 @@
     document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.remove("sel");});
     $("painBtn").classList.remove("sel");$("painBtn").textContent=t("active.pain");
     refreshActivePres();refreshStartAdj();refreshCrisisHead();
-    updateTimer();tick=setInterval(updateTimer,1000);}
+    requestCrisisWake();updateTimer();tick=setInterval(updateTimer,1000);}
   /* Re-derived whenever the start time is corrected, so the med-latency figure
      always refers to the dose that actually preceded the episode. */
   function refreshCrisisHead(){
@@ -1202,31 +1287,47 @@
   function updateTimer(){if(current)$("timer").textContent=fmtDur(Date.now()-current.start);}
   document.querySelectorAll(".typeBtn").forEach(function(btn){btn.addEventListener("click",function(){document.querySelectorAll(".typeBtn").forEach(function(b){b.classList.remove("sel");});btn.classList.add("sel");current.type=btn.dataset.type;persistActive();});});
   $("painBtn").addEventListener("click",function(){current.pain=!current.pain;this.classList.toggle("sel",current.pain);this.textContent=current.pain?t("active.painOn"):t("active.pain");persistActive();});
+  /* The extra-dose question links medication to outcome — the single fact that
+     changes a prescription. Asked AFTER the episode is already saved, so it never
+     blocks or delays anything; declining just leaves the field empty. */
+  var extraFor=null;
+  function openExtra(startId){extraFor=startId;
+    $("extraTitle").textContent=t("crisis.extraTitle");$("extraBody").textContent=t("crisis.extraBody");
+    document.querySelector('.exOpt[data-ex="none"]').textContent=t("crisis.extraNone");
+    document.querySelector('.exOpt[data-ex="helped"]').textContent=t("crisis.extraHelped");
+    document.querySelector('.exOpt[data-ex="nohelp"]').textContent=t("crisis.extraNoHelp");
+    document.querySelector('.exOpt[data-ex="unknown"]').textContent=t("crisis.extraUnknown");
+    $("extraModal").classList.add("show");}
+  document.querySelectorAll(".exOpt").forEach(function(b){b.addEventListener("click",function(){
+    if(extraFor!=null){var l=load(KEY);for(var i=0;i<l.length;i++){if(l[i].start===extraFor){l[i].extra=b.dataset.ex;break;}}save(KEY,l);}
+    extraFor=null;$("extraModal").classList.remove("show");});});
   $("endBtn").addEventListener("click",function(){confirmModal(t("crisis.endConfirm"),function(){
-    var end=Date.now(),list=load(KEY);
+    var end=Date.now(),list=load(KEY),startId=current.start;
     list.push({start:current.start,end:end,type:current.type,pain:current.pain,presence:current.presence,lastMed:current.lastMed,lastMedLabel:current.lastMedLabel,regimen:regimenTextAt(current.start)});
     list.sort(function(a,b){return a.start-b.start;});
-    save(KEY,list);clearActive();clearInterval(tick);tick=null;current=null;
+    save(KEY,list);clearActive();clearInterval(tick);tick=null;current=null;releaseCrisisWake();
     refreshSupplyBar();refreshDoseBar();refreshBackupNag();show("startScreen");
+    if(load(KEY).some(function(x){return x.start===startId;}))openExtra(startId);
   });});
   /* The home screen is one big button, so accidental starts happen. Without this the
      only way out is "episode ended", which would save a phantom episode into the
      record the doctor reads. */
   $("cancelBtn").addEventListener("click",function(){confirmModal(t("active.cancelConfirm"),function(){
-    clearActive();clearInterval(tick);tick=null;current=null;lastTrigger=0;
+    clearActive();clearInterval(tick);tick=null;current=null;lastTrigger=0;releaseCrisisWake();
     refreshSupplyBar();refreshDoseBar();show("startScreen");
   });});
 
-  function typeLbl(tp){return tp==="tremor"?t("typeFull.tremor"):tp==="dysk"?t("typeFull.dysk"):t("typeFull.unk");}
+  function typeLbl(tp){var m={tremor:"typeFull.tremor",dysk:"typeFull.dysk",off:"typeFull.off",unk:"typeFull.unk"};return t(m[tp]||"typeFull.unk");}
   // Export uses the precise clinical name so the CSV reads as a medical record.
-  function typeCsvLbl(tp){return tp==="tremor"?t("typeCsv.tremor"):tp==="dysk"?t("typeCsv.dysk"):t("typeCsv.unk");}
+  function typeCsvLbl(tp){var m={tremor:"typeCsv.tremor",dysk:"typeCsv.dysk",off:"typeCsv.off",unk:"typeCsv.unk"};return t(m[tp]||"typeCsv.unk");}
+  function extraLbl(v){return v?t("extra."+v):"";}
 
   // ---- HISTORY ----
   $("histLink").addEventListener("click",function(){renderHistory();show("historyScreen");});
   function wellSummaryLine(w){var parts=[];if(w.appetite)parts.push(FACES.appetite[w.appetite-1]+" "+t("well.appetite"));if(w.mood)parts.push(FACES.mood[w.mood-1]+" "+t("well.mood"));if(w.pain)parts.push(FACES.pain[w.pain-1]+" "+t("well.pain"));if(w.sleep)parts.push(FACES.sleep[w.sleep-1]+" "+t("well.sleep"));if(w.weight)parts.push("⚖️ "+w.weight+" kg");return parts.join("  •  ");}
   function renderHistory(){var list=loadCrises().slice().sort(function(a,b){return b.start-a.start;}),html="";
     for(var i=0;i<list.length;i++){var ep=list[i];var dur=ep.end?fmtDur(ep.end-ep.start):"—";
-      var cls=ep.type==="tremor"?"tremor":ep.type==="dysk"?"dysk":"unk";
+      var cls=({tremor:"tremor",dysk:"dysk",off:"off"})[ep.type]||"unk";
       var pv=ep.presence==="Seule"?"alone":ep.presence;
       var lat=ep.lastMed?tf("hist.afterMed",{n:Math.round((ep.start-ep.lastMed)/60000),lbl:(ep.lastMedLabel?(" ("+ep.lastMedLabel+")"):"")}):t("hist.noMedRec");
       var pcls=pv==="alone"?"alone":"acc";
@@ -1512,9 +1613,11 @@
     var periodLbl=reportDays?tf("report.pLast",{n:reportDays}):t("report.pAll");
     $("printName").textContent=tf("report.title",{name:nameP()});
     $("printMeta").textContent=tf("report.periodLine",{p:periodLbl,d:fmtDate(Date.now())});
-    var n=list.length,alone=0,pain=0,totalMs=0,hours=new Array(24).fill(0),lats=[],byPres={};
-    list.forEach(function(e){var pv=e.presence==="Seule"?"alone":e.presence;if(pv==="alone")alone++;if(e.pain)pain++;totalMs+=(e.end-e.start);hours[new Date(e.start).getHours()]++;if(e.lastMed)lats.push(Math.round((e.start-e.lastMed)/60000));byPres[pv]=(byPres[pv]||0)+1;});
-    var maxH=Math.max.apply(null,hours.concat([1])),medLat=median(lats),h="";
+    var n=list.length,alone=0,pain=0,totalMs=0,hours=new Array(24).fill(0),lats=[],byPres={},byType={},ex={none:0,helped:0,nohelp:0,unknown:0};
+    list.forEach(function(e){var pv=e.presence==="Seule"?"alone":e.presence;if(pv==="alone")alone++;if(e.pain)pain++;totalMs+=(e.end-e.start);hours[new Date(e.start).getHours()]++;if(e.lastMed)lats.push(Math.round((e.start-e.lastMed)/60000));byPres[pv]=(byPres[pv]||0)+1;byType[e.type||"unk"]=(byType[e.type||"unk"]||0)+1;if(e.extra&&ex.hasOwnProperty(e.extra))ex[e.extra]++;});
+    var frz=new Array(24).fill(0);
+    loadInc().filter(function(inc){return inc.time>=fromT&&inc.type==="blocage";}).forEach(function(inc){frz[new Date(inc.time).getHours()]++;});
+    var maxH=Math.max.apply(null,hours.concat(frz).concat([1])),medLat=median(lats),h="";
     var cLbl=n+' '+t(n>1?"crisisMany":"crisisOne");
     h+='<div class="stat screenOnly" style="opacity:.7;font-size:13px">'+esc(tf("report.periodLine",{p:periodLbl,d:fmtDate(Date.now())}))+'</div>';
     h+='<div class="stat">'+tf("report.total",{c:cLbl,d:fmtDur(totalMs)})+'</div>';
@@ -1522,7 +1625,7 @@
     // Daily burden — the outcome measure a neurologist actually titrates against.
     var days=Math.max(1,(Date.now()-since)/86400000);
     if(n){h+='<div class="section-t">'+esc(t("report.perDaySec"))+'</div>';
-      h+='<div class="big" style="color:#1e2a38">'+esc(fmtMins(totalMs/60000/days))+'</div>';
+      h+='<div class="big">'+esc(fmtMins(totalMs/60000/days))+'</div>';
       h+='<div class="stat" style="opacity:.75">'+esc(tf("report.perDayCount",{r:(n/days).toFixed(2)}))+'</div>';}
 
     h+=buildTrendSection(list);
@@ -1536,12 +1639,19 @@
 
     h+='<div class="section-t">'+esc(tf("report.aloneSec",{name:nameP()}))+'</div><div class="big alone-num">'+alone+' / '+n+'</div>';
     h+='<div class="section-t">'+esc(t("report.painSec"))+'</div><div class="big" style="color:#8e44ad">'+pain+' / '+n+'</div>';
-    h+='<div class="section-t">'+esc(t("report.hoursSec"))+'</div>';var any=false;
-    for(var i=0;i<24;i++){if(hours[i]===0)continue;any=true;h+='<div class="barRow"><span class="h">'+pad(i)+'h</span><span class="bar" style="width:'+(hours[i]/maxH*160)+'px"></span><span>'+hours[i]+'</span></div>';}
+    h+='<div class="section-t">'+esc(t("report.hoursSec"))+'</div>';
+    h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(t("report.hoursLegend"))+'</div>';
+    var slots=scheduleSlots(),doseHrs={};slots.forEach(function(s){doseHrs[Math.floor(s.min/60)]=true;});
+    if(slots.length)h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(tf("report.doseTimesLine",{t:slots.map(function(s){return pad(Math.floor(s.min/60))+":"+pad(s.min%60);}).join(", ")}))+'</div>';
+    var any=false;
+    for(var i=0;i<24;i++){if(!hours[i]&&!frz[i])continue;any=true;var row='<div class="barRow"><span class="h">'+pad(i)+'h'+(doseHrs[i]?" 💊":"")+'</span>';if(hours[i])row+='<span class="bar" style="width:'+(hours[i]/maxH*160)+'px"></span><span>'+hours[i]+'</span>';if(frz[i])row+='<span class="bar bar-frz" style="width:'+(frz[i]/maxH*160)+'px"></span><span style="color:#b9631a">'+frz[i]+' \u2744</span>';h+=row+'</div>';}
     if(!any)h+='<div class="stat">'+esc(t("report.noData"))+'</div>';
     h+='<div class="section-t">'+esc(t("report.latencySec"))+'</div><div class="stat">'+tf("report.median",{v:(medLat!==null?tf("report.min",{n:medLat}):t("report.notCalc"))})+'</div>';
     h+='<div class="section-t">'+esc(t("report.byPresSec"))+'</div>';Object.keys(byPres).forEach(function(k){h+='<div class="stat">'+esc(presLabel(k))+' : <b>'+byPres[k]+'</b></div>';});
 
+    if(n){h+='<div class="section-t">'+esc(t("report.byTypeSec"))+'</div>';["off","tremor","dysk","unk"].forEach(function(k){if(byType[k])h+='<div class="stat">'+esc(typeLbl(k))+' : <b>'+byType[k]+'</b></div>';});}
+    var exGiven=ex.helped+ex.nohelp+ex.unknown;
+    if(exGiven){h+='<div class="section-t">'+esc(t("report.extraSec"))+'</div>';h+='<div class="stat">'+esc(tf("report.extraGiven",{g:exGiven,n:n}))+'</div>';h+='<div class="stat">'+esc(tf("report.extraHelpedLine",{h:ex.helped,g:exGiven}))+'</div>';}
     var ilist=loadInc().filter(function(inc){return inc.time>=fromT;});
     if(ilist.length){var ic={};ilist.forEach(function(inc){ic[inc.type]=(ic[inc.type]||0)+1;});var injN=ilist.filter(function(inc){return inc.injury;}).length;
       h+='<div class="section-t">'+esc(t("report.incSec"))+'</div>';
@@ -1576,10 +1686,10 @@
   function csvField(s){s=String(s==null?"":s).replace(/\r?\n/g,' / ');if(s.indexOf(';')>-1||s.indexOf('"')>-1){s='"'+s.replace(/"/g,'""')+'"';}return s;}
   function doExport(){var list=loadCrises().slice().sort(function(a,b){return a.start-b.start;});
     var FR=(lang==="fr");var YES=FR?"Oui":"Yes",NO=FR?"Non":"No";
-    var head=FR?"Date;Debut;Fin;Duree;Type;Douleur;Presence;Delai_apres_medic_min;Medicament_avant_crise;Traitement"
-               :"Date;Start;End;Duration;Type;Pain;Presence;Delay_after_med_min;Medication_before_episode;Treatment";
+    var head=FR?"Date;Debut;Fin;Duree;Type;Douleur;Presence;Delai_apres_medic_min;Medicament_avant_crise;Traitement;Dose_suppl"
+               :"Date;Start;End;Duration;Type;Pain;Presence;Delay_after_med_min;Medication_before_episode;Treatment;Extra_dose";
     var rows=[head];
-    for(var i=0;i<list.length;i++){var e=list[i];var dur=e.end?fmtDur(e.end-e.start):"";var lat=e.lastMed?Math.round((e.start-e.lastMed)/60000):"";var pv=e.presence==="Seule"?"alone":e.presence;rows.push([fmtDate(e.start),fmtClock(e.start),e.end?fmtClock(e.end):"",dur,typeCsvLbl(e.type),e.pain?YES:NO,presLabel(pv),lat,csvField(e.lastMedLabel),csvField(e.regimen)].join(";"));}
+    for(var i=0;i<list.length;i++){var e=list[i];var dur=e.end?fmtDur(e.end-e.start):"";var lat=e.lastMed?Math.round((e.start-e.lastMed)/60000):"";var pv=e.presence==="Seule"?"alone":e.presence;rows.push([fmtDate(e.start),fmtClock(e.start),e.end?fmtClock(e.end):"",dur,typeCsvLbl(e.type),e.pain?YES:NO,presLabel(pv),lat,csvField(e.lastMedLabel),csvField(e.regimen),csvField(extraLbl(e.extra))].join(";"));}
     var mlist=normMed(load(MEDKEY)).slice().sort(function(a,b){return a.time-b.time;});
     if(mlist.length){rows.push("");
       rows.push(FR?"Medicaments donnes":"Medications given");
@@ -1636,6 +1746,48 @@
      not a backup — it cannot be read back in. This is the only route to the data
      surviving the device. */
   function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG];}
+  // ---- DEMO MODE (Priority 5): practise safely; real data is snapshotted and restored ----
+  function inDemo(){return localStorage.getItem(DEMOKEY)==="1";}
+  function demoSample(){
+    var now=Date.now(),H1=3600000,D=86400000,o={};
+    var meds=[{time:now-2*D-16*H1,meds:[{name:"Lévodopa",dose:"100 mg"}]},{time:now-1*D-12*H1,meds:[{name:"Lévodopa",dose:"100 mg"}]},{time:now-6*H1,meds:[{name:"Lévodopa",dose:"100 mg"}]}];
+    var crises=[
+      {start:now-2*D-11*H1,end:now-2*D-11*H1+15*60000,type:"tremor",pain:false,presence:"alone",lastMed:now-2*D-16*H1,lastMedLabel:"Lévodopa 100 mg",regimen:"Lévodopa 100 mg; Agoniste 1 cp",extra:"none"},
+      {start:now-1*D-5*H1,end:now-1*D-5*H1+40*60000,type:"off",pain:true,presence:"Paul",lastMed:now-1*D-12*H1,lastMedLabel:"Lévodopa 100 mg",regimen:"Lévodopa 100 mg; Agoniste 1 cp",extra:"helped"},
+      {start:now-3*H1,end:now-3*H1+25*60000,type:"dysk",pain:false,presence:"alone",lastMed:now-6*H1,lastMedLabel:"Lévodopa 100 mg",regimen:"Lévodopa 100 mg; Agoniste 1 cp",extra:"unknown"}
+    ];
+    var well=[{time:now-1*D-2*H1,appetite:3,mood:4,pain:2,sleep:3,weight:62}];
+    var inc=[{time:now-1*D-8*H1,type:"blocage",injury:false,note:"Dans le couloir"},{time:now-4*H1,type:"chute",injury:false,note:""}];
+    var medlist=[{name:"Lévodopa",dose:"100 mg",times:"08:00, 12:00, 18:00"},{name:"Agoniste",dose:"1 cp",times:"08:00"}];
+    var reg=[{text:"Lévodopa 100 mg; Agoniste 1 cp",start:0,end:null}];
+    var sup={bags:6,days:1,warn:5,installedAt:now-2*D};
+    o[PNAME]="Marie (démo)";o[HNAME]="Paul";o[CNAME]="Aidant(e)";o[PRESKEY]="alone";
+    o[LANGKEY]=localStorage.getItem(LANGKEY)||lang;
+    o[KEY]=JSON.stringify(crises);o[MEDKEY]=JSON.stringify(meds);o[WELLKEY]=JSON.stringify(well);
+    o[INCKEY]=JSON.stringify(inc);o[MEDLIST]=JSON.stringify(medlist);o[REG]=JSON.stringify(reg);o[SUP]=JSON.stringify(sup);
+    return o;
+  }
+  function loadDemo(){
+    if(inDemo())return;
+    var snap={};allKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!==null)snap[k]=v;});
+    try{localStorage.setItem(DEMOSNAP,JSON.stringify(snap));localStorage.setItem(DEMOKEY,"1");}catch(e){alert(t("storage.failed"));return;}
+    var s=demoSample();allKeys().forEach(function(k){if(Object.prototype.hasOwnProperty.call(s,k))localStorage.setItem(k,s[k]);else localStorage.removeItem(k);});
+    location.reload();
+  }
+  function clearDemo(){
+    var snap=null;try{snap=JSON.parse(localStorage.getItem(DEMOSNAP));}catch(e){}
+    allKeys().forEach(function(k){if(snap&&Object.prototype.hasOwnProperty.call(snap,k))localStorage.setItem(k,snap[k]);else localStorage.removeItem(k);});
+    localStorage.removeItem(DEMOKEY);localStorage.removeItem(DEMOSNAP);
+    location.reload();
+  }
+  function updateDemoUI(){var on=inDemo();
+    if($("demoLoadBtn"))$("demoLoadBtn").style.display=on?"none":"block";
+    if($("demoClearBtn"))$("demoClearBtn").style.display=on?"block":"none";
+    if($("demoBanner")){$("demoBanner").style.display=on?"block":"none";$("demoBanner").textContent=t("demo.banner");}
+  }
+  $("demoLoadBtn").addEventListener("click",function(){confirmModal(t("demo.loadConfirm"),loadDemo);});
+  $("demoClearBtn").addEventListener("click",clearDemo);
+  $("demoBanner").addEventListener("click",clearDemo);
   function hasAnyData(){return loadCrises().length||load(MEDKEY).length||loadWell().length||load(INCKEY).length;}
   function doBackup(){
     var data={_app:"parkinson-companion",_v:5,_at:Date.now()};
@@ -1725,7 +1877,7 @@
     $("caregiverNameInput").value=localStorage.getItem(CNAME)||"";
     $("husbandInput").value=getNum(H);$("caregiverInput").value=getNum(C);$("emergInput").value=localStorage.getItem(EMERG)||"";
     $("bagsOnHand").value=s.bags||"";$("bagDays").value=s.days||"";$("warnDays").value=s.warn||"";
-    renderMedListRows();renderRegimenList();refreshBackupState();
+    renderMedListRows();renderRegimenList();refreshBackupState();updateDemoUI();
     $("backupMsg").style.display="none";
     var ar=activeRegimen();
     $("regimenSince").textContent=ar?tf("regimen.current",{d:(ar.start===0?t("regimen.trackingStart"):fmtDate(ar.start))}):t("regimen.none");
@@ -1773,10 +1925,10 @@
     $("introModal").classList.add("show");
   }
   $("introOk").addEventListener("click",function(){localStorage.setItem(INTROKEY,"1");$("introModal").classList.remove("show");});
-  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();
+  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();updateDemoUI();
   resumeActive();   // pick a running episode back up if the app was closed mid-crisis
   setInterval(function(){if($("startScreen").classList.contains("show")){refreshDoseBar();refreshSupplyBar();}},60000);
-  document.addEventListener("visibilitychange",function(){if(!document.hidden){refreshDoseBar();refreshSupplyBar();refreshBackupNag();}});
+  document.addEventListener("visibilitychange",function(){if(!document.hidden){if(current)requestCrisisWake();refreshDoseBar();refreshSupplyBar();refreshBackupNag();}});
 })();
 </script>
 <script>

@@ -56,7 +56,13 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: "21" }
 
-      - uses: android-actions/setup-android@v3
+      # The runner image already ships a full Android SDK at
+      # /usr/local/lib/android/sdk with licenses pre-accepted. Older
+      # android-actions/setup-android@v3 additionally ran `sdkmanager tools`,
+      # and GitHub removed that obsolete package from the image on 2025-09-19 —
+      # so the action now dies with "Failed to find package 'tools'" before the
+      # build even starts. Pin the version that stopped installing it.
+      - uses: android-actions/setup-android@v3.2.2
 
       - uses: actions/setup-node@v4
         with: { node-version: "22", cache: npm }

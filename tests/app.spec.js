@@ -417,3 +417,38 @@ test.describe('destructive-action safety', () => {
     await page.waitForFunction(() => JSON.parse(localStorage.getItem('crises_v5') || '[]').length === 0);
   });
 });
+
+test.describe('clinical accuracy', () => {
+  // OFF (blocked/stiff) must be recorded as its own type, not collapsed into
+  // "unknown" — a neurologist reads it as too-little-dopamine.
+  test('an OFF episode records as its own type, with the extra-dose outcome', async ({ page }) => {
+    page.on('dialog', d => d.accept());
+    await page.goto('/index.html');
+    await page.click('#tapZone');
+    await page.click('.typeBtn[data-type="off"]');
+    await page.click('#endBtn'); await page.click('#confirmYes');
+    await expect(page.locator('#extraModal')).toBeVisible();
+    await page.click('.exOpt[data-ex="helped"]');
+    const ep = await page.evaluate(() => JSON.parse(localStorage.getItem('crises_v5'))[0]);
+    expect(ep.type).toBe('off');
+    expect(ep.extra).toBe('helped');
+  });
+});
+
+test.describe('demo mode', () => {
+  // Loading sample data must never cost a real user their history.
+  test('demo loads sample data and restores real data on exit', async ({ page }) => {
+    page.on('dialog', d => d.accept());
+    await seed(page, { crises_v5: [episode()], pname_v5: 'RealName' });
+    await page.click('#setLink');
+    await page.click('#demoLoadBtn');
+    await page.click('#confirmYes');
+    await page.waitForFunction(() => localStorage.getItem('demo_v5') === '1');
+    expect(await page.evaluate(() => localStorage.getItem('pname_v5'))).toContain('démo');
+    await expect(page.locator('#demoBanner')).toBeVisible();
+    await page.click('#demoBanner');
+    await page.waitForFunction(() => !localStorage.getItem('demo_v5'));
+    expect(await page.evaluate(() => localStorage.getItem('pname_v5'))).toBe('RealName');
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('crises_v5')).length)).toBe(1);
+  });
+});

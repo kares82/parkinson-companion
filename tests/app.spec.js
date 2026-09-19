@@ -541,3 +541,15 @@ test.describe('research-backed additions', () => {
     expect(txt.toLowerCase()).not.toContain('sylvie');
   });
 });
+
+test.describe('tremor accessibility', () => {
+  test('large-touch mode turns on, sticks after reload', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.click('#setLink');
+    await page.click('#bigBtn');
+    await expect(page.locator('#app')).toHaveClass(/bigtouch/);
+    expect(await page.evaluate(() => localStorage.getItem('bigtouch_v5'))).toBe('1');
+    await page.reload();
+    await expect(page.locator('#app')).toHaveClass(/bigtouch/);
+  });
+});

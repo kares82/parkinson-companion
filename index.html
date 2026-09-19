@@ -271,6 +271,14 @@
     @page{margin:14mm;}
   }
 
+  /* ---- Large-touch mode for tremor (Réglages toggle) ---- */
+  #app.bigtouch #tapZone h1{font-size:clamp(52px,16vw,88px);}
+  #app.bigtouch #helpBtnMain,#app.bigtouch #incBtn,#app.bigtouch .startBtns button{min-height:66px;font-size:clamp(15px,4.2vw,19px);}
+  #app.bigtouch #endBtn,#app.bigtouch #painBtn,#app.bigtouch #cancelBtn,#app.bigtouch #helpBtnActive,#app.bigtouch .typeBtn,#app.bigtouch .apOpt{min-height:62px;font-size:clamp(15px,4.4vw,20px);}
+  #app.bigtouch .callBtn{padding:30px 12px;}
+  #app.bigtouch .tagChip,#app.bigtouch .ynBtn,#app.bigtouch .incTypeBtn,#app.bigtouch .presOpt,#app.bigtouch .exOpt,#app.bigtouch .stOpt,#app.bigtouch .actions button,#app.bigtouch .cBtns button,#app.bigtouch .addMedBtn{min-height:58px;font-size:clamp(15px,4vw,18px);}
+  #app.bigtouch .woqRow{padding:15px 2px;}#app.bigtouch .woqRow input{width:32px;height:32px;}
+  #app.bigtouch input.num,#app.bigtouch textarea.num{font-size:19px;min-height:54px;}
   /* ---- Automatic dark mode (Priority 4) ----
      Scoped to screen so the printed report stays black-on-white. The crisis and
      active screens are already dark; this darkens the white sheets, dialogs and
@@ -463,6 +471,9 @@
 
       <div class="section-t" data-i18n="set.screen">Écran</div>
       <button id="wakeBtn" style="padding:14px 20px;font-size:16px;font-weight:700;border:2px solid #2980b9;background:#fff;color:#2980b9;border-radius:10px;"><span data-i18n="set.keepOn">Garder allumé (actuellement : </span><span id="wakeState">Non</span>)</button>
+      <div class="section-t" data-i18n="a11y.section">Accessibilité (tremblements)</div>
+      <p class="hint" data-i18n="a11y.hint">Agrandit tous les boutons et le texte pour faciliter les gestes en cas de tremblements.</p>
+      <button id="bigBtn" style="padding:16px 20px;font-size:16px;font-weight:700;border:2px solid #8e44ad;background:#fff;color:#8e44ad;border-radius:10px;min-height:52px;"><span data-i18n="a11y.big">Grande taille — actuellement : </span><span id="bigState">Non</span></button>
 
       <div class="section-t" data-i18n="report.woqSec">Usure de dose (WOQ-9)</div>
       <p class="hint" data-i18n="woq.note">Aide au dépistage, pas un diagnostic.</p>
@@ -778,6 +789,9 @@
     "set.warnPh":{fr:"ex : 5",en:"e.g. 5"},
     "set.screen":{fr:"Écran",en:"Screen"},
     "set.keepOn":{fr:"Garder allumé (actuellement : ",en:"Keep on (currently: "},
+    "a11y.section":{fr:"Accessibilité (tremblements)",en:"Accessibility (tremor)"},
+    "a11y.hint":{fr:"Agrandit tous les boutons et le texte pour faciliter les gestes en cas de tremblements.",en:"Enlarges every button and the text to make tapping easier with a tremor."},
+    "a11y.big":{fr:"Grande taille — actuellement : ",en:"Large touch — currently: "},
     "set.medTimes":{fr:"Horaires",en:"Times"},
     "set.medTimesPh":{fr:"Horaires — ex : 08:00, 12:00, 16:00, 20:00",en:"Times — e.g. 08:00, 12:00, 16:00, 20:00"},
     "set.timesHint":{fr:"Les horaires sont facultatifs. Si vous les indiquez, l'accueil affiche la prochaine dose et signale les doses en retard, et le rapport calcule l'observance.",en:"Times are optional. If you set them, the home screen shows the next dose and flags overdue doses, and the report works out adherence."},
@@ -1940,7 +1954,7 @@
      a new phone, a reinstall, or "Clear Website Data". The CSV export is a report,
      not a backup — it cannot be read back in. This is the only route to the data
      surviving the device. */
-  function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG,WOQKEY,MOTORKEY];}
+  function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG,WOQKEY,MOTORKEY,BIGKEY];}
   // ---- DEMO MODE (Priority 5): practise safely; real data is snapshotted and restored ----
   function inDemo(){return localStorage.getItem(DEMOKEY)==="1";}
   function demoSample(){
@@ -1983,6 +1997,10 @@
   $("demoLoadBtn").addEventListener("click",function(){confirmModal(t("demo.loadConfirm"),loadDemo);});
   $("demoClearBtn").addEventListener("click",clearDemo);
   $("demoBanner").addEventListener("click",clearDemo);
+  // ---- Large-touch (tremor) mode ----
+  var BIGKEY="bigtouch_v5";
+  function applyBig(){var on=localStorage.getItem(BIGKEY)==="1";$("app").classList.toggle("bigtouch",on);var s=$("bigState");if(s)s.textContent=on?t("common.yes"):t("common.no");}
+  $("bigBtn").addEventListener("click",function(){if(localStorage.getItem(BIGKEY)==="1")localStorage.removeItem(BIGKEY);else localStorage.setItem(BIGKEY,"1");applyBig();});
   // ---- WOQ-9 wearing-off screen (validated: 5 motor + 4 non-motor; positive at >=2) ----
   var WOQKEY="woq_v5";
   var WOQ_ITEMS=["tremor","slow","cramp","dexterity","stiff","anxiety","mood","pain","cloudy"];
@@ -2104,7 +2122,7 @@
     $("caregiverNameInput").value=localStorage.getItem(CNAME)||"";
     $("husbandInput").value=getNum(H);$("caregiverInput").value=getNum(C);$("emergInput").value=localStorage.getItem(EMERG)||"";
     $("bagsOnHand").value=s.bags||"";$("bagDays").value=s.days||"";$("warnDays").value=s.warn||"";
-    renderMedListRows();renderRegimenList();refreshBackupState();updateDemoUI();
+    renderMedListRows();renderRegimenList();refreshBackupState();updateDemoUI();applyBig();
     $("backupMsg").style.display="none";
     var ar=activeRegimen();
     $("regimenSince").textContent=ar?tf("regimen.current",{d:(ar.start===0?t("regimen.trackingStart"):fmtDate(ar.start))}):t("regimen.none");
@@ -2152,7 +2170,7 @@
     $("introModal").classList.add("show");
   }
   $("introOk").addEventListener("click",function(){localStorage.setItem(INTROKEY,"1");$("introModal").classList.remove("show");});
-  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();updateDemoUI();
+  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();updateDemoUI();applyBig();
   (function(){var w=$("donateWrap");if(!w)return;var native=!!(window.Capacitor);if(!native&&DONATE_URL.indexOf("REMPLACER")<0){$("donateLink").href=DONATE_URL;w.style.display="block";}})();
   resumeActive();   // pick a running episode back up if the app was closed mid-crisis
   setInterval(function(){if($("startScreen").classList.contains("show")){refreshDoseBar();refreshSupplyBar();}},60000);

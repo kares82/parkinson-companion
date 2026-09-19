@@ -56,9 +56,10 @@ HILFE RUFEN
 Eine stets sichtbare Schaltfläche ruft den Partner, die Begleitperson oder den
 Notdienst an. Die Notrufnummer ist einstellbar (112, 999, 911, 15…).
 
-DEUTSCH, ENGLISCH UND FRANZÖSISCH
+FÜNF SPRACHEN
 
-Wechseln Sie die Sprache der Oberfläche in den Einstellungen.
+Die App öffnet sich in der Gerätesprache und kann jederzeit in den Einstellungen
+gewechselt werden: Deutsch, Englisch, Französisch, Italienisch und Spanisch.
 
 SICHERUNG
 

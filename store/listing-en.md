@@ -50,9 +50,10 @@ CALL FOR HELP
 An always-visible button calls the partner, the carer, or the emergency
 services. The emergency number is configurable (112, 999, 911, 15…).
 
-ENGLISH, FRENCH AND GERMAN
+FIVE LANGUAGES
 
-Switch the interface language in Settings.
+The app opens in the device's language and can be switched any time in Settings:
+English, French, German, Italian and Spanish.
 
 BACKUP
 

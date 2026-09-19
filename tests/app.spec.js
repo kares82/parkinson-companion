@@ -627,3 +627,69 @@ test.describe('German localization', () => {
     await expect(page.locator('text=Sauvegarde des données')).toHaveCount(0);
   });
 });
+
+test.describe('Italian and Spanish localization', () => {
+  test('a stored Italian preference renders the UI in Italian', async ({ page }) => {
+    await seed(page, { lang_v5: 'it' });
+    await expect(page.locator('#setLink')).toHaveText('Impostazioni');
+    await expect(page.locator('#medBtn')).toHaveText('Farmaco somministrato');
+  });
+  test('a stored Spanish preference renders the UI in Spanish', async ({ page }) => {
+    await seed(page, { lang_v5: 'es' });
+    await expect(page.locator('#setLink')).toHaveText('Ajustes');
+    await expect(page.locator('#medBtn')).toHaveText('Medicación administrada');
+  });
+  test('switching to Italian then Spanish from Settings sticks', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.waitForSelector('#startScreen.show');
+    await page.click('#setLink');
+    await page.click('.langBtn[data-lang="it"]');
+    await expect(page.locator('#helpBtnMain')).toHaveText('☎ CHIEDI AIUTO');
+    await page.click('.langBtn[data-lang="es"]');
+    await expect(page.locator('#helpBtnMain')).toHaveText('☎ PEDIR AYUDA');
+    expect(await page.evaluate(() => localStorage.getItem('lang_v5'))).toBe('es');
+    await page.reload();
+    await expect(page.locator('#medBtn')).toHaveText('Medicación administrada');
+  });
+});
+
+test.describe('language auto-detection by device / store region', () => {
+  const langFor = async (page, locale) => {
+    await page.addInitScript(loc => {
+      try { Object.defineProperty(Navigator.prototype, 'language', { get: () => loc, configurable: true }); } catch (e) {}
+    }, locale);
+    await page.goto('/index.html');
+    await page.waitForSelector('#startScreen.show');
+    return page.textContent('#setLink');
+  };
+  test('an Italian device opens in Italian', async ({ page }) => {
+    expect((await langFor(page, 'it-IT')).trim()).toBe('Impostazioni');
+  });
+  test('a Spanish (Mexico) device opens in Spanish', async ({ page }) => {
+    expect((await langFor(page, 'es-MX')).trim()).toBe('Ajustes');
+  });
+  test('a German device opens in German', async ({ page }) => {
+    expect((await langFor(page, 'de-AT')).trim()).toBe('Einstellungen');
+  });
+  test('an anglophone in France (en-GB) opens in English and can switch to French', async ({ page }) => {
+    // Device is English even though the store region is France: honour the device.
+    await page.addInitScript(() => {
+      try { Object.defineProperty(Navigator.prototype, 'language', { get: () => 'en-GB', configurable: true }); } catch (e) {}
+    });
+    await page.goto('/index.html');
+    await page.waitForSelector('#startScreen.show');
+    await expect(page.locator('#setLink')).toHaveText('Settings');
+    // ...and they retain the option to change it.
+    await page.click('#setLink');
+    await page.click('.langBtn[data-lang="fr"]');
+    await expect(page.locator('#helpBtnMain')).toHaveText('☎ APPELER À L\'AIDE');
+    expect(await page.evaluate(() => localStorage.getItem('lang_v5'))).toBe('fr');
+  });
+  test('a stored preference always wins over the device language', async ({ page }) => {
+    await page.addInitScript(() => {
+      try { Object.defineProperty(Navigator.prototype, 'language', { get: () => 'it-IT', configurable: true }); } catch (e) {}
+    });
+    await seed(page, { lang_v5: 'es' });
+    await expect(page.locator('#setLink')).toHaveText('Ajustes');
+  });
+});

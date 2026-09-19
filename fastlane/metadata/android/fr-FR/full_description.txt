@@ -37,9 +37,10 @@ APPELER À L'AIDE
 Un bouton toujours accessible appelle le conjoint, l'aidant ou les secours. Le
 numéro d'urgence est configurable (112, 15, 911, 999…).
 
-FRANÇAIS ET ANGLAIS
+CINQ LANGUES
 
-L'interface bascule d'une langue à l'autre dans les Réglages.
+L'application s'ouvre dans la langue de l'appareil et peut être changée à tout
+moment dans les Réglages : français, anglais, allemand, italien et espagnol.
 
 SAUVEGARDE
 

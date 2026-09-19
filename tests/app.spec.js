@@ -747,10 +747,10 @@ test.describe('sending and contributing reports', () => {
     expect(await page.evaluate(() => window.__shared)).toBeNull();
   });
 
-  test('the research-contribution button stays hidden until an address is configured', async ({ page }) => {
+  test('there is no research-contribution / data-collection control', async ({ page }) => {
     await seed(page, { crises_v5: [episode()] });
     await openReport(page);
-    // RESEARCH_EMAIL ships as a placeholder, so collection is off by default.
-    await expect(page.locator('#contribBtn')).toBeHidden();
+    // The app collects nothing: the only outbound action is the patient's own send.
+    await expect(page.locator('#contribBtn')).toHaveCount(0);
   });
 });

@@ -449,6 +449,7 @@
     <div id="presenceCard">
       <h3 id="presenceQ">Qui est avec la personne ?</h3>
       <div id="presOpts"></div>
+      <button type="button" id="presCancel" data-i18n="common.cancel" style="display:block;width:100%;padding:20px;font-size:20px;font-weight:700;margin-top:4px;border:2px solid #ccc;border-radius:14px;background:#eee;color:#1e2a38">Annuler</button>
     </div>
   </div>
 
@@ -1032,6 +1033,9 @@
 
   // ---- PRESENCE badge tap (delegated because innerHTML rebuilt) ----
   document.addEventListener("click",function(e){if(e.target&&e.target.id==="presenceBadge"||(e.target.parentNode&&e.target.parentNode.id==="presenceBadge")){$("presencePick").classList.add("show");}});
+  // Never trap the carer in the presence picker: tap outside the card, or Cancel, closes it without changing anything.
+  $("presencePick").addEventListener("click",function(e){if(e.target&&e.target.id==="presencePick")$("presencePick").classList.remove("show");});
+  $("presCancel").addEventListener("click",function(){$("presencePick").classList.remove("show");});
 
   // ---- MEDICINE LIST (in Réglages) ----
   var MEDLIST="medlist_v5";

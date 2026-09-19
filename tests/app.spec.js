@@ -452,3 +452,16 @@ test.describe('demo mode', () => {
     expect(await page.evaluate(() => JSON.parse(localStorage.getItem('crises_v5')).length)).toBe(1);
   });
 });
+
+test.describe('no dead-ends', () => {
+  // Opening the presence picker must never force a change; it can always be
+  // dismissed, leaving presence untouched.
+  test('the presence picker can be cancelled without changing anything', async ({ page }) => {
+    await seed(page, { presence_v5: 'alone' });
+    await page.click('#presenceBadge');
+    await expect(page.locator('#presencePick')).toBeVisible();
+    await page.click('#presCancel');
+    await expect(page.locator('#presencePick')).not.toBeVisible();
+    expect(await page.evaluate(() => localStorage.getItem('presence_v5'))).toBe('alone');
+  });
+});

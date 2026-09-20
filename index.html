@@ -651,14 +651,6 @@
         <button type="button" class="ynBtn" id="incInjYes" data-i18n="common.yes">Oui</button>
         <button type="button" class="ynBtn" id="incInjNo" data-i18n="common.no">Non</button>
       </div>
-      <div class="wellLabel" data-i18n="inc.trigger">Déclencheur (optionnel)</div>
-      <div class="incTypeGrid" id="incTrig">
-        <button type="button" class="incTypeBtn" data-tg="turn" data-i18n="inc.tgTurn">Demi-tour</button>
-        <button type="button" class="incTypeBtn" data-tg="door" data-i18n="inc.tgDoor">Passage de porte</button>
-        <button type="button" class="incTypeBtn" data-tg="dual" data-i18n="inc.tgDual">Double tâche</button>
-        <button type="button" class="incTypeBtn" data-tg="stand" data-i18n="inc.tgStand">Se lever</button>
-        <button type="button" class="incTypeBtn" data-tg="other" data-i18n="inc.tgOther">Autre</button>
-      </div>
       <div class="wellLabel" data-i18n="inc.duringOff">Pendant une période OFF ?</div>
       <div class="yn">
         <button type="button" class="ynBtn" id="incOffYes" data-i18n="common.yes">Oui</button>
@@ -1404,7 +1396,6 @@
       incDraft.type=ex.type;incDraft.injury=ex.injury===true;incDraft.trigger=ex.trigger||null;incDraft.off=(typeof ex.off==="boolean"?ex.off:null);
       var tb=document.querySelector('#incCard .incTypeBtn[data-t="'+ex.type+'"]');if(tb)tb.classList.add("sel");
       $(ex.injury===true?"incInjYes":"incInjNo").classList.add("sel");
-      if(ex.trigger){var gb=document.querySelector('#incTrig .incTypeBtn[data-tg="'+ex.trigger+'"]');if(gb)gb.classList.add("sel");}
       if(typeof ex.off==="boolean")$(ex.off?"incOffYes":"incOffNo").classList.add("sel");
       incTAdj.set(ex.time);
     } else incTAdj.reset();
@@ -1416,7 +1407,6 @@
     b.classList.add("sel");incDraft.type=b.dataset.t;});});
   $("incInjYes").addEventListener("click",function(){incDraft.injury=true;$("incInjYes").classList.add("sel");$("incInjNo").classList.remove("sel");});
   $("incInjNo").addEventListener("click",function(){incDraft.injury=false;$("incInjNo").classList.add("sel");$("incInjYes").classList.remove("sel");});
-  $("incTrig").addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest(".incTypeBtn"):null;if(!b)return;var was=b.classList.contains("sel");document.querySelectorAll("#incTrig .incTypeBtn").forEach(function(x){x.classList.remove("sel");});if(!was){b.classList.add("sel");incDraft.trigger=b.dataset.tg;}else incDraft.trigger=null;});
   $("incOffYes").addEventListener("click",function(){incDraft.off=true;$("incOffYes").classList.add("sel");$("incOffNo").classList.remove("sel");});
   $("incOffNo").addEventListener("click",function(){incDraft.off=false;$("incOffNo").classList.add("sel");$("incOffYes").classList.remove("sel");});
   $("incCancel").addEventListener("click",function(){$("incModal").classList.remove("show");cancelEdit();});

@@ -476,6 +476,7 @@
       <datalist id="medNameList"></datalist>
       <button id="addMedRow" type="button" class="addMedBtn" data-i18n="set.addMed">+ Ajouter un médicament</button>
       <p class="hint" data-i18n="set.timesHint">Les horaires sont facultatifs. Si vous les indiquez, l'accueil affiche la prochaine dose et signale les doses en retard, et le rapport calcule l'observance.</p>
+      <p class="hint" id="remindersHint" data-i18n="set.remindersHint" style="display:none;">Si vous autorisez les notifications, l'appli rappelle chaque horaire de médicament ci-dessus, et le rendez-vous la veille à 9 h. Tout reste sur l'appareil — rien n'est envoyé.</p>
       <p class="hint" id="regimenSince"></p>
 
       <div class="section-t" data-i18n="set.regimens">Historique des traitements</div>
@@ -808,6 +809,11 @@
     "set.apptSec":{fr:"Prochain rendez-vous",en:"Next appointment",de:"Nächster Termin",it:"Prossimo appuntamento",es:"Próxima cita"},
     "set.apptHint":{fr:"Facultatif. Sert de pense-bête et s'affiche en haut du rapport, pour préparer la visite.",en:"Optional. A reminder for you, and shown at the top of the report to help prepare for the visit.",de:"Optional. Eine Erinnerung für Sie, wird oben im Bericht angezeigt, um den Termin vorzubereiten.",it:"Facoltativo. Un promemoria per voi, mostrato in cima al rapporto per preparare la visita.",es:"Opcional. Un recordatorio para usted, se muestra en la parte superior del informe para preparar la visita."},
     "set.apptLabel":{fr:"Date et heure",en:"Date and time",de:"Datum und Uhrzeit",it:"Data e ora",es:"Fecha y hora"},
+    "set.remindersHint":{fr:"Si vous autorisez les notifications, l'appli rappelle chaque horaire de médicament ci-dessus, et le rendez-vous la veille à 9 h. Tout reste sur l'appareil — rien n'est envoyé.",en:"If you allow notifications, the app reminds you at each medication time above, and the day before the appointment at 9am. Everything stays on the device — nothing is sent anywhere.",de:"Wenn Sie Benachrichtigungen erlauben, erinnert die App an jede oben genannte Medikamentenzeit und einen Tag vor dem Termin um 9 Uhr. Alles bleibt auf dem Gerät — nichts wird versendet.",it:"Se consenti le notifiche, l'app ricorda ogni orario dei farmaci sopra indicato e l'appuntamento il giorno prima alle 9. Tutto resta sul dispositivo — non viene inviato nulla.",es:"Si permite las notificaciones, la app recuerda cada horario de medicación indicado arriba, y la cita el día anterior a las 9 h. Todo permanece en el dispositivo — no se envía nada."},
+    "remind.medBody":{fr:"Dose : {dose}",en:"Dose: {dose}",de:"Dosis: {dose}",it:"Dose: {dose}",es:"Dosis: {dose}"},
+    "remind.medBodyNoDose":{fr:"C'est l'heure de la prise.",en:"Time for the dose.",de:"Zeit für die Einnahme.",it:"È ora della dose.",es:"Es hora de la dosis."},
+    "remind.apptTitle":{fr:"Rendez-vous demain",en:"Appointment tomorrow",de:"Termin morgen",it:"Appuntamento domani",es:"Cita mañana"},
+    "remind.apptBody":{fr:"{d}",en:"{d}",de:"{d}",it:"{d}",es:"{d}"},
     "set.contacts":{fr:"Contacts d'urgence",en:"Emergency contacts",de:"Notfallkontakte",it:"Contatti di emergenza",es:"Contactos de emergencia"},
     "set.numberOf":{fr:"Numéro de ",en:"Number for ",de:"Nummer von ",it:"Numero di ",es:"Número de "},
     "set.phonePh1":{fr:"ex : 06 12 34 56 78",en:"e.g. 06 12 34 56 78",de:"z. B. 0170 1234567",it:"es. 06 1234 5678",es:"ej. 612 34 56 78"},
@@ -2284,7 +2290,7 @@
       saveRegimens(regs);
     }
 
-    applyNames();refreshSupplyBar();refreshDoseBar();refreshBackupNag();show("startScreen");});
+    applyNames();refreshSupplyBar();refreshDoseBar();refreshBackupNag();scheduleReminders();show("startScreen");});
   $("wakeBtn").addEventListener("click",function(){if(wakeLock){wakeLock.release&&wakeLock.release();wakeLock=null;$("wakeState").textContent=t("wake.off");return;}
     if("wakeLock" in navigator){navigator.wakeLock.request("screen").then(function(w){wakeLock=w;$("wakeState").textContent=t("wake.on");w.addEventListener("release",function(){$("wakeState").textContent=t("wake.off");});}).catch(function(){alert(t("wake.impossible"));});}else alert(t("wake.unsupported"));});
 
@@ -2311,7 +2317,55 @@
     $("introModal").classList.add("show");
   }
   $("introOk").addEventListener("click",function(){localStorage.setItem(INTROKEY,"1");$("introModal").classList.remove("show");});
-  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();updateDemoUI();applyBig();
+
+  // ---- MEDICATION & APPOINTMENT REMINDERS (native app only) ----
+  // These are local notifications scheduled by the OS on-device — not push
+  // notifications, so nothing is sent anywhere and no server/account is
+  // involved. No-op on the web build (LN stays undefined there).
+  var LN=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.LocalNotifications;
+  if(LN&&$("remindersHint"))$("remindersHint").style.display="";
+  var REMIND_MED_BASE=1000,REMIND_MED_SPAN=9000,REMIND_APPT_ID=9999;
+  function parseTimes(s){
+    if(!s)return[];
+    return s.split(",").map(function(x){return x.trim();}).filter(function(x){return /^([01]?\d|2[0-3]):[0-5]\d$/.test(x);});
+  }
+  function scheduleReminders(){
+    if(!LN)return;
+    LN.getPending().then(function(res){
+      var ours=(res&&res.notifications||[]).filter(function(n){return (n.id>=REMIND_MED_BASE&&n.id<REMIND_MED_BASE+REMIND_MED_SPAN)||n.id===REMIND_APPT_ID;});
+      var cancelP=ours.length?LN.cancel({notifications:ours.map(function(n){return{id:n.id};})}):Promise.resolve();
+      return cancelP.then(function(){
+        var toSchedule=[];
+        getMedList().forEach(function(m,mi){
+          parseTimes(m.times).forEach(function(tm,ti){
+            var id=REMIND_MED_BASE+mi*10+ti;
+            if(id>=REMIND_MED_BASE+REMIND_MED_SPAN)return;
+            var hm=tm.split(":"),h=parseInt(hm[0],10),mn=parseInt(hm[1],10);
+            toSchedule.push({id:id,title:m.name||t("set.medName"),
+              body:m.dose?tf("remind.medBody",{dose:m.dose}):t("remind.medBodyNoDose"),
+              schedule:{on:{hour:h,minute:mn},allowWhileIdle:true}});
+          });
+        });
+        var apptTs=parseInt(localStorage.getItem(APPTKEY),10);
+        if(ts(apptTs)&&apptTs>Date.now()){
+          var fireAt=new Date(apptTs-86400000);fireAt.setHours(9,0,0,0);
+          if(fireAt.getTime()>Date.now())toSchedule.push({id:REMIND_APPT_ID,title:t("remind.apptTitle"),
+            body:tf("remind.apptBody",{d:fmtDate(apptTs)+" "+fmtClock(apptTs)}),
+            schedule:{at:fireAt,allowWhileIdle:true}});
+        }
+        if(toSchedule.length)return LN.schedule({notifications:toSchedule});
+      });
+    })["catch"](function(){});
+  }
+  function ensureReminderPermission(){
+    if(!LN)return;
+    LN.checkPermissions().then(function(p){
+      if(p&&p.display==="granted"){scheduleReminders();return;}
+      return LN.requestPermissions().then(function(){scheduleReminders();});
+    })["catch"](function(){});
+  }
+
+  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();updateDemoUI();applyBig();ensureReminderPermission();
   (function(){var w=$("donateWrap");if(!w)return;var native=!!(window.Capacitor);if(!native&&DONATE_URL.indexOf("REMPLACER")<0){$("donateLink").href=DONATE_URL;w.style.display="block";}})();
   resumeActive();   // pick a running episode back up if the app was closed mid-crisis
   setInterval(function(){if($("startScreen").classList.contains("show")){refreshDoseBar();refreshSupplyBar();}},60000);

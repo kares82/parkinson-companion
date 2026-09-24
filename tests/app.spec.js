@@ -356,6 +356,34 @@ test.describe('settings round-trip', () => {
     await expect(page.locator('#patientInput')).toHaveValue('Marie');
     await expect(page.locator('#husbandInput')).toHaveValue('06 12 34 56 78');
   });
+
+  // Medication times are native <input type="time"> chips, not free text —
+  // the browser can't produce an invalid value here. Locks down add/remove/
+  // save/reload and that the stored format still feeds "next dose due".
+  test('medication times are added and removed as chips, and round-trip through save', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.click('#setLink');
+    await page.click('#addMedRow');
+    await page.fill('.mlName', 'Levodopa');
+    await page.fill('.mlDose', '100 mg');
+    await page.click('.mlTimeAdd');
+    await page.locator('.mlTimeVal').nth(0).fill('08:00');
+    await page.click('.mlTimeAdd');
+    await page.locator('.mlTimeVal').nth(1).fill('20:00');
+    await expect(page.locator('.mlTimeChip')).toHaveCount(2);
+    await page.locator('.mlTimeDel').nth(0).click();
+    await expect(page.locator('.mlTimeChip')).toHaveCount(1);
+    await expect(page.locator('.mlTimeVal').nth(0)).toHaveValue('20:00');
+    await page.click('.mlTimeAdd');
+    await page.locator('.mlTimeVal').nth(1).fill('08:00');
+    await page.click('#saveSettings');
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('medlist_v5'))[0]);
+    expect(stored.times).toContain('08:00');
+    expect(stored.times).toContain('20:00');
+    await page.reload();
+    await page.click('#setLink');
+    await expect(page.locator('.mlTimeChip')).toHaveCount(2);
+  });
 });
 
 test.describe('both languages', () => {

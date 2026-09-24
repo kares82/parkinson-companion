@@ -2325,10 +2325,6 @@
   var LN=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.LocalNotifications;
   if(LN&&$("remindersHint"))$("remindersHint").style.display="";
   var REMIND_MED_BASE=1000,REMIND_MED_SPAN=9000,REMIND_APPT_ID=9999;
-  function parseTimes(s){
-    if(!s)return[];
-    return s.split(",").map(function(x){return x.trim();}).filter(function(x){return /^([01]?\d|2[0-3]):[0-5]\d$/.test(x);});
-  }
   function scheduleReminders(){
     if(!LN)return;
     LN.getPending().then(function(res){
@@ -2336,14 +2332,19 @@
       var cancelP=ours.length?LN.cancel({notifications:ours.map(function(n){return{id:n.id};})}):Promise.resolve();
       return cancelP.then(function(){
         var toSchedule=[];
+        // Reuses the app's existing time parser (parseTimes, defined earlier —
+        // the same one that already drives "next dose due" on the home screen)
+        // so a time like "8" or "8h30" schedules a reminder exactly where the
+        // rest of the app already understands it, instead of a second,
+        // stricter parser silently disagreeing with it.
         getMedList().forEach(function(m,mi){
-          parseTimes(m.times).forEach(function(tm,ti){
+          parseTimes(m.times).forEach(function(mn,ti){
             var id=REMIND_MED_BASE+mi*10+ti;
             if(id>=REMIND_MED_BASE+REMIND_MED_SPAN)return;
-            var hm=tm.split(":"),h=parseInt(hm[0],10),mn=parseInt(hm[1],10);
+            var h=Math.floor(mn/60),mi2=mn%60;
             toSchedule.push({id:id,title:m.name||t("set.medName"),
               body:m.dose?tf("remind.medBody",{dose:m.dose}):t("remind.medBodyNoDose"),
-              schedule:{on:{hour:h,minute:mn},allowWhileIdle:true}});
+              schedule:{on:{hour:h,minute:mi2},allowWhileIdle:true}});
           });
         });
         var apptTs=parseInt(localStorage.getItem(APPTKEY),10);

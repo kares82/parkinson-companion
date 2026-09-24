@@ -144,9 +144,12 @@
   .medListHead{display:grid;grid-template-columns:1fr 1fr 44px;gap:6px;font-size:11px;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.03em;padding:0 2px 5px;margin-top:10px;}
   .medListRow{display:grid;grid-template-columns:1fr 1fr 44px;gap:6px;align-items:center;margin-bottom:14px;}
   .medListRow input{width:100%;padding:12px 9px;font-size:15px;border:2px solid #ccc;border-radius:9px;}
-  .medListRow .mlTimes{grid-column:1/-1;border-style:dashed;font-size:14px;}
-  .mlTimesWarn{grid-column:1/-1;display:none;color:#c0392b;font-size:12px;font-weight:700;margin:-6px 0 6px;}
   .mlDel{width:44px;height:44px;border:none;background:#fdecea;color:#c0392b;border-radius:10px;font-size:17px;font-weight:800;line-height:1;}
+  .mlTimesRow{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .mlTimeChip{display:flex;align-items:center;gap:4px;border:2px dashed #ccc;border-radius:9px;padding:2px 2px 2px 8px;}
+  .mlTimeVal{border:none!important;padding:8px 2px!important;width:104px!important;font-size:14px;}
+  .mlTimeDel{width:30px;height:30px;border:none;background:#fdecea;color:#c0392b;border-radius:7px;font-size:13px;font-weight:800;line-height:1;flex:0 0 auto;}
+  .mlTimeAdd{padding:10px 14px;font-size:13px;font-weight:800;border:2px dashed #999;background:#fafafa;color:#444;border-radius:9px;}
   .addMedBtn{width:100%;padding:13px;font-size:14px;font-weight:800;border:2px dashed #999;background:#fafafa;color:#444;border-radius:10px;margin-top:2px;}
 
   #medCheckWrap{max-height:50vh;overflow-y:auto;overscroll-behavior:contain;margin-bottom:6px;}
@@ -314,7 +317,8 @@
     #confirmMsg,#presenceCard h3,#introCard h3,#wipeCard h3,#extraCard h3,#medCard h3,#wellCard h3,#incCard h3,.wellLabel,.mcName{color:#e6edf3;}
     #introBody,#wipeBody,#extraBody,#medTimeDisplay,#wellTimeDisplay,#incTimeDisplay{color:#9fb3c4;}
     .faceBtn,.incTypeBtn,.ynBtn,.presOpt,.exOpt{background:#22303f;border-color:#38495b;color:#e6edf3;}
-    .addMedBtn{background:#22303f;border-color:#4a5b6d;color:#cdd9e5;}
+    .addMedBtn,.mlTimeAdd{background:#22303f;border-color:#4a5b6d;color:#cdd9e5;}
+    .mlTimeChip{border-color:#4a5b6d;}
     #confirmNo,#medCancel,#wellCancel,#incCancel,#epCancel,#wipeCancel{background:#2b3a49;color:#e6edf3;}
     .medCheckRow{border-bottom-color:#26333f;}
     .pill.unk{background:#2b3a49;color:#cdd9e5;}
@@ -838,8 +842,7 @@
     "a11y.hint":{fr:"Agrandit tous les boutons et le texte pour faciliter les gestes en cas de tremblements.",en:"Enlarges every button and the text to make tapping easier with a tremor.",de:"Vergrößert alle Schaltflächen und den Text, um das Tippen bei Zittern zu erleichtern.",it:"Ingrandisce tutti i pulsanti e il testo per facilitare il tocco in caso di tremore.",es:"Amplía todos los botones y el texto para facilitar el toque cuando hay temblor."},
     "a11y.big":{fr:"Grande taille — actuellement : ",en:"Large touch — currently: ",de:"Große Schaltflächen — aktuell: ",it:"Tocco grande — attualmente: ",es:"Toque grande — actualmente: "},
     "set.medTimes":{fr:"Horaires",en:"Times",de:"Uhrzeiten",it:"Orari",es:"Horarios"},
-    "set.medTimesPh":{fr:"Horaires — ex : 08:00, 12:00, 16:00, 20:00",en:"Times — e.g. 08:00, 12:00, 16:00, 20:00",de:"Uhrzeiten — z. B. 08:00, 12:00, 16:00, 20:00",it:"Orari — es. 08:00, 12:00, 16:00, 20:00",es:"Horarios — ej. 08:00, 12:00, 16:00, 20:00"},
-    "set.medTimesWarn":{fr:"Non reconnu comme horaire — essayez 08:00 ou 8h30.",en:"Not recognised as a time — try 08:00 or 8h30.",de:"Nicht als Uhrzeit erkannt — versuchen Sie 08:00 oder 8:30.",it:"Non riconosciuto come orario — prova 08:00 o 8:30.",es:"No se reconoce como horario — pruebe 08:00 o 8:30."},
+    "set.addTime":{fr:"Ajouter un horaire",en:"Add a time",de:"Uhrzeit hinzufügen",it:"Aggiungi un orario",es:"Añadir un horario"},
     "set.timesHint":{fr:"Les horaires sont facultatifs. Si vous les indiquez, l'accueil affiche la prochaine dose et signale les doses en retard, et le rapport calcule l'observance.",en:"Times are optional. If you set them, the home screen shows the next dose and flags overdue doses, and the report works out adherence.",de:"Die Uhrzeiten sind optional. Wenn Sie sie angeben, zeigt der Startbildschirm die nächste Dosis an und weist auf überfällige Dosen hin, und der Bericht berechnet die Therapietreue.",it:"Gli orari sono facoltativi. Se li imposti, la schermata iniziale mostra la dose successiva e segnala quelle in ritardo, e il rapporto calcola l'aderenza.",es:"Los horarios son opcionales. Si los indicas, la pantalla de inicio muestra la próxima dosis y avisa de las atrasadas, y el informe calcula la adherencia."},
     "set.regimens":{fr:"Historique des traitements",en:"Treatment history",de:"Behandlungsverlauf",it:"Storico dei trattamenti",es:"Historial de tratamientos"},
     "set.regimensHint":{fr:"Chaque modification de la liste ci-dessus crée une période. Supprimez une période créée par erreur (une faute de frappe, par exemple) — les crises, elles, ne sont pas supprimées.",en:"Each change to the list above starts a new period. Delete a period created by mistake (a typo, for instance) — the episodes themselves are not deleted.",de:"Jede Änderung der obigen Liste beginnt einen neuen Zeitraum. Löschen Sie einen versehentlich erstellten Zeitraum (z. B. einen Tippfehler) — die Episoden selbst werden nicht gelöscht.",it:"Ogni modifica all'elenco qui sopra avvia un nuovo periodo. Elimina un periodo creato per errore (per esempio un refuso) — gli episodi non vengono eliminati.",es:"Cada cambio en la lista de arriba inicia un nuevo periodo. Elimina un periodo creado por error (por ejemplo, un error tipográfico) — los episodios no se eliminan."},
@@ -1256,8 +1259,18 @@
   var MEDLIST="medlist_v5";
   function getMedList(){return load(MEDLIST);}
   function saveMedList(l){save(MEDLIST,l);}
+  /* Times are native <input type="time"> chips, not free text: the browser's
+     own time picker makes garbage input (a wall of digits, letters) physically
+     impossible to enter, rather than catching it after the fact. Storage stays
+     the same comma-separated "HH:MM, HH:MM" string so parseTimes/reminders/
+     dose-bar/report code — all of it — needs no changes. */
+  function timeChipHtml(hhmm){
+    return '<span class="mlTimeChip"><input type="time" class="mlTimeVal" value="'+esc(hhmm)+'">'
+      +'<button type="button" class="mlTimeDel" aria-label="'+esc(t("common.delete"))+'">✕</button></span>';
+  }
   function medListRowHtml(name,dose,times){var NAMEPH={fr:"Nom",en:"Name",de:"Name",it:"Nome",es:"Nombre"},DOSEPH={fr:"ex : 100mg, 1 comprimé",en:"e.g. 100mg, 1 tablet",de:"z. B. 100mg, 1 Tablette",it:"es. 100mg, 1 compressa",es:"ej. 100mg, 1 comprimido"};var phN=NAMEPH[lang]||NAMEPH.en,phD=DOSEPH[lang]||DOSEPH.en;
-    return '<div class="medListRow"><input type="text" class="mlName" list="medNameList" value="'+esc(name)+'" placeholder="'+phN+'"><input type="text" class="mlDose" value="'+esc(dose)+'" placeholder="'+phD+'"><button type="button" class="mlDel" aria-label="'+esc(t("common.delete"))+'">✕</button><input type="text" class="mlTimes" inputmode="numeric" maxlength="60" value="'+esc(times||"")+'" placeholder="'+esc(t("set.medTimesPh"))+'"><div class="mlTimesWarn"></div></div>';}
+    var chips=parseTimes(times).map(function(mn){return timeChipHtml(pad(Math.floor(mn/60))+":"+pad(mn%60));}).join("");
+    return '<div class="medListRow"><input type="text" class="mlName" list="medNameList" value="'+esc(name)+'" placeholder="'+phN+'"><input type="text" class="mlDose" value="'+esc(dose)+'" placeholder="'+phD+'"><button type="button" class="mlDel" aria-label="'+esc(t("common.delete"))+'">✕</button><div class="mlTimesRow">'+chips+'<button type="button" class="mlTimeAdd">+ '+esc(t("set.addTime"))+'</button></div></div>';}
   function renderMedListRows(){var l=getMedList(),html="";l.forEach(function(m){html+=medListRowHtml(m.name,m.dose,m.times);});$("medListRows").innerHTML=html;}
   /* Suggestion list only (datalist keeps the field free text) — refreshed on
      language change so it shows names used in the person's own market. */
@@ -1267,18 +1280,17 @@
     dl.innerHTML=opts.map(function(n){return '<option value="'+esc(n)+'">';}).join("");
   }
   $("addMedRow").addEventListener("click",function(){$("medListRows").insertAdjacentHTML("beforeend",medListRowHtml("","",""));});
-  $("medListRows").addEventListener("click",function(e){if(e.target&&e.target.classList.contains("mlDel")){e.target.closest(".medListRow").remove();}});
-  /* Gentle feedback only: fires when NOTHING in the field parses as a time
-     (garbage like a wall of digits), never for a single valid shorthand like
-     "8" among several entries — parseTimes already accepts that by design. */
-  $("medListRows").addEventListener("focusout",function(e){
-    if(!e.target||!e.target.classList||!e.target.classList.contains("mlTimes"))return;
-    var row=e.target.closest(".medListRow"),warn=row&&row.querySelector(".mlTimesWarn");if(!warn)return;
-    var raw=e.target.value.trim();
-    if(raw&&parseTimes(raw).length===0){warn.textContent=t("set.medTimesWarn");warn.style.display="block";}
-    else{warn.style.display="none";}
+  $("medListRows").addEventListener("click",function(e){
+    if(!e.target)return;
+    if(e.target.classList.contains("mlDel")){e.target.closest(".medListRow").remove();return;}
+    if(e.target.classList.contains("mlTimeDel")){e.target.closest(".mlTimeChip").remove();return;}
+    if(e.target.classList.contains("mlTimeAdd")){e.target.insertAdjacentHTML("beforebegin",timeChipHtml(""));return;}
   });
-  function readMedListFromDom(){var rows=document.querySelectorAll(".medListRow"),out=[];rows.forEach(function(r){var n=r.querySelector(".mlName").value.trim(),d=r.querySelector(".mlDose").value.trim(),ti=r.querySelector(".mlTimes");if(n)out.push({name:n,dose:d,times:ti?ti.value.trim():""});});return out;}
+  function readMedListFromDom(){var rows=document.querySelectorAll(".medListRow"),out=[];rows.forEach(function(r){
+    var n=r.querySelector(".mlName").value.trim(),d=r.querySelector(".mlDose").value.trim();
+    var times=Array.prototype.map.call(r.querySelectorAll(".mlTimeVal"),function(inp){return inp.value;})
+      .filter(function(v){return v;}).join(", ");
+    if(n)out.push({name:n,dose:d,times:times});});return out;}
 
   // ---- DOSE SCHEDULE (timing is the treatment in advanced Parkinson's) ----
   var DOSE_GRACE=30;           // minutes late before a dose is called overdue

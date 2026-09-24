@@ -421,7 +421,7 @@
   <div id="reportScreen" class="screen sheet">
     <header><h2 id="reportTitle">Rapport — la personne</h2></header>
     <div class="body">
-      <div id="printHead"><h1 id="printName"></h1><div class="ph" id="printMeta"></div></div>
+      <div id="printHead"><h1 id="printName"></h1><div class="ph" id="printMeta"></div><div class="ph" id="printAppt" style="display:none;font-weight:700;"></div></div>
       <div class="rangeBtns" id="reportRange">
         <button type="button" data-r="7" data-i18n="report.r7">7 j</button>
         <button type="button" data-r="30" data-i18n="report.r30">30 j</button>
@@ -481,6 +481,11 @@
       <div class="section-t" data-i18n="set.regimens">Historique des traitements</div>
       <p class="hint" data-i18n="set.regimensHint">Chaque modification de la liste ci-dessus crée une période. Supprimez une période créée par erreur (une faute de frappe, par exemple) — les crises, elles, ne sont pas supprimées.</p>
       <div id="regimenList"></div>
+
+      <div class="section-t" data-i18n="set.apptSec">Prochain rendez-vous</div>
+      <p class="hint" data-i18n="set.apptHint">Facultatif. Sert de pense-bête et s'affiche en haut du rapport, pour préparer la visite.</p>
+      <label class="f" for="apptInput" data-i18n="set.apptLabel">Date et heure</label>
+      <input id="apptInput" class="num" type="datetime-local">
 
       <div class="section-t" data-i18n="set.contacts">Contacts d'urgence</div>
       <label class="f"><span data-i18n="set.numberOf">Numéro de </span><span class="hnameLbl">Conjoint(e)</span></label>
@@ -710,7 +715,7 @@
 <script>
 (function(){
   var KEY="crises_v5",MEDKEY="meds_v5",PRESKEY="presence_v5",SUP="supply_v5",REG="regimen_v5",
-      H="husband_v5",C="caregiver_v5",PNAME="pname_v5",HNAME="hname_v5",CNAME="cname_v5",LANGKEY="lang_v5",EMERG="emerg_v5",
+      H="husband_v5",C="caregiver_v5",PNAME="pname_v5",HNAME="hname_v5",CNAME="cname_v5",LANGKEY="lang_v5",EMERG="emerg_v5",APPTKEY="nextappt_v5",
       BACKUPKEY="lastbackup_v5",ACTIVEKEY="active_v5",INTROKEY="introseen_v5",NAGKEY="nagsnooze_v5",
       DEMOKEY="demo_v5",DEMOSNAP="demosnap_v5";
   /* Donations: set this to your Ko-fi / Liberapay / PayPal / Stripe link.
@@ -800,6 +805,9 @@
     "set.medName":{fr:"Médicament",en:"Medication",de:"Medikament",it:"Farmaco",es:"Medicamento"},
     "set.medDose":{fr:"Dose habituelle",en:"Usual dose",de:"Übliche Dosis",it:"Dose abituale",es:"Dosis habitual"},
     "set.addMed":{fr:"+ Ajouter un médicament",en:"+ Add a medication",de:"+ Medikament hinzufügen",it:"+ Aggiungi un farmaco",es:"+ Añadir un medicamento"},
+    "set.apptSec":{fr:"Prochain rendez-vous",en:"Next appointment",de:"Nächster Termin",it:"Prossimo appuntamento",es:"Próxima cita"},
+    "set.apptHint":{fr:"Facultatif. Sert de pense-bête et s'affiche en haut du rapport, pour préparer la visite.",en:"Optional. A reminder for you, and shown at the top of the report to help prepare for the visit.",de:"Optional. Eine Erinnerung für Sie, wird oben im Bericht angezeigt, um den Termin vorzubereiten.",it:"Facoltativo. Un promemoria per voi, mostrato in cima al rapporto per preparare la visita.",es:"Opcional. Un recordatorio para usted, se muestra en la parte superior del informe para preparar la visita."},
+    "set.apptLabel":{fr:"Date et heure",en:"Date and time",de:"Datum und Uhrzeit",it:"Data e ora",es:"Fecha y hora"},
     "set.contacts":{fr:"Contacts d'urgence",en:"Emergency contacts",de:"Notfallkontakte",it:"Contatti di emergenza",es:"Contactos de emergencia"},
     "set.numberOf":{fr:"Numéro de ",en:"Number for ",de:"Nummer von ",it:"Numero di ",es:"Número de "},
     "set.phonePh1":{fr:"ex : 06 12 34 56 78",en:"e.g. 06 12 34 56 78",de:"z. B. 0170 1234567",it:"es. 06 1234 5678",es:"ej. 612 34 56 78"},
@@ -997,6 +1005,7 @@
     "report.title":{fr:"Rapport — {name}",en:"Report — {name}",de:"Bericht — {name}",it:"Rapporto — {name}",es:"Informe — {name}"},
     "report.total":{fr:"Total : <b>{c}</b> — temps total <b>{d}</b>",en:"Total: <b>{c}</b> — total time <b>{d}</b>",de:"Gesamt: <b>{c}</b> — Gesamtzeit <b>{d}</b>",it:"Totale: <b>{c}</b> — tempo totale <b>{d}</b>",es:"Total: <b>{c}</b> — tiempo total <b>{d}</b>"},
     "report.periodLine":{fr:"Période : {p} — généré le {d}",en:"Period: {p} — generated {d}",de:"Zeitraum: {p} — erstellt am {d}",it:"Periodo: {p} — generato il {d}",es:"Periodo: {p} — generado el {d}"},
+    "report.apptLine":{fr:"Prochain rendez-vous : {d}",en:"Next appointment: {d}",de:"Nächster Termin: {d}",it:"Prossimo appuntamento: {d}",es:"Próxima cita: {d}"},
     "report.pLast":{fr:"{n} derniers jours",en:"last {n} days",de:"letzte {n} Tage",it:"ultimi {n} giorni",es:"últimos {n} días"},
     "report.pAll":{fr:"tout l'historique",en:"complete history",de:"gesamter Verlauf",it:"intero storico",es:"historial completo"},
     "report.perDaySec":{fr:"Temps en crise par jour",en:"Episode time per day",de:"Episodenzeit pro Tag",it:"Tempo in episodio al giorno",es:"Tiempo en episodio por día"},
@@ -1874,6 +1883,8 @@
     var periodLbl=reportDays?tf("report.pLast",{n:reportDays}):t("report.pAll");
     $("printName").textContent=tf("report.title",{name:nameP()});
     $("printMeta").textContent=tf("report.periodLine",{p:periodLbl,d:fmtDate(Date.now())});
+    var apptTs=parseInt(localStorage.getItem(APPTKEY),10),apptEl=$("printAppt");
+    if(apptEl){if(ts(apptTs)&&apptTs>Date.now()){apptEl.textContent=tf("report.apptLine",{d:fmtDate(apptTs)+" "+fmtClock(apptTs)});apptEl.style.display="";}else{apptEl.style.display="none";}}
     var n=list.length,alone=0,pain=0,totalMs=0,hours=new Array(24).fill(0),lats=[],byPres={},byType={},ex={none:0,helped:0,nohelp:0,unknown:0},offSub={},nmCount={};
     list.forEach(function(e){var pv=e.presence==="Seule"?"alone":e.presence;if(pv==="alone")alone++;if(e.pain)pain++;totalMs+=(e.end-e.start);hours[new Date(e.start).getHours()]++;if(e.lastMed)lats.push(Math.round((e.start-e.lastMed)/60000));byPres[pv]=(byPres[pv]||0)+1;byType[e.type||"unk"]=(byType[e.type||"unk"]||0)+1;if(e.extra&&ex.hasOwnProperty(e.extra))ex[e.extra]++;if(e.type==="off"&&e.offType)offSub[e.offType]=(offSub[e.offType]||0)+1;if(Array.isArray(e.nm))e.nm.forEach(function(k){nmCount[k]=(nmCount[k]||0)+1;});});
     var frz=new Array(24).fill(0);
@@ -2079,7 +2090,7 @@
      a new phone, a reinstall, or "Clear Website Data". The CSV export is a report,
      not a backup — it cannot be read back in. This is the only route to the data
      surviving the device. */
-  function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG,WOQKEY,MOTORKEY,BIGKEY];}
+  function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG,APPTKEY,WOQKEY,MOTORKEY,BIGKEY];}
   // ---- DEMO MODE (Priority 5): practise safely; real data is snapshotted and restored ----
   function inDemo(){return localStorage.getItem(DEMOKEY)==="1";}
   function demoSample(){
@@ -2247,6 +2258,7 @@
     $("husbandNameInput").value=localStorage.getItem(HNAME)||"";
     $("caregiverNameInput").value=localStorage.getItem(CNAME)||"";
     $("husbandInput").value=getNum(H);$("caregiverInput").value=getNum(C);$("emergInput").value=localStorage.getItem(EMERG)||"";
+    var apptTs=parseInt(localStorage.getItem(APPTKEY),10);$("apptInput").value=ts(apptTs)?localInputValue(apptTs):"";
     $("bagsOnHand").value=s.bags||"";$("bagDays").value=s.days||"";$("warnDays").value=s.warn||"";
     renderMedListRows();refreshMedNameList();renderRegimenList();refreshBackupState();updateDemoUI();applyBig();
     $("backupMsg").style.display="none";
@@ -2258,6 +2270,8 @@
     var pv=$("patientInput").value.trim(),hv=$("husbandNameInput").value.trim(),cv=$("caregiverNameInput").value.trim();
     if(pv)localStorage.setItem(PNAME,pv);if(hv)localStorage.setItem(HNAME,hv);if(cv)localStorage.setItem(CNAME,cv);
     localStorage.setItem(H,$("husbandInput").value.trim());localStorage.setItem(C,$("caregiverInput").value.trim());localStorage.setItem(EMERG,$("emergInput").value.trim());
+    var apptVal=$("apptInput").value,apptT=apptVal?new Date(apptVal).getTime():NaN;
+    if(ts(apptT))localStorage.setItem(APPTKEY,String(apptT));else localStorage.removeItem(APPTKEY);
     var s=getSupply();s.bags=parseFloat($("bagsOnHand").value)||0;s.days=parseFloat($("bagDays").value)||1;s.warn=parseFloat($("warnDays").value)||5;
     if(s.installedAt===null&&s.bags>0)s.installedAt=Date.now();saveSupply(s);
 

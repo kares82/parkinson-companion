@@ -387,6 +387,8 @@
       <button type="button" class="tagChip" data-nm="fatigue" data-i18n="nm.fatigue">Fatigue</button>
       <button type="button" class="tagChip" data-nm="urinary" data-i18n="nm.urinary">Urinaire</button>
       <button type="button" class="tagChip" data-nm="fog" data-i18n="nm.fog">Esprit embrumé</button>
+      <button type="button" class="tagChip" data-nm="constipation" data-i18n="nm.constipation">Constipation</button>
+      <button type="button" class="tagChip" data-nm="dizziness" data-i18n="nm.dizziness">Étourdissement</button>
     </div></div>
     <button id="painBtn" type="button" data-i18n="active.pain">Elle a mal</button>
    <div id="endBar">
@@ -932,6 +934,8 @@
     "nm.fatigue":{fr:"Fatigue",en:"Fatigue",de:"Müdigkeit",it:"Affaticamento",es:"Fatiga"},
     "nm.urinary":{fr:"Urinaire",en:"Urinary",de:"Harndrang",it:"Urinario",es:"Urinario"},
     "nm.fog":{fr:"Esprit embrumé",en:"Brain fog",de:"Benommenheit",it:"Mente annebbiata",es:"Mente nublada"},
+    "nm.constipation":{fr:"Constipation",en:"Constipation",de:"Verstopfung",it:"Stitichezza",es:"Estreñimiento"},
+    "nm.dizziness":{fr:"Étourdissement",en:"Dizziness",de:"Schwindel",it:"Vertigini",es:"Mareo"},
     "report.nmSec":{fr:"Symptômes non-moteurs",en:"Non-motor symptoms",de:"Nicht-motorische Symptome",it:"Sintomi non motori",es:"Síntomas no motores"},
     "inc.trigger":{fr:"Déclencheur (optionnel)",en:"Trigger (optional)",de:"Auslöser (optional)",it:"Fattore scatenante (facoltativo)",es:"Desencadenante (opcional)"},
     "inc.tgTurn":{fr:"Demi-tour",en:"Turning",de:"Umdrehen",it:"Girarsi",es:"Girar"},
@@ -1910,7 +1914,7 @@
 
     if(n){h+='<div class="section-t">'+esc(t("report.byTypeSec"))+'</div>';["off","tremor","dysk","unk"].forEach(function(k){if(byType[k])h+='<div class="stat">'+esc(typeLbl(k))+' : <b>'+byType[k]+'</b></div>';});}
     if(byType.off){var oss=["morning","wearing","delayed","failure","sudden"].filter(function(k){return offSub[k];});if(oss.length){h+='<div class="section-t">'+esc(t("report.offSubSec"))+'</div>';oss.forEach(function(k){h+='<div class="stat">'+esc(t("off."+k))+' : <b>'+offSub[k]+'</b></div>';});}}
-    var nmk=["anxiety","fatigue","urinary","fog"].filter(function(k){return nmCount[k];});if(nmk.length){h+='<div class="section-t">'+esc(t("report.nmSec"))+'</div>';nmk.forEach(function(k){h+='<div class="stat">'+esc(t("nm."+k))+' : <b>'+nmCount[k]+'</b></div>';});}
+    var nmk=["anxiety","fatigue","urinary","fog","constipation","dizziness"].filter(function(k){return nmCount[k];});if(nmk.length){h+='<div class="section-t">'+esc(t("report.nmSec"))+'</div>';nmk.forEach(function(k){h+='<div class="stat">'+esc(t("nm."+k))+' : <b>'+nmCount[k]+'</b></div>';});}
     var exGiven=ex.helped+ex.nohelp+ex.unknown;
     if(exGiven){h+='<div class="section-t">'+esc(t("report.extraSec"))+'</div>';h+='<div class="stat">'+esc(tf("report.extraGiven",{g:exGiven,n:n}))+'</div>';h+='<div class="stat">'+esc(tf("report.extraHelpedLine",{h:ex.helped,g:exGiven}))+'</div>';}
     var ms=load(MOTORKEY).filter(function(x){return x&&x.time>=fromT&&x.state;});

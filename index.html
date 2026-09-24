@@ -2340,7 +2340,7 @@
         getMedList().forEach(function(m,mi){
           parseTimes(m.times).forEach(function(mn,ti){
             var id=REMIND_MED_BASE+mi*10+ti;
-            if(id>=REMIND_MED_BASE+REMIND_MED_SPAN)return;
+            if(id>=REMIND_APPT_ID)return;   // never encroach on the reserved appointment id
             var h=Math.floor(mn/60),mi2=mn%60;
             toSchedule.push({id:id,title:m.name||t("set.medName"),
               body:m.dose?tf("remind.medBody",{dose:m.dose}):t("remind.medBodyNoDose"),

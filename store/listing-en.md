@@ -37,11 +37,18 @@ WHAT YOU CAN TRACK
 
 • Medication — your list with doses and, if you want them, dose times. Each dose
   is recorded at the time it was actually given, not the time it was typed in.
+  If you allow notifications, the app can remind you at each dose time — the
+  reminder is scheduled entirely on the phone, nothing is sent anywhere.
 
 • Next dose — with times set, the home screen shows the next dose due and flags
   overdue ones.
 
-• Wellbeing — a quick daily check-in: appetite, mood, pain, sleep, weight.
+• Next appointment — an optional date shown at the top of the doctor report,
+  with a reminder the day before if you allow notifications.
+
+• Wellbeing — a quick daily check-in: appetite, mood, pain, sleep, weight, and
+  optional non-motor symptoms (anxiety, fatigue, brain fog, urinary issues,
+  constipation, dizziness on standing) that are easy to forget to mention.
 
 • Incidents — falls, near-falls, freezing, choking.
 

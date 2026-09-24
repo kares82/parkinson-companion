@@ -4,19 +4,29 @@
 Parkinson Companion
 
 ## Subtitle (App Store, 30 char max)
-Episode & medication diary
-<!-- 25 characters -->
+Free offline carer diary
+<!-- 24 characters -->
+
+## Keywords (App Store, 100 char max, comma-separated, no spaces)
+tremor,dyskinesia,levodopa,symptom,tracker,caregiver,movement,dose,neurology,freezing,wellbeing
+<!-- 96 characters -->
 
 ## Short description (Google Play, 80 char max)
-Parkinson's diary: episodes, medication, wellbeing. Offline and private.
-<!-- 71 characters -->
+Free, offline Parkinson's diary for carers. Private — nothing leaves the phone.
+<!-- 79 characters -->
 
 ## Full description
 
-Parkinson Companion is a simple tracking diary, built to be used one-handed in
-the moment that matters — by the person themselves or by their carer.
+Parkinson Companion is free and works completely offline — built to be used
+one-handed in the moment that matters, by the carer as much as by the person
+themselves.
 
-All data stays on the phone. No account, no server, no advertising, no tracking.
+No account. No sign-up. No subscription. No signal needed. Open it and it just
+works, and all data stays private on the phone — nothing is uploaded, tracked,
+or sold.
+
+One tap starts an episode. One tap calls for help. That is the whole point: when
+things are hard, the app is simple.
 
 WHAT YOU CAN TRACK
 

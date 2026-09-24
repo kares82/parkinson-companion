@@ -4,21 +4,29 @@
 Parkinson Companion
 
 ## Sous-titre (App Store, 30 car. max)
-Suivi crises et traitement
-<!-- 26 caractères -->
+Gratuit, hors ligne, aidant
+<!-- 27 caractères -->
+
+## Mots-clés (App Store, 100 car. max, séparés par des virgules, sans espaces)
+tremblement,dyskinésie,lévodopa,symptôme,aidant,mouvement,dose,neurologie,blocage,journal,chute
+<!-- 95 caractères -->
 
 ## Description courte (Google Play, 80 car. max)
-Carnet de suivi Parkinson : crises, médicaments, bien-être. Hors ligne et privé.
-<!-- 80 caractères (limite exacte) -->
+Carnet Parkinson gratuit et hors ligne pour l'aidant. Privé : rien ne sort.
+<!-- 75 caractères -->
 
 ## Description complète
 
-Parkinson Companion est un carnet de suivi simple, pensé pour être utilisé d'une
-seule main, au moment où ça compte — par la personne concernée comme par son
-proche aidant.
+Parkinson Companion est gratuit et fonctionne entièrement hors ligne — pensé
+pour être utilisé d'une seule main au moment où ça compte, par le proche aidant
+autant que par la personne concernée.
 
-Toutes les données restent sur le téléphone. Aucun compte, aucun serveur, aucune
-publicité, aucun traceur.
+Aucun compte. Aucune inscription. Aucun abonnement. Aucune connexion requise.
+Ouvrez l'application et elle fonctionne, et toutes les données restent privées
+sur le téléphone — rien n'est envoyé, suivi ni vendu.
+
+Un appui démarre un épisode. Un appui appelle à l'aide. C'est tout l'objectif :
+quand c'est difficile, l'application reste simple.
 
 CE QUE VOUS POUVEZ SUIVRE
 

@@ -471,6 +471,7 @@
       <p class="hint" data-i18n="set.medsHint">Ajoutez chaque médicament avec sa dose habituelle. Modifiez cette liste dès qu'un médicament est ajouté ou arrêté par le médecin — l'appli garde l'historique et compare les crises avant/après.</p>
       <div class="medListHead"><span data-i18n="set.medName">Médicament</span><span data-i18n="set.medDose">Dose habituelle</span><span></span></div>
       <div id="medListRows"></div>
+      <datalist id="medNameList"></datalist>
       <button id="addMedRow" type="button" class="addMedBtn" data-i18n="set.addMed">+ Ajouter un médicament</button>
       <p class="hint" data-i18n="set.timesHint">Les horaires sont facultatifs. Si vous les indiquez, l'accueil affiche la prochaine dose et signale les doses en retard, et le rapport calcule l'observance.</p>
       <p class="hint" id="regimenSince"></p>
@@ -1044,7 +1045,17 @@
     "well.faceMood":{fr:["Très triste","Triste","Neutre","Bonne","Très bonne"],en:["Very sad","Sad","Neutral","Good","Very good"],de:["Sehr traurig", "Traurig", "Neutral", "Gut", "Sehr gut"],it:["Molto triste", "Triste", "Neutro", "Buono", "Molto buono"],es:["Muy triste", "Triste", "Neutro", "Bueno", "Muy bueno"]},
     "well.facePain":{fr:["Aucune","Légère","Modérée","Forte","Intense"],en:["None","Mild","Moderate","Strong","Intense"],de:["Keine", "Leicht", "Mäßig", "Stark", "Intensiv"],it:["Nessuno", "Lieve", "Moderato", "Forte", "Intenso"],es:["Ninguno", "Leve", "Moderado", "Fuerte", "Intenso"]},
     "well.faceSleep":{fr:["Très mauvais","Mauvais","Moyen","Bon","Très bon"],en:["Very poor","Poor","Medium","Good","Very good"],de:["Sehr schlecht", "Schlecht", "Mittel", "Gut", "Sehr gut"],it:["Molto scarso", "Scarso", "Medio", "Buono", "Molto buono"],es:["Muy malo", "Malo", "Medio", "Bueno", "Muy bueno"]},
-    "chart.months":{fr:["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"],en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],de:["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],it:["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"],es:["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]}
+    "chart.months":{fr:["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"],en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],de:["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],it:["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"],es:["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]},
+    /* Common Parkinson's drug names, generic + most-used local brand names per
+       market. A suggestion list only — the field stays free text, so anything
+       not listed here can still be typed in. Not exhaustive; not medical advice. */
+    "set.medSuggest":{
+      fr:["Lévodopa","Madopar","Modopar","Stalevo","Entacapone","Pramipexole","Ropinirole","Rotigotine (Neupro)","Rasagiline (Azilect)","Amantadine","Sélégiline","Apokinon"],
+      en:["Levodopa","Carbidopa-Levodopa","Sinemet","Rytary","Stalevo","Entacapone","Pramipexole (Mirapex)","Ropinirole (Requip)","Rotigotine (Neupro)","Rasagiline (Azilect)","Amantadine","Selegiline"],
+      de:["Levodopa","Madopar","Levodopa/Carbidopa","Stalevo","Entacapon (Comtess)","Pramipexol (Sifrol)","Ropinirol (Requip)","Rotigotin (Neupro)","Rasagilin (Azilect)","Amantadin (PK-Merz)","Selegilin","Biperiden (Akineton)"],
+      it:["Levodopa","Madopar","Sirio","Stalevo","Entacapone (Comtan)","Pramipexolo (Mirapexin)","Ropinirolo (Requip)","Rotigotina (Neupro)","Rasagilina (Azilect)","Amantadina","Selegilina"],
+      es:["Levodopa","Madopar","Sinemet","Stalevo","Entacapona","Pramipexol (Mirapexin)","Ropinirol (Requip)","Rotigotina (Neupro)","Rasagilina (Azilect)","Amantadina","Selegilina"]
+    }
   };
   var SUPPORTED=["fr","en","de","it","es"];
   var lang=(function(){var s=localStorage.getItem(LANGKEY);if(SUPPORTED.indexOf(s)>=0)return s;
@@ -1225,8 +1236,15 @@
   function getMedList(){return load(MEDLIST);}
   function saveMedList(l){save(MEDLIST,l);}
   function medListRowHtml(name,dose,times){var NAMEPH={fr:"Nom",en:"Name",de:"Name",it:"Nome",es:"Nombre"},DOSEPH={fr:"ex : 100mg, 1 comprimé",en:"e.g. 100mg, 1 tablet",de:"z. B. 100mg, 1 Tablette",it:"es. 100mg, 1 compressa",es:"ej. 100mg, 1 comprimido"};var phN=NAMEPH[lang]||NAMEPH.en,phD=DOSEPH[lang]||DOSEPH.en;
-    return '<div class="medListRow"><input type="text" class="mlName" value="'+esc(name)+'" placeholder="'+phN+'"><input type="text" class="mlDose" value="'+esc(dose)+'" placeholder="'+phD+'"><button type="button" class="mlDel" aria-label="'+esc(t("common.delete"))+'">✕</button><input type="text" class="mlTimes" inputmode="numeric" value="'+esc(times||"")+'" placeholder="'+esc(t("set.medTimesPh"))+'"></div>';}
+    return '<div class="medListRow"><input type="text" class="mlName" list="medNameList" value="'+esc(name)+'" placeholder="'+phN+'"><input type="text" class="mlDose" value="'+esc(dose)+'" placeholder="'+phD+'"><button type="button" class="mlDel" aria-label="'+esc(t("common.delete"))+'">✕</button><input type="text" class="mlTimes" inputmode="numeric" value="'+esc(times||"")+'" placeholder="'+esc(t("set.medTimesPh"))+'"></div>';}
   function renderMedListRows(){var l=getMedList(),html="";l.forEach(function(m){html+=medListRowHtml(m.name,m.dose,m.times);});$("medListRows").innerHTML=html;}
+  /* Suggestion list only (datalist keeps the field free text) — refreshed on
+     language change so it shows names used in the person's own market. */
+  function refreshMedNameList(){
+    var dl=$("medNameList");if(!dl)return;
+    var opts=t("set.medSuggest")||[];
+    dl.innerHTML=opts.map(function(n){return '<option value="'+esc(n)+'">';}).join("");
+  }
   $("addMedRow").addEventListener("click",function(){$("medListRows").insertAdjacentHTML("beforeend",medListRowHtml("","",""));});
   $("medListRows").addEventListener("click",function(e){if(e.target&&e.target.classList.contains("mlDel")){e.target.closest(".medListRow").remove();}});
   function readMedListFromDom(){var rows=document.querySelectorAll(".medListRow"),out=[];rows.forEach(function(r){var n=r.querySelector(".mlName").value.trim(),d=r.querySelector(".mlDose").value.trim(),ti=r.querySelector(".mlTimes");if(n)out.push({name:n,dose:d,times:ti?ti.value.trim():""});});return out;}
@@ -2226,7 +2244,7 @@
     $("caregiverNameInput").value=localStorage.getItem(CNAME)||"";
     $("husbandInput").value=getNum(H);$("caregiverInput").value=getNum(C);$("emergInput").value=localStorage.getItem(EMERG)||"";
     $("bagsOnHand").value=s.bags||"";$("bagDays").value=s.days||"";$("warnDays").value=s.warn||"";
-    renderMedListRows();renderRegimenList();refreshBackupState();updateDemoUI();applyBig();
+    renderMedListRows();refreshMedNameList();renderRegimenList();refreshBackupState();updateDemoUI();applyBig();
     $("backupMsg").style.display="none";
     var ar=activeRegimen();
     $("regimenSince").textContent=ar?tf("regimen.current",{d:(ar.start===0?t("regimen.trackingStart"):fmtDate(ar.start))}):t("regimen.none");
@@ -2259,7 +2277,7 @@
     if(b.dataset.lang===lang)return;
     lang=b.dataset.lang;localStorage.setItem(LANGKEY,lang);
     try{document.documentElement.setAttribute("lang",lang);}catch(e){}
-    applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();renderMedListRows();renderRegimenList();refreshBackupState();
+    applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();renderMedListRows();refreshMedNameList();renderRegimenList();refreshBackupState();
     var ar=activeRegimen();$("regimenSince").textContent=ar?tf("regimen.current",{d:(ar.start===0?t("regimen.trackingStart"):fmtDate(ar.start))}):t("regimen.none");
     updateLangBtns();initPersist();
   });});

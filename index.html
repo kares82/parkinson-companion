@@ -1829,11 +1829,19 @@
     return buf;
   }
   function stopAmbient(){if(ambientSrc){try{ambientSrc.stop();}catch(e){}ambientSrc=null;}}
+  /* Per-type gain: at one fixed level, white noise measured ~3x louder than
+     pink or brown (unequal raw amplitude between the three generators), so
+     switching between them mostly sounded like a volume change, not a
+     texture change. These are tuned so all three play at a comparable
+     loudness, with brown given a bit extra since bass content reads as
+     quieter than mids/highs at equal energy — especially on a small phone
+     speaker, where it's the frequencies most likely to get lost. */
+  var AMBIENT_GAIN={white:0.073,pink:0.225,brown:0.24};
   function startAmbient(type){
     stopAmbient();
     var ctx=getAudioCtx();if(!ctx)return;
     var src=ctx.createBufferSource();src.buffer=noiseBuffer(ctx,type);src.loop=true;
-    var gain=ctx.createGain();gain.gain.value=0.15;
+    var gain=ctx.createGain();gain.gain.value=AMBIENT_GAIN[type]||0.15;
     src.connect(gain);gain.connect(ctx.destination);src.start();
     ambientSrc=src;ambientGain=gain;
   }

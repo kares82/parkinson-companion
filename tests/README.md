@@ -15,7 +15,7 @@ Two projects run:
 | Project | Engine | Why |
 |---|---|---|
 | `mobile-safari` | WebKit | What the app actually ships on. The home-screen flicker and the inert `<a download>` were both WebKit-only. |
-| `mobile-chromium` | Chromium | What the Android TWA runs. |
+| `mobile-chromium` | Chromium | What the Android Capacitor app's WebView runs. |
 
 One project only: `npx playwright test --project=mobile-chromium`.
 

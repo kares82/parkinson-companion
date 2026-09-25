@@ -19,7 +19,13 @@
   #app{touch-action:pan-y;}
   body{background:#000;display:flex;justify-content:center;position:fixed;inset:0;width:100%;}
   #app{height:100%;width:100%;max-width:480px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior-y:contain;position:relative;}
-  .screen{flex:1;display:none;flex-direction:column;min-height:100%;}.screen.show{display:flex;}
+  /* flex:1 0 auto, not the flex:1 shorthand (flex-basis:0%) — with a basis of 0,
+     a screen taller than one viewport gets squeezed to exactly viewport height
+     regardless of its content, and the overflow paints outside the element's own
+     background box, showing #app's transparent background (black) behind it.
+     flex-basis:auto sizes from content first, so tall screens (a long active-
+     crisis screen with a sticky end-episode bar, e.g.) actually grow to fit. */
+  .screen{flex:1 0 auto;display:none;flex-direction:column;min-height:100%;}.screen.show{display:flex;}
   input{font-family:inherit;}
 
   #startScreen{background:#c0392b;color:#fff;}
@@ -56,7 +62,7 @@
   .typeBtn.sel{background:#f1c40f;color:#1e2a38;border-color:#f1c40f;}
   .typeHint{font-size:clamp(11px,2.8vw,13px);opacity:.7;text-align:center;margin-top:9px;line-height:1.4;}
   #endBtn{margin-top:14px;padding:22px;font-size:clamp(20px,5.6vw,26px);font-weight:800;background:#1fbf5c;color:#0a2f18;border:3px solid #7dffab;border-radius:16px;box-shadow:0 0 0 3px rgba(31,191,92,.25),0 4px 14px rgba(31,191,92,.45);}
-   #endBar{position:sticky;bottom:0;margin:14px -18px 0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:#1e2a38;box-shadow:0 -10px 18px -8px rgba(0,0,0,.55);z-index:5;}
+   #endBar{position:sticky;bottom:0;margin:14px -18px 0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:#1e2a38;border-top:1px solid rgba(255,255,255,.12);z-index:5;}
   #endBar #endBtn{margin-top:0;width:100%;}
 
   #helpScreen{background:#111;color:#fff;padding:calc(16px + env(safe-area-inset-top)) 16px 16px;}
@@ -206,8 +212,6 @@
   #backupNagBtn{margin-top:6px;padding:9px 16px;font-size:13px;font-weight:800;border:none;border-radius:8px;background:#4d3c00;color:#fff;min-height:38px;}
   #backupNag{position:relative;}
   #backupNagClose{position:absolute;top:2px;right:4px;background:transparent;border:none;color:#4d3c00;font-size:16px;font-weight:800;line-height:1;padding:4px 8px;min-height:32px;min-width:32px;}
-  #whatsNewBanner{position:relative;padding:9px 34px 9px 10px;background:#16a085;color:#fff;font-size:clamp(11px,3vw,13px);font-weight:700;text-align:center;line-height:1.35;}
-  #whatsNewClose{position:absolute;top:2px;right:4px;background:transparent;border:none;color:#fff;font-size:16px;font-weight:800;line-height:1;padding:4px 8px;min-height:32px;min-width:32px;}
   #lastBackupState.warn{color:#c0392b;font-weight:800;}
   #introModal,#wipeModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
   #introModal.show,#wipeModal.show{display:flex;}
@@ -399,7 +403,6 @@
     </div>
     <div id="doseBar"></div>
     <div id="backupNag"><button id="backupNagClose" type="button" aria-label="Fermer">✕</button><span id="backupNagTxt"></span><br><button id="backupNagBtn" type="button">Sauvegarder</button></div>
-    <div id="whatsNewBanner" style="display:none;"><button id="whatsNewClose" type="button" aria-label="Fermer">✕</button><span id="whatsNewTxt"></span></div>
     <div id="demoBanner" style="display:none"></div>
     <div id="presenceBadge">Avec la personne : <span id="presNow">Seule</span> — toucher pour changer</div>
     <div id="tapZone"><h1 data-i18n-html="start.tap">Appuyer<br>ici</h1><p data-i18n="start.tapSub">quand la crise commence</p></div>
@@ -964,7 +967,6 @@
     "calm.cueFeet":{fr:"👣 Empreintes",en:"👣 Footprints",de:"👣 Fußabdrücke",it:"👣 Impronte",es:"👣 Huellas"},
     "calm.cueChecker":{fr:"🏁 Damier",en:"🏁 Checkerboard",de:"🏁 Schachbrett",it:"🏁 Scacchiera",es:"🏁 Tablero"},
     "calm.cueTapStop":{fr:"Toucher pour arrêter",en:"Tap to stop",de:"Zum Beenden berühren",it:"Tocca per fermare",es:"Toque para detener"},
-    "whatsnew.text":{fr:"Nouveau : rappels, fiche médicale d'urgence, notes de transmission et outils de calme — tout dans « Réglages » et sur l'accueil.",en:"New: reminders, emergency medical ID, handover notes, and calming tools — all on the home screen and in Settings.",de:"Neu: Erinnerungen, medizinischer Notfallausweis, Übergabenotizen und Ruhewerkzeuge — alles auf der Startseite und in den Einstellungen.",it:"Novità: promemoria, scheda medica di emergenza, note di consegna e strumenti di calma — tutto nella schermata principale e nelle impostazioni.",es:"Novedades: recordatorios, ficha médica de emergencia, notas de traspaso y herramientas de calma — todo en la pantalla principal y en ajustes."},
     "send.btn":{fr:"Envoyer le rapport",en:"Send report",de:"Bericht senden",it:"Invia il rapporto",es:"Enviar el informe"},
     "send.title":{fr:"Envoyer le rapport",en:"Send report",de:"Bericht senden",it:"Invia il rapporto",es:"Enviar el informe"},
     "send.body":{fr:"Vous choisissez le destinataire (médecin, association…) dans le menu de partage de votre téléphone. Le rapport et le fichier de données seront joints. Le nom doit-il figurer ?",en:"You choose the recipient (doctor, association…) in your phone's share menu. The report and the data file will be attached. Should the name be included?",de:"Sie wählen den Empfänger (Arzt, Verein…) im Teilen-Menü Ihres Telefons. Der Bericht und die Datendatei werden angehängt. Soll der Name enthalten sein?",it:"Scegli il destinatario (medico, associazione…) nel menu di condivisione del telefono. Il rapporto e il file di dati saranno allegati. Includere il nome?",es:"Eliges el destinatario (médico, asociación…) en el menú de compartir del teléfono. Se adjuntarán el informe y el archivo de datos. ¿Incluir el nombre?"},
@@ -1227,7 +1229,9 @@
     "report.extraSec":{fr:"Dose supplémentaire pendant la crise",en:"Extra dose during the episode",de:"Zusätzliche Dosis während der Episode",it:"Dose extra durante l'episodio",es:"Dosis extra durante el episodio"},
     "report.extraGiven":{fr:"Donnée : {g} / {n}",en:"Given: {g} / {n}",de:"Gegeben: {g} / {n}",it:"Somministrata: {g} / {n}",es:"Administrada: {g} / {n}"},
     "report.extraHelpedLine":{fr:"A aidé : {h} / {g}",en:"Helped: {h} / {g}",de:"Half: {h} / {g}",it:"Ha aiutato: {h} / {g}",es:"Ayudó: {h} / {g}"},
-    "report.hoursLegend":{fr:"🟦 Crises · 🟧 Blocages (freezing) · 💊 Heure de prise prévue",en:"🟦 Episodes · 🟧 Freezing · 💊 Scheduled dose time",de:"🟦 Episoden · 🟧 Freezing · 💊 Geplante Dosiszeit",it:"🟦 Episodi · 🟧 Freezing · 💊 Orario dose previsto",es:"🟦 Episodios · 🟧 Freezing · 💊 Hora de dosis prevista"},
+    "report.legendCrises":{fr:"🟦 Crises",en:"🟦 Episodes",de:"🟦 Episoden",it:"🟦 Episodi",es:"🟦 Episodios"},
+    "report.legendFreezing":{fr:"🟧 Blocages (freezing)",en:"🟧 Freezing",de:"🟧 Freezing",it:"🟧 Freezing",es:"🟧 Freezing"},
+    "report.legendDose":{fr:"💊 Heure de prise prévue",en:"💊 Scheduled dose time",de:"💊 Geplante Dosiszeit",it:"💊 Orario dose previsto",es:"💊 Hora de dosis prevista"},
     "report.doseTimesLine":{fr:"💊 Doses prévues : {t}",en:"💊 Scheduled doses: {t}",de:"💊 Geplante Dosen: {t}",it:"💊 Dosi previste: {t}",es:"💊 Dosis previstas: {t}"},
     "demo.section":{fr:"Essayer l'application",en:"Try the app",de:"App ausprobieren",it:"Prova l'app",es:"Probar la app"},
     "demo.hint":{fr:"Chargez des données d'exemple pour vous entraîner sans crainte, y compris le bouton de crise. Vos vraies données sont mises de côté et restaurées quand vous quittez la démo.",en:"Load sample data to practise without fear, including the crisis button. Your real data is set aside and restored when you leave the demo.",de:"Laden Sie Beispieldaten, um ohne Sorge zu üben, auch den Krisenknopf. Ihre echten Daten werden beiseitegelegt und wiederhergestellt, wenn Sie die Demo verlassen.",it:"Carica dati di esempio per fare pratica senza timore, incluso il pulsante di crisi. I tuoi dati reali vengono messi da parte e ripristinati quando esci dalla demo.",es:"Carga datos de ejemplo para practicar sin miedo, incluido el botón de crisis. Tus datos reales se apartan y se restauran cuando sales de la demo."},
@@ -2396,9 +2400,16 @@
     h+='<div class="section-t">'+esc(t("report.hoursSec"))+'</div>';
     var slots=scheduleSlots(),doseHrs={};slots.forEach(function(s){doseHrs[Math.floor(s.min/60)]=true;});
     var anyH=false;for(var hi=0;hi<24;hi++){if(hours[hi]||frz[hi]){anyH=true;break;}}
+    var anyFrz=false;for(var fi=0;fi<24;fi++){if(frz[fi]){anyFrz=true;break;}}
     if(anyH){
       h+='<div style="margin:6px 0 2px">'+hoursChartSVG(hours,frz,doseHrs)+'</div>';
-      h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(t("report.hoursLegend"))+'</div>';
+      // Only list legend entries for what's actually plotted — a color key for
+      // an empty series (no freezing incidents logged, no dose schedule set)
+      // reads as "where did this go" rather than "there is none".
+      var legendParts=[t("report.legendCrises")];
+      if(anyFrz)legendParts.push(t("report.legendFreezing"));
+      if(slots.length)legendParts.push(t("report.legendDose"));
+      h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(legendParts.join(" · "))+'</div>';
       if(slots.length)h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(tf("report.doseTimesLine",{t:slots.map(function(s){return pad(Math.floor(s.min/60))+":"+pad(s.min%60);}).join(", ")}))+'</div>';
     }
     if(!anyH)h+='<div class="stat">'+esc(t("report.noData"))+'</div>';
@@ -2811,21 +2822,6 @@
   }
   $("introOk").addEventListener("click",function(){localStorage.setItem(INTROKEY,"1");$("introModal").classList.remove("show");});
 
-  // ---- WHAT'S NEW banner — only for people updating an existing install, never
-  // shown on a fresh install (the welcome modal above already covers that) ----
-  var WNKEY="whatsnew_v5",WHATSNEW_ID="2";
-  function maybeShowWhatsNew(){
-    if(!localStorage.getItem(INTROKEY))return;
-    if(localStorage.getItem(WNKEY)===WHATSNEW_ID)return;
-    // Higher-priority banners (an overdue dose, or the backup nag) win the single
-    // banner slot so the home screen never stacks three attention-grabbers at once.
-    if($("doseBar").classList.contains("late"))return;
-    if($("backupNag").classList.contains("show"))return;
-    $("whatsNewTxt").textContent=t("whatsnew.text");
-    $("whatsNewBanner").style.display="block";
-  }
-  $("whatsNewClose").addEventListener("click",function(){localStorage.setItem(WNKEY,WHATSNEW_ID);$("whatsNewBanner").style.display="none";});
-
   // ---- MEDICATION & APPOINTMENT REMINDERS (native app only) ----
   // These are local notifications scheduled by the OS on-device — not push
   // notifications, so nothing is sent anywhere and no server/account is
@@ -2878,7 +2874,7 @@
     })["catch"](function(){});
   }
 
-  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();maybeShowWhatsNew();updateDemoUI();applyBig();ensureReminderPermission();
+  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();updateDemoUI();applyBig();ensureReminderPermission();
   (function(){var w=$("donateWrap");if(!w)return;var native=!!(window.Capacitor);if(!native&&DONATE_URL.indexOf("REMPLACER")<0){$("donateLink").href=DONATE_URL;w.style.display="block";}})();
   resumeActive();   // pick a running episode back up if the app was closed mid-crisis
   setInterval(function(){if($("startScreen").classList.contains("show")){refreshDoseBar();refreshSupplyBar();}},60000);

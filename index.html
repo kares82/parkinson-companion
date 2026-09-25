@@ -205,6 +205,8 @@
   #backupNagBtn{margin-top:6px;padding:9px 16px;font-size:13px;font-weight:800;border:none;border-radius:8px;background:#4d3c00;color:#fff;min-height:38px;}
   #backupNag{position:relative;}
   #backupNagClose{position:absolute;top:2px;right:4px;background:transparent;border:none;color:#4d3c00;font-size:16px;font-weight:800;line-height:1;padding:4px 8px;min-height:32px;min-width:32px;}
+  #whatsNewBanner{position:relative;padding:9px 34px 9px 10px;background:#16a085;color:#fff;font-size:clamp(11px,3vw,13px);font-weight:700;text-align:center;line-height:1.35;}
+  #whatsNewClose{position:absolute;top:2px;right:4px;background:transparent;border:none;color:#fff;font-size:16px;font-weight:800;line-height:1;padding:4px 8px;min-height:32px;min-width:32px;}
   #lastBackupState.warn{color:#c0392b;font-weight:800;}
   #introModal,#wipeModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
   #introModal.show,#wipeModal.show{display:flex;}
@@ -298,6 +300,10 @@
   #metroBpmRow{text-align:center;font-size:15px;font-weight:800;margin-bottom:6px;}
   #metroBpmLabel{font-size:22px;color:#2980b9;}
   #metroSlider{width:100%;margin-bottom:12px;}
+  .screen.cue{background:#000;position:relative;overflow:hidden;justify-content:flex-end;align-items:center;}
+  #cueStripes{position:absolute;inset:-60px 0 0 0;background:repeating-linear-gradient(0deg,#f1c40f 0 14px,#000 14px 60px);animation:cueScroll .6s linear infinite;}
+  @keyframes cueScroll{from{background-position-y:0;}to{background-position-y:60px;}}
+  #cueTapHint{position:relative;z-index:1;color:#fff;font-weight:800;font-size:16px;padding:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom));background:rgba(0,0,0,.55);width:100%;text-align:center;}
 
   /* ---- report range selector ---- */
   .rangeBtns{display:flex;gap:6px;margin-bottom:4px;}
@@ -382,6 +388,7 @@
     </div>
     <div id="doseBar"></div>
     <div id="backupNag"><button id="backupNagClose" type="button" aria-label="Fermer">✕</button><span id="backupNagTxt"></span><br><button id="backupNagBtn" type="button">Sauvegarder</button></div>
+    <div id="whatsNewBanner" style="display:none;"><button id="whatsNewClose" type="button" aria-label="Fermer">✕</button><span id="whatsNewTxt"></span></div>
     <div id="demoBanner" style="display:none"></div>
     <div id="presenceBadge">Avec la personne : <span id="presNow">Seule</span> — toucher pour changer</div>
     <div id="tapZone"><h1 data-i18n-html="start.tap">Appuyer<br>ici</h1><p data-i18n="start.tapSub">quand la crise commence</p></div>
@@ -530,10 +537,21 @@
           <button type="button" class="apOpt" data-a="off" data-i18n="calm.off">Arrêt</button>
         </div>
       </div>
+
+      <div class="calmSec">
+        <div class="section-t" data-i18n="calm.cueTitle">Repères visuels (freezing)</div>
+        <p class="hint" data-i18n="calm.cueHint">Des lignes qui défilent, pour aider à redémarrer un pas bloqué. Toucher l'écran pour arrêter.</p>
+        <button type="button" id="cueStart" class="addMedBtn" data-i18n="calm.cueStart">▶ Afficher les repères</button>
+      </div>
     </div>
     <div class="actions">
       <button class="backBtn" data-back data-i18n="common.back">Retour</button>
     </div>
+  </div>
+
+  <div id="cueScreen" class="screen cue">
+    <div id="cueStripes"></div>
+    <div id="cueTapHint" data-i18n="calm.cueTapStop">Toucher pour arrêter</div>
   </div>
 
   <div id="reportScreen" class="screen sheet">
@@ -920,6 +938,11 @@
     "calm.pink":{fr:"Pluie douce",en:"Soft rain",de:"Sanfter Regen",it:"Pioggia leggera",es:"Lluvia suave"},
     "calm.brown":{fr:"Vagues graves",en:"Deep waves",de:"Tiefe Wellen",it:"Onde profonde",es:"Olas profundas"},
     "calm.off":{fr:"Arrêt",en:"Off",de:"Aus",it:"Spento",es:"Apagado"},
+    "calm.cueTitle":{fr:"Repères visuels (freezing)",en:"Visual cueing (freezing)",de:"Visuelle Hilfslinien (Freezing)",it:"Riferimenti visivi (freezing)",es:"Referencias visuales (freezing)"},
+    "calm.cueHint":{fr:"Des lignes qui défilent, pour aider à redémarrer un pas bloqué. Toucher l'écran pour arrêter.",en:"Scrolling lines to help restart a blocked step. Tap the screen to stop.",de:"Vorbeilaufende Linien, um einen blockierten Schritt neu zu starten. Zum Beenden den Bildschirm berühren.",it:"Linee che scorrono per aiutare a ripartire da un passo bloccato. Tocca lo schermo per fermare.",es:"Líneas en movimiento para ayudar a reiniciar un paso bloqueado. Toque la pantalla para detener."},
+    "calm.cueStart":{fr:"▶ Afficher les repères",en:"▶ Show cueing lines",de:"▶ Hilfslinien anzeigen",it:"▶ Mostra i riferimenti",es:"▶ Mostrar referencias"},
+    "calm.cueTapStop":{fr:"Toucher pour arrêter",en:"Tap to stop",de:"Zum Beenden berühren",it:"Tocca per fermare",es:"Toque para detener"},
+    "whatsnew.text":{fr:"Nouveau : rappels, fiche médicale d'urgence, notes de transmission et outils de calme — tout dans « Réglages » et sur l'accueil.",en:"New: reminders, emergency medical ID, handover notes, and calming tools — all on the home screen and in Settings.",de:"Neu: Erinnerungen, medizinischer Notfallausweis, Übergabenotizen und Ruhewerkzeuge — alles auf der Startseite und in den Einstellungen.",it:"Novità: promemoria, scheda medica di emergenza, note di consegna e strumenti di calma — tutto nella schermata principale e nelle impostazioni.",es:"Novedades: recordatorios, ficha médica de emergencia, notas de traspaso y herramientas de calma — todo en la pantalla principal y en ajustes."},
     "send.btn":{fr:"Envoyer le rapport",en:"Send report",de:"Bericht senden",it:"Invia il rapporto",es:"Enviar el informe"},
     "send.title":{fr:"Envoyer le rapport",en:"Send report",de:"Bericht senden",it:"Invia il rapporto",es:"Enviar el informe"},
     "send.body":{fr:"Vous choisissez le destinataire (médecin, association…) dans le menu de partage de votre téléphone. Le rapport et le fichier de données seront joints. Le nom doit-il figurer ?",en:"You choose the recipient (doctor, association…) in your phone's share menu. The report and the data file will be attached. Should the name be included?",de:"Sie wählen den Empfänger (Arzt, Verein…) im Teilen-Menü Ihres Telefons. Der Bericht und die Datendatei werden angehängt. Soll der Name enthalten sein?",it:"Scegli il destinatario (medico, associazione…) nel menu di condivisione del telefono. Il rapporto e il file di dati saranno allegati. Includere il nome?",es:"Eliges el destinatario (médico, asociación…) en el menú de compartir del teléfono. Se adjuntarán el informe y el archivo de datos. ¿Incluir el nombre?"},
@@ -1694,7 +1717,13 @@
 
   // ---- HANDOVER / SHIFT-LOG NOTES (context between carers, never sent anywhere) ----
   var HOKEY="shiftlog_v5";
-  function loadHO(){return load(HOKEY);}
+  var HO_MAX_AGE=30*86400000;   // shift notes are short-lived context, not a permanent record
+  function loadHO(){
+    var l=load(HOKEY),cutoff=Date.now()-HO_MAX_AGE;
+    var fresh=l.filter(function(n){return n.time>=cutoff;});
+    if(fresh.length!==l.length)save(HOKEY,fresh);   // prune on disk too, not just in the returned view
+    return fresh;
+  }
   var hoWho=null;
   function renderHOWhoBtns(){
     var opts=presenceOptions().filter(function(o){return o[0]!=="alone";});
@@ -1816,6 +1845,8 @@
   });
 
   $("calmBtn").addEventListener("click",function(){show("calmScreen");});
+  $("cueStart").addEventListener("click",function(){show("cueScreen");});
+  $("cueScreen").addEventListener("click",function(){show("calmScreen");});
   // Leaving the screen stops everything — no sound/vibration running unattended in a pocket.
   document.querySelectorAll('#calmScreen [data-back]').forEach(function(b){b.addEventListener("click",function(){
     if(breathTimer){clearInterval(breathTimer);breathTimer=null;$("breathCircle").classList.remove("grow");$("breathLabel").textContent="";$("breathToggle").textContent=t("calm.breathStart");}
@@ -2702,6 +2733,17 @@
   }
   $("introOk").addEventListener("click",function(){localStorage.setItem(INTROKEY,"1");$("introModal").classList.remove("show");});
 
+  // ---- WHAT'S NEW banner — only for people updating an existing install, never
+  // shown on a fresh install (the welcome modal above already covers that) ----
+  var WNKEY="whatsnew_v5",WHATSNEW_ID="2";
+  function maybeShowWhatsNew(){
+    if(!localStorage.getItem(INTROKEY))return;
+    if(localStorage.getItem(WNKEY)===WHATSNEW_ID)return;
+    $("whatsNewTxt").textContent=t("whatsnew.text");
+    $("whatsNewBanner").style.display="block";
+  }
+  $("whatsNewClose").addEventListener("click",function(){localStorage.setItem(WNKEY,WHATSNEW_ID);$("whatsNewBanner").style.display="none";});
+
   // ---- MEDICATION & APPOINTMENT REMINDERS (native app only) ----
   // These are local notifications scheduled by the OS on-device — not push
   // notifications, so nothing is sent anywhere and no server/account is
@@ -2754,7 +2796,7 @@
     })["catch"](function(){});
   }
 
-  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();updateDemoUI();applyBig();ensureReminderPermission();
+  applyI18n();applyNames();refreshLastMed();refreshSupplyBar();refreshDoseBar();refreshBackupNag();updateLangBtns();initPersist();maybeShowIntro();maybeShowWhatsNew();updateDemoUI();applyBig();ensureReminderPermission();
   (function(){var w=$("donateWrap");if(!w)return;var native=!!(window.Capacitor);if(!native&&DONATE_URL.indexOf("REMPLACER")<0){$("donateLink").href=DONATE_URL;w.style.display="block";}})();
   resumeActive();   // pick a running episode back up if the app was closed mid-crisis
   setInterval(function(){if($("startScreen").classList.contains("show")){refreshDoseBar();refreshSupplyBar();}},60000);

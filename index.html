@@ -28,6 +28,7 @@
   #tapZone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;}
   #tapZone h1{font-size:clamp(38px,12vw,64px);font-weight:800;line-height:1.1;}#tapZone p{font-size:clamp(15px,4.3vw,20px);margin-top:14px;opacity:.9;}
   #helpBtnMain{padding:24px;font-size:clamp(21px,6.2vw,28px);font-weight:800;background:#111;color:#fff;border:none;border-top:4px solid #f1c40f;}
+  #iceBtn{padding:16px;font-size:clamp(14px,4vw,18px);font-weight:800;background:#c0392b;color:#fff;border:none;overflow-wrap:anywhere;}
   #presenceBadge{text-align:center;font-size:clamp(13px,3.6vw,16px);padding:10px;background:#8e2a1a;color:#fff;font-weight:700;}
   #lastMed{text-align:center;font-size:clamp(11px,3vw,14px);opacity:.85;padding:5px;background:#a5311f;color:#fff;}
   .startBtns{display:flex;gap:2px;flex-wrap:wrap;}
@@ -75,6 +76,16 @@
   .sheet{background:#fff;color:#1e2a38;}
   .sheet header{padding:calc(16px + env(safe-area-inset-top)) 16px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #eee;}
   .sheet h2{font-size:19px;}.body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:12px 16px;}
+  /* ---- ICE / medical-ID card — fixed high-contrast red/white, same look in
+     light or dark mode, so it reads reliably for a stranger in an emergency ---- */
+  .screen.sheet.ice{background:#c0392b;color:#fff;}
+  .screen.sheet.ice header{border-bottom-color:rgba(255,255,255,.35);}
+  .iceName{font-size:26px;font-weight:800;margin-bottom:14px;}
+  .iceRow{margin-bottom:16px;}
+  .iceLbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;opacity:.85;margin-bottom:3px;}
+  .iceVal{font-size:17px;font-weight:700;line-height:1.4;overflow-wrap:anywhere;}
+  .iceVal a{color:#fff;text-decoration:underline;}
+  .iceHint{background:rgba(0,0,0,.18);color:#fff;opacity:1;margin-top:10px;}
   .actions{padding:14px;display:flex;gap:8px;border-top:2px solid #eee;flex-wrap:wrap;}
   .actions button{overflow-wrap:anywhere;}
   .actions button{flex:1;min-width:88px;padding:14px;font-size:14px;font-weight:700;border:none;border-radius:10px;}
@@ -267,6 +278,16 @@
   .epTop{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;}
   .epDel{flex:0 0 44px;width:44px;height:44px;margin:-11px -6px -6px 0;border:none;background:transparent;color:#c0392b;font-size:16px;font-weight:800;border-radius:10px;}
 
+  /* ---- handover / shift-log notes ---- */
+  #handoverInput{width:100%;padding:12px;font-size:15px;border:2px solid #ccc;border-radius:10px;font-family:inherit;resize:vertical;min-height:70px;margin-bottom:8px;}
+  #handoverWhoBtns{margin-bottom:10px;}
+  #handoverList{margin-top:16px;}
+  .hoEntry{background:#f7f7f7;border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+  .hoTop{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;}
+  .hoMeta{font-size:12px;font-weight:700;color:#777;}
+  .hoText{font-size:15px;line-height:1.4;margin-top:4px;white-space:pre-line;overflow-wrap:anywhere;}
+  .hoDel{flex:0 0 36px;width:36px;height:36px;border:none;background:transparent;color:#c0392b;font-size:15px;font-weight:800;border-radius:9px;}
+
   /* ---- report range selector ---- */
   .rangeBtns{display:flex;gap:6px;margin-bottom:4px;}
   .rangeBtns button{flex:1;min-height:42px;padding:10px 4px;font-size:13px;font-weight:800;border:2px solid #ccc;background:#fafafa;color:#444;border-radius:9px;overflow-wrap:anywhere;}
@@ -320,6 +341,7 @@
     .barRow .h{color:#9fb3c4;}
     input.num,textarea.num,.mcDose,.medRow input,.medListRow input,#wipeInput,#weightInput{background:#22303f;color:#e6edf3;border-color:#38495b;}
     .regBox{background:#152634;border-color:#24455e;color:#bfe0f5;}
+    .hoEntry{background:#17212b;}.hoMeta{color:#9fb3c4;}.hoText{color:#e6edf3;}
     #confirmCard,#medCard,#wellCard,#incCard,#epCard,#presenceCard,#introCard,#wipeCard,#extraCard,#woqCard,#stateCard{background:#17212b;color:#e6edf3;}
     .woqRow{border-bottom-color:#26333f;}
     #confirmMsg,#presenceCard h3,#introCard h3,#wipeCard h3,#extraCard h3,#medCard h3,#wellCard h3,#incCard h3,.wellLabel,.mcName{color:#e6edf3;}
@@ -352,12 +374,14 @@
     <div id="presenceBadge">Avec la personne : <span id="presNow">Seule</span> — toucher pour changer</div>
     <div id="tapZone"><h1 data-i18n-html="start.tap">Appuyer<br>ici</h1><p data-i18n="start.tapSub">quand la crise commence</p></div>
     <button id="helpBtnMain" data-i18n="help.callBtn">☎ APPELER À L'AIDE</button>
+    <button id="iceBtn" type="button" data-i18n="ice.homeBtn">🆔 Fiche médicale d'urgence (ICE)</button>
     <div id="lastMed">Dernier médicament : —</div>
     <div class="startBtns">
       <button id="medBtn" data-i18n="start.med">Médicament donné</button>
       <button id="wellBtn" data-i18n="start.well">Bien-être</button>
       <button id="newBagBtn" data-i18n="start.newBag">Nouvelle poche</button>
       <button id="stateBtn" data-i18n="state.btn">État</button>
+      <button id="handoverBtn" data-i18n="handover.homeBtn">Transmission</button>
     </div>
     <button id="incBtn" data-i18n="start.incident">⚠ Signaler un incident (chute, blocage...)</button>
   </div>
@@ -428,6 +452,38 @@
       <button class="exportBtn" id="exportBtn" data-i18n="hist.export">Exporter</button>
       <button class="exportBtn" id="exportResearch" data-i18n="hist.exportResearch" style="background:#7f8c8d">Export recherche</button>
       <button class="clearBtn" id="clearBtn" data-i18n="hist.clear">Effacer</button>
+    </div>
+  </div>
+
+  <div id="handoverScreen" class="screen sheet">
+    <header><h2 data-i18n="handover.title">Transmission</h2></header>
+    <div class="body">
+      <p class="hint" data-i18n="handover.hint">Notes rapides pour la personne qui prend le relais — visibles instantanément sur ce téléphone, jamais envoyées ailleurs.</p>
+      <textarea id="handoverInput" class="num" rows="3" data-i18n-ph="handover.ph" placeholder="ex : A bien mangé, a mal dormi, risque de chute vers 15h, prochaine dose à 18h."></textarea>
+      <div class="apBtns" id="handoverWhoBtns"></div>
+      <button type="button" id="handoverAdd" class="addMedBtn" data-i18n="handover.add">+ Ajouter la note</button>
+      <div id="handoverList"></div>
+      <p class="hint" id="handoverEmpty" data-i18n="handover.empty">Aucune note pour l'instant.</p>
+    </div>
+    <div class="actions">
+      <button class="backBtn" data-back data-i18n="common.back">Retour</button>
+    </div>
+  </div>
+
+  <div id="iceScreen" class="screen sheet ice">
+    <header><h2 data-i18n="ice.title">Fiche médicale d'urgence</h2></header>
+    <div class="body">
+      <div id="iceName" class="iceName"></div>
+      <div class="iceRow"><div class="iceLbl" data-i18n="ice.diagnosis">Diagnostic</div><div id="iceDiagnosis" class="iceVal"></div></div>
+      <div class="iceRow"><div class="iceLbl" data-i18n="ice.dbs">Stimulation cérébrale profonde (DBS)</div><div id="iceDbs" class="iceVal"></div></div>
+      <div class="iceRow"><div class="iceLbl" data-i18n="ice.allergies">Allergies</div><div id="iceAllergies" class="iceVal"></div></div>
+      <div class="iceRow"><div class="iceLbl" data-i18n="ice.blood">Groupe sanguin</div><div id="iceBlood" class="iceVal"></div></div>
+      <div class="iceRow"><div class="iceLbl" data-i18n="ice.medsSec">Médicaments actuels</div><div id="iceMeds" class="iceVal"></div></div>
+      <div class="iceRow"><div class="iceLbl" data-i18n="ice.contactsSec">Contacts d'urgence</div><div id="iceContacts" class="iceVal"></div></div>
+      <p class="hint iceHint" data-i18n="ice.disclaimer">Ce carnet est un journal de suivi, pas un dossier médical officiel. En cas de doute, contactez les services d'urgence.</p>
+    </div>
+    <div class="actions">
+      <button class="backBtn" data-back data-i18n="common.back">Retour</button>
     </div>
   </div>
 
@@ -504,6 +560,21 @@
       <input id="apptWithInput" class="num" type="text" data-i18n-ph="set.apptWithPh" placeholder="ex : Dr Martin, neurologue">
       <label class="f" for="apptWhereInput" data-i18n="set.apptWhereLabel">Où (facultatif)</label>
       <input id="apptWhereInput" class="num" type="text" data-i18n-ph="set.apptWherePh" placeholder="ex : Clinique X, 2e étage">
+
+      <div class="section-t" data-i18n="set.iceSec">Fiche médicale d'urgence (ICE)</div>
+      <p class="hint" data-i18n="set.iceHint">Facultatif. Affichée en gros caractères sur l'écran ICE, accessible en un geste depuis l'accueil — utile pour les secours.</p>
+      <label class="f" for="diagnosisInput" data-i18n="set.diagnosisLabel">Diagnostic</label>
+      <textarea id="diagnosisInput" class="num" rows="2" data-i18n-ph="set.diagnosisPh" placeholder="ex : Maladie de Parkinson, diagnostiquée en 2018"></textarea>
+      <div class="wellLabel" data-i18n="set.dbsLabel">Stimulation cérébrale profonde (DBS) ?</div>
+      <div class="yn" id="dbsYN">
+        <button type="button" class="ynBtn" id="dbsYes" data-i18n="common.yes">Oui</button>
+        <button type="button" class="ynBtn" id="dbsNo" data-i18n="common.no">Non</button>
+      </div>
+      <input id="dbsDetailInput" class="num" type="text" data-i18n-ph="set.dbsDetailPh" placeholder="ex : Implanté en 2020, marque Medtronic">
+      <label class="f" for="allergiesInput" data-i18n="set.allergiesLabel">Allergies</label>
+      <input id="allergiesInput" class="num" type="text" data-i18n-ph="set.allergiesPh" placeholder="ex : Pénicilline">
+      <label class="f" for="bloodInput" data-i18n="set.bloodLabel">Groupe sanguin (facultatif)</label>
+      <input id="bloodInput" class="num" type="text" data-i18n-ph="set.bloodPh" placeholder="ex : O+">
 
       <div class="section-t" data-i18n="set.contacts">Contacts d'urgence</div>
       <label class="f"><span data-i18n="set.numberOf">Numéro de </span><span class="hnameLbl">Conjoint(e)</span></label>
@@ -734,6 +805,7 @@
 (function(){
   var KEY="crises_v5",MEDKEY="meds_v5",PRESKEY="presence_v5",SUP="supply_v5",REG="regimen_v5",
       H="husband_v5",C="caregiver_v5",PNAME="pname_v5",HNAME="hname_v5",CNAME="cname_v5",LANGKEY="lang_v5",EMERG="emerg_v5",APPTKEY="nextappt_v5",APPTWITHKEY="apptwith_v5",APPTWHEREKEY="apptwhere_v5",
+      DIAGKEY="diagnosis_v5",DBSKEY="dbs_v5",DBSDETAILKEY="dbsdetail_v5",ALLERGYKEY="allergies_v5",BLOODKEY="blood_v5",
       BACKUPKEY="lastbackup_v5",ACTIVEKEY="active_v5",INTROKEY="introseen_v5",NAGKEY="nagsnooze_v5",
       DEMOKEY="demo_v5",DEMOSNAP="demosnap_v5";
   /* Donations: set this to your Ko-fi / Liberapay / PayPal / Stripe link.
@@ -771,6 +843,14 @@
     "start.well":{fr:"Bien-être",en:"Wellbeing",de:"Befinden",it:"Benessere",es:"Bienestar"},
     "start.newBag":{fr:"Nouvelle poche",en:"New pouch",de:"Neuer Beutel",it:"Nuova sacca",es:"Nueva bolsa"},
     "start.incident":{fr:"⚠ Signaler un incident (chute, blocage...)",en:"⚠ Report an incident (fall, freezing…)",de:"⚠ Vorfall melden (Sturz, Freezing…)",it:"⚠ Segnala un incidente (caduta, freezing…)",es:"⚠ Notificar un incidente (caída, freezing…)"},
+    "ice.homeBtn":{fr:"🆔 Fiche médicale d'urgence (ICE)",en:"🆔 Emergency medical ID (ICE)",de:"🆔 Medizinischer Notfallausweis (ICE)",it:"🆔 Scheda medica di emergenza (ICE)",es:"🆔 Ficha médica de emergencia (ICE)"},
+    "handover.homeBtn":{fr:"Transmission",en:"Handover",de:"Übergabe",it:"Consegna",es:"Traspaso"},
+    "handover.title":{fr:"Transmission",en:"Handover notes",de:"Übergabenotizen",it:"Note di consegna",es:"Notas de traspaso"},
+    "handover.hint":{fr:"Notes rapides pour la personne qui prend le relais — visibles instantanément sur ce téléphone, jamais envoyées ailleurs.",en:"Quick notes for whoever takes over next — visible instantly on this phone, never sent anywhere.",de:"Kurze Notizen für die nächste Betreuungsperson — sofort auf diesem Telefon sichtbar, werden nirgendwohin gesendet.",it:"Note rapide per chi prende il turno successivo — visibili subito su questo telefono, mai inviate altrove.",es:"Notas rápidas para quien tome el relevo — visibles al instante en este teléfono, nunca se envían a ningún sitio."},
+    "handover.ph":{fr:"ex : A bien mangé, a mal dormi, risque de chute vers 15h, prochaine dose à 18h.",en:"e.g. Ate well, slept poorly, fall risk around 3pm, next dose at 6pm.",de:"z. B. Hat gut gegessen, schlecht geschlafen, Sturzrisiko gegen 15 Uhr, nächste Dosis um 18 Uhr.",it:"es. Ha mangiato bene, ha dormito male, rischio caduta verso le 15, prossima dose alle 18.",es:"ej. Comió bien, durmió mal, riesgo de caída sobre las 15h, próxima dosis a las 18h."},
+    "handover.add":{fr:"+ Ajouter la note",en:"+ Add note",de:"+ Notiz hinzufügen",it:"+ Aggiungi nota",es:"+ Añadir nota"},
+    "handover.empty":{fr:"Aucune note pour l'instant.",en:"No notes yet.",de:"Noch keine Notizen.",it:"Ancora nessuna nota.",es:"Aún no hay notas."},
+    "handover.by":{fr:"Par",en:"By",de:"Von",it:"Da",es:"Por"},
     "send.btn":{fr:"Envoyer le rapport",en:"Send report",de:"Bericht senden",it:"Invia il rapporto",es:"Enviar el informe"},
     "send.title":{fr:"Envoyer le rapport",en:"Send report",de:"Bericht senden",it:"Invia il rapporto",es:"Enviar el informe"},
     "send.body":{fr:"Vous choisissez le destinataire (médecin, association…) dans le menu de partage de votre téléphone. Le rapport et le fichier de données seront joints. Le nom doit-il figurer ?",en:"You choose the recipient (doctor, association…) in your phone's share menu. The report and the data file will be attached. Should the name be included?",de:"Sie wählen den Empfänger (Arzt, Verein…) im Teilen-Menü Ihres Telefons. Der Bericht und die Datendatei werden angehängt. Soll der Name enthalten sein?",it:"Scegli il destinatario (medico, associazione…) nel menu di condivisione del telefono. Il rapporto e il file di dati saranno allegati. Includere il nome?",es:"Eliges el destinatario (médico, asociación…) en el menú de compartir del teléfono. Se adjuntarán el informe y el archivo de datos. ¿Incluir el nombre?"},
@@ -830,6 +910,28 @@
     "set.apptWithPh":{fr:"ex : Dr Martin, neurologue",en:"e.g. Dr Martin, neurologist",de:"z. B. Dr. Martin, Neurologe",it:"es. Dott. Martin, neurologo",es:"ej. Dr. Martin, neurólogo"},
     "set.apptWhereLabel":{fr:"Où (facultatif)",en:"Where (optional)",de:"Wo (optional)",it:"Dove (facoltativo)",es:"Dónde (opcional)"},
     "set.apptWherePh":{fr:"ex : Clinique X, 2e étage",en:"e.g. Clinic X, 2nd floor",de:"z. B. Klinik X, 2. Stock",it:"es. Clinica X, 2° piano",es:"ej. Clínica X, 2.º piso"},
+    "set.iceSec":{fr:"Fiche médicale d'urgence (ICE)",en:"Emergency medical ID (ICE)",de:"Medizinischer Notfallausweis (ICE)",it:"Scheda medica di emergenza (ICE)",es:"Ficha médica de emergencia (ICE)"},
+    "set.iceHint":{fr:"Facultatif. Affichée en gros caractères sur l'écran ICE, accessible en un geste depuis l'accueil — utile pour les secours.",en:"Optional. Shown in large text on the ICE screen, one tap away from the home screen — useful for emergency responders.",de:"Optional. Wird in großer Schrift auf dem ICE-Bildschirm angezeigt, mit einem Fingertipp von der Startseite erreichbar — nützlich für Rettungskräfte.",it:"Facoltativo. Mostrato in caratteri grandi nella schermata ICE, a un tocco dalla schermata principale — utile per i soccorritori.",es:"Opcional. Se muestra en letra grande en la pantalla ICE, a un toque desde la pantalla principal — útil para los servicios de emergencia."},
+    "set.diagnosisLabel":{fr:"Diagnostic",en:"Diagnosis",de:"Diagnose",it:"Diagnosi",es:"Diagnóstico"},
+    "set.diagnosisPh":{fr:"ex : Maladie de Parkinson, diagnostiquée en 2018",en:"e.g. Parkinson's disease, diagnosed 2018",de:"z. B. Parkinson-Krankheit, diagnostiziert 2018",it:"es. Malattia di Parkinson, diagnosticata nel 2018",es:"ej. Enfermedad de Parkinson, diagnosticada en 2018"},
+    "set.dbsLabel":{fr:"Stimulation cérébrale profonde (DBS) ?",en:"Deep brain stimulation (DBS)?",de:"Tiefe Hirnstimulation (DBS)?",it:"Stimolazione cerebrale profonda (DBS)?",es:"Estimulación cerebral profunda (DBS)?"},
+    "set.dbsDetailPh":{fr:"ex : Implanté en 2020, marque Medtronic",en:"e.g. Implanted 2020, Medtronic",de:"z. B. Implantiert 2020, Medtronic",it:"es. Impiantato nel 2020, Medtronic",es:"ej. Implantado en 2020, Medtronic"},
+    "set.allergiesLabel":{fr:"Allergies",en:"Allergies",de:"Allergien",it:"Allergie",es:"Alergias"},
+    "set.allergiesPh":{fr:"ex : Pénicilline",en:"e.g. Penicillin",de:"z. B. Penicillin",it:"es. Penicillina",es:"ej. Penicilina"},
+    "set.bloodLabel":{fr:"Groupe sanguin (facultatif)",en:"Blood type (optional)",de:"Blutgruppe (optional)",it:"Gruppo sanguigno (facoltativo)",es:"Grupo sanguíneo (opcional)"},
+    "set.bloodPh":{fr:"ex : O+",en:"e.g. O+",de:"z. B. 0+",it:"es. 0+",es:"ej. 0+"},
+    "ice.title":{fr:"Fiche médicale d'urgence",en:"Emergency medical ID",de:"Medizinischer Notfallausweis",it:"Scheda medica di emergenza",es:"Ficha médica de emergencia"},
+    "ice.diagnosis":{fr:"Diagnostic",en:"Diagnosis",de:"Diagnose",it:"Diagnosi",es:"Diagnóstico"},
+    "ice.dbs":{fr:"Stimulation cérébrale profonde (DBS)",en:"Deep brain stimulation (DBS)",de:"Tiefe Hirnstimulation (DBS)",it:"Stimolazione cerebrale profonda (DBS)",es:"Estimulación cerebral profunda (DBS)"},
+    "ice.allergies":{fr:"Allergies",en:"Allergies",de:"Allergien",it:"Allergie",es:"Alergias"},
+    "ice.blood":{fr:"Groupe sanguin",en:"Blood type",de:"Blutgruppe",it:"Gruppo sanguigno",es:"Grupo sanguíneo"},
+    "ice.medsSec":{fr:"Médicaments actuels",en:"Current medications",de:"Aktuelle Medikamente",it:"Farmaci attuali",es:"Medicación actual"},
+    "ice.contactsSec":{fr:"Contacts d'urgence",en:"Emergency contacts",de:"Notfallkontakte",it:"Contatti di emergenza",es:"Contactos de emergencia"},
+    "ice.disclaimer":{fr:"Ce carnet est un journal de suivi, pas un dossier médical officiel. En cas de doute, contactez les services d'urgence.",en:"This app is a tracking diary, not an official medical record. If in doubt, contact emergency services.",de:"Diese App ist ein Verlaufstagebuch, keine offizielle Krankenakte. Im Zweifel wenden Sie sich an den Rettungsdienst.",it:"Questa app è un diario di monitoraggio, non una cartella clinica ufficiale. In caso di dubbio, contattare i servizi di emergenza.",es:"Esta app es un diario de seguimiento, no un historial médico oficial. En caso de duda, contacte con los servicios de emergencia."},
+    "ice.notSet":{fr:"Non renseigné",en:"Not set",de:"Nicht angegeben",it:"Non specificato",es:"No especificado"},
+    "ice.dbsYes":{fr:"Oui",en:"Yes",de:"Ja",it:"Sì",es:"Sí"},
+    "ice.dbsNo":{fr:"Non",en:"No",de:"Nein",it:"No",es:"No"},
+    "ice.noMeds":{fr:"Aucun médicament enregistré",en:"No medication recorded",de:"Keine Medikamente erfasst",it:"Nessun farmaco registrato",es:"Ningún medicamento registrado"},
     "set.remindersHint":{fr:"Si vous autorisez les notifications, l'appli rappelle chaque horaire de médicament ci-dessus, et le rendez-vous la veille à 9 h. Tout reste sur l'appareil — rien n'est envoyé.",en:"If you allow notifications, the app reminds you at each medication time above, and the day before the appointment at 9am. Everything stays on the device — nothing is sent anywhere.",de:"Wenn Sie Benachrichtigungen erlauben, erinnert die App an jede oben genannte Medikamentenzeit und einen Tag vor dem Termin um 9 Uhr. Alles bleibt auf dem Gerät — nichts wird versendet.",it:"Se consenti le notifiche, l'app ricorda ogni orario dei farmaci sopra indicato e l'appuntamento il giorno prima alle 9. Tutto resta sul dispositivo — non viene inviato nulla.",es:"Si permite las notificaciones, la app recuerda cada horario de medicación indicado arriba, y la cita el día anterior a las 9 h. Todo permanece en el dispositivo — no se envía nada."},
     "remind.medBody":{fr:"Dose : {dose}",en:"Dose: {dose}",de:"Dosis: {dose}",it:"Dose: {dose}",es:"Dosis: {dose}"},
     "remind.medBodyNoDose":{fr:"C'est l'heure de la prise.",en:"Time for the dose.",de:"Zeit für die Einnahme.",it:"È ora della dose.",es:"Es hora de la dosis."},
@@ -1252,6 +1354,24 @@
   $("helpBtnActive").addEventListener("click",function(){openHelp("activeScreen");});
   $("helpBack").addEventListener("click",function(){show(helpFrom);});
 
+  // ---- ICE / EMERGENCY MEDICAL ID — read-only, high-contrast, one tap from home ----
+  function renderIce(){
+    $("iceName").textContent=nameP();
+    $("iceDiagnosis").textContent=localStorage.getItem(DIAGKEY)||t("ice.notSet");
+    var dbsV=localStorage.getItem(DBSKEY),dbsDetail=localStorage.getItem(DBSDETAILKEY);
+    $("iceDbs").textContent=dbsV==="yes"?(t("ice.dbsYes")+(dbsDetail?" — "+dbsDetail:"")):dbsV==="no"?t("ice.dbsNo"):t("ice.notSet");
+    $("iceAllergies").textContent=localStorage.getItem(ALLERGYKEY)||t("ice.notSet");
+    $("iceBlood").textContent=localStorage.getItem(BLOODKEY)||t("ice.notSet");
+    var meds=getMedList();
+    $("iceMeds").innerHTML=meds.length?meds.map(function(m){return esc(m.name+(m.dose?" — "+m.dose:""));}).join("<br>"):esc(t("ice.noMeds"));
+    var hn=getNum(H),cn=getNum(C),em=getEmerg(),lines=[];
+    if(hn)lines.push('<a href="tel:'+esc(hn.replace(/\s/g,""))+'">'+esc(nameH())+" — "+esc(hn)+"</a>");
+    if(cn)lines.push('<a href="tel:'+esc(cn.replace(/\s/g,""))+'">'+esc(nameC())+" — "+esc(cn)+"</a>");
+    lines.push('<a href="tel:'+esc(em.replace(/\s/g,""))+'">'+esc(t("help.emergency"))+" — "+esc(em)+"</a>");
+    $("iceContacts").innerHTML=lines.join("<br>");
+  }
+  $("iceBtn").addEventListener("click",function(){renderIce();show("iceScreen");});
+
   // ---- SUPPLY ----
   function daysLeft(){var s=getSupply();var perDay=(s.bags||0)*(s.days||0);if(s.installedAt){perDay-=(Date.now()-s.installedAt)/86400000;}return perDay;}
   function refreshSupplyBar(){var s=getSupply(),bar=$("supplyBar"),txt=$("supplyTxt");bar.classList.remove("warn","crit");
@@ -1502,6 +1622,40 @@
     l.sort(function(a,b){return a.time-b.time;});
     save(INCKEY,l);refreshBackupNag();$("incModal").classList.remove("show");
     if(editing){cancelEdit();renderHistory();}});
+
+  // ---- HANDOVER / SHIFT-LOG NOTES (context between carers, never sent anywhere) ----
+  var HOKEY="shiftlog_v5";
+  function loadHO(){return load(HOKEY);}
+  var hoWho=null;
+  function renderHOWhoBtns(){
+    var opts=presenceOptions().filter(function(o){return o[0]!=="alone";});
+    var html="";opts.forEach(function(o){html+='<button type="button" class="apOpt" data-w="'+esc(o[0])+'">'+esc(presLabel(o[0]))+'</button>';});
+    $("handoverWhoBtns").innerHTML=html;
+    document.querySelectorAll("#handoverWhoBtns .apOpt").forEach(function(b){b.classList.toggle("sel",b.dataset.w===hoWho);});
+  }
+  function renderHOList(){
+    var l=loadHO().slice().sort(function(a,b){return b.time-a.time;});
+    $("handoverEmpty").style.display=l.length?"none":"block";
+    var html="";
+    l.forEach(function(n){
+      html+='<div class="hoEntry" data-t="'+n.time+'"><div class="hoTop"><div class="hoMeta">'+esc(fmtDate(n.time))+' '+esc(fmtClock(n.time))+(n.who?' · '+esc(n.who):'')+'</div><button type="button" class="hoDel" aria-label="'+esc(t("common.delete"))+'">✕</button></div><div class="hoText">'+esc(n.text)+'</div></div>';
+    });
+    $("handoverList").innerHTML=html;
+  }
+  $("handoverBtn").addEventListener("click",function(){hoWho=null;$("handoverInput").value="";renderHOWhoBtns();renderHOList();show("handoverScreen");});
+  $("handoverWhoBtns").addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest(".apOpt"):null;if(!b)return;hoWho=(hoWho===b.dataset.w)?null:b.dataset.w;renderHOWhoBtns();});
+  $("handoverAdd").addEventListener("click",function(){
+    var txt=$("handoverInput").value.trim();if(!txt)return;
+    var l=loadHO();l.push({time:Date.now(),who:hoWho||"",text:txt});
+    save(HOKEY,l);refreshBackupNag();
+    $("handoverInput").value="";hoWho=null;renderHOWhoBtns();renderHOList();
+  });
+  $("handoverList").addEventListener("click",function(e){
+    var b=e.target&&e.target.closest?e.target.closest(".hoDel"):null;if(!b)return;
+    var entry=b.closest(".hoEntry"),tVal=parseInt(entry.dataset.t,10);
+    var l=loadHO().filter(function(n){return n.time!==tVal;});
+    save(HOKEY,l);refreshBackupNag();renderHOList();
+  });
 
   // ---- CRISIS ----
   $("tapZone").addEventListener("click",function(){var now=Date.now();if(now-lastTrigger<DEBOUNCE_MS)return;lastTrigger=now;startCrisis(now);});
@@ -2142,7 +2296,7 @@
      a new phone, a reinstall, or "Clear Website Data". The CSV export is a report,
      not a backup — it cannot be read back in. This is the only route to the data
      surviving the device. */
-  function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG,APPTKEY,APPTWITHKEY,APPTWHEREKEY,WOQKEY,MOTORKEY,BIGKEY];}
+  function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG,APPTKEY,APPTWITHKEY,APPTWHEREKEY,WOQKEY,MOTORKEY,BIGKEY,HOKEY,DIAGKEY,DBSKEY,DBSDETAILKEY,ALLERGYKEY,BLOODKEY];}
   // ---- DEMO MODE (Priority 5): practise safely; real data is snapshotted and restored ----
   function inDemo(){return localStorage.getItem(DEMOKEY)==="1";}
   function demoSample(){
@@ -2221,7 +2375,7 @@
     var l=load(MOTORKEY);l.push({time:Date.now(),state:b.dataset.st});save(MOTORKEY,l);refreshBackupNag();
     $("stateModal").classList.remove("show");
   });});
-  function hasAnyData(){return loadCrises().length||load(MEDKEY).length||loadWell().length||load(INCKEY).length;}
+  function hasAnyData(){return loadCrises().length||load(MEDKEY).length||loadWell().length||load(INCKEY).length||load(HOKEY).length;}
   function doBackup(){
     var data={_app:"parkinson-companion",_v:5,_at:Date.now()};
     allKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!==null)data[k]=v;});
@@ -2312,6 +2466,10 @@
     $("husbandInput").value=getNum(H);$("caregiverInput").value=getNum(C);$("emergInput").value=localStorage.getItem(EMERG)||"";
     var apptTs=parseInt(localStorage.getItem(APPTKEY),10);$("apptInput").value=ts(apptTs)?localInputValue(apptTs):"";
     $("apptWithInput").value=localStorage.getItem(APPTWITHKEY)||"";$("apptWhereInput").value=localStorage.getItem(APPTWHEREKEY)||"";
+    $("diagnosisInput").value=localStorage.getItem(DIAGKEY)||"";$("allergiesInput").value=localStorage.getItem(ALLERGYKEY)||"";$("bloodInput").value=localStorage.getItem(BLOODKEY)||"";
+    $("dbsDetailInput").value=localStorage.getItem(DBSDETAILKEY)||"";
+    var dbsV=localStorage.getItem(DBSKEY);
+    $("dbsYes").classList.toggle("sel",dbsV==="yes");$("dbsNo").classList.toggle("sel",dbsV==="no");
     $("bagsOnHand").value=s.bags||"";$("bagDays").value=s.days||"";$("warnDays").value=s.warn||"";
     renderMedListRows();refreshMedNameList();renderRegimenList();refreshBackupState();updateDemoUI();applyBig();
     $("backupMsg").style.display="none";
@@ -2319,6 +2477,8 @@
     $("regimenSince").textContent=ar?tf("regimen.current",{d:(ar.start===0?t("regimen.trackingStart"):fmtDate(ar.start))}):t("regimen.none");
     updateLangBtns();
     show("settingsScreen");});
+  $("dbsYes").addEventListener("click",function(){$("dbsYes").classList.add("sel");$("dbsNo").classList.remove("sel");});
+  $("dbsNo").addEventListener("click",function(){$("dbsNo").classList.add("sel");$("dbsYes").classList.remove("sel");});
   $("saveSettings").addEventListener("click",function(){
     var pv=$("patientInput").value.trim(),hv=$("husbandNameInput").value.trim(),cv=$("caregiverNameInput").value.trim();
     if(pv)localStorage.setItem(PNAME,pv);if(hv)localStorage.setItem(HNAME,hv);if(cv)localStorage.setItem(CNAME,cv);
@@ -2328,6 +2488,13 @@
     var apptWith=$("apptWithInput").value.trim(),apptWhere=$("apptWhereInput").value.trim();
     if(apptWith)localStorage.setItem(APPTWITHKEY,apptWith);else localStorage.removeItem(APPTWITHKEY);
     if(apptWhere)localStorage.setItem(APPTWHEREKEY,apptWhere);else localStorage.removeItem(APPTWHEREKEY);
+    var diag=$("diagnosisInput").value.trim(),allergy=$("allergiesInput").value.trim(),blood=$("bloodInput").value.trim(),dbsDetail=$("dbsDetailInput").value.trim();
+    if(diag)localStorage.setItem(DIAGKEY,diag);else localStorage.removeItem(DIAGKEY);
+    if(allergy)localStorage.setItem(ALLERGYKEY,allergy);else localStorage.removeItem(ALLERGYKEY);
+    if(blood)localStorage.setItem(BLOODKEY,blood);else localStorage.removeItem(BLOODKEY);
+    if(dbsDetail)localStorage.setItem(DBSDETAILKEY,dbsDetail);else localStorage.removeItem(DBSDETAILKEY);
+    var dbsSel=document.querySelector("#dbsYN .ynBtn.sel");
+    if(dbsSel)localStorage.setItem(DBSKEY,dbsSel.id==="dbsYes"?"yes":"no");else localStorage.removeItem(DBSKEY);
     var s=getSupply();s.bags=parseFloat($("bagsOnHand").value)||0;s.days=parseFloat($("bagDays").value)||1;s.warn=parseFloat($("warnDays").value)||5;
     if(s.installedAt===null&&s.bags>0)s.installedAt=Date.now();saveSupply(s);
 

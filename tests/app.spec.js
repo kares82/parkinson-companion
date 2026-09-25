@@ -660,7 +660,9 @@ test.describe('German localization', () => {
     await seed(page, { lang_v5: 'de', crises_v5: [episode()] });
     await page.click('#setLink');
     await expect(page.locator('text=Datensicherung')).toBeVisible();
-    await expect(page.locator('text=Notfallkontakte')).toBeVisible();
+    // Scoped to #settingsScreen: the ICE screen's contacts label legitimately
+    // shares this same translated text, elsewhere in the (hidden) DOM.
+    await expect(page.locator('#settingsScreen').getByText('Notfallkontakte')).toBeVisible();
     // No obvious French section headings bled through onto the settings screen.
     await expect(page.locator('text=Sauvegarde des données')).toHaveCount(0);
   });

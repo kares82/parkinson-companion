@@ -500,6 +500,10 @@
       <p class="hint" data-i18n="set.apptHint">Facultatif. Sert de pense-bête et s'affiche en haut du rapport, pour préparer la visite.</p>
       <label class="f" for="apptInput" data-i18n="set.apptLabel">Date et heure</label>
       <input id="apptInput" class="num" type="datetime-local">
+      <label class="f" for="apptWithInput" data-i18n="set.apptWithLabel">Avec qui (facultatif)</label>
+      <input id="apptWithInput" class="num" type="text" data-i18n-ph="set.apptWithPh" placeholder="ex : Dr Martin, neurologue">
+      <label class="f" for="apptWhereInput" data-i18n="set.apptWhereLabel">Où (facultatif)</label>
+      <input id="apptWhereInput" class="num" type="text" data-i18n-ph="set.apptWherePh" placeholder="ex : Clinique X, 2e étage">
 
       <div class="section-t" data-i18n="set.contacts">Contacts d'urgence</div>
       <label class="f"><span data-i18n="set.numberOf">Numéro de </span><span class="hnameLbl">Conjoint(e)</span></label>
@@ -729,7 +733,7 @@
 <script>
 (function(){
   var KEY="crises_v5",MEDKEY="meds_v5",PRESKEY="presence_v5",SUP="supply_v5",REG="regimen_v5",
-      H="husband_v5",C="caregiver_v5",PNAME="pname_v5",HNAME="hname_v5",CNAME="cname_v5",LANGKEY="lang_v5",EMERG="emerg_v5",APPTKEY="nextappt_v5",
+      H="husband_v5",C="caregiver_v5",PNAME="pname_v5",HNAME="hname_v5",CNAME="cname_v5",LANGKEY="lang_v5",EMERG="emerg_v5",APPTKEY="nextappt_v5",APPTWITHKEY="apptwith_v5",APPTWHEREKEY="apptwhere_v5",
       BACKUPKEY="lastbackup_v5",ACTIVEKEY="active_v5",INTROKEY="introseen_v5",NAGKEY="nagsnooze_v5",
       DEMOKEY="demo_v5",DEMOSNAP="demosnap_v5";
   /* Donations: set this to your Ko-fi / Liberapay / PayPal / Stripe link.
@@ -822,6 +826,10 @@
     "set.apptSec":{fr:"Prochain rendez-vous",en:"Next appointment",de:"Nächster Termin",it:"Prossimo appuntamento",es:"Próxima cita"},
     "set.apptHint":{fr:"Facultatif. Sert de pense-bête et s'affiche en haut du rapport, pour préparer la visite.",en:"Optional. A reminder for you, and shown at the top of the report to help prepare for the visit.",de:"Optional. Eine Erinnerung für Sie, wird oben im Bericht angezeigt, um den Termin vorzubereiten.",it:"Facoltativo. Un promemoria per voi, mostrato in cima al rapporto per preparare la visita.",es:"Opcional. Un recordatorio para usted, se muestra en la parte superior del informe para preparar la visita."},
     "set.apptLabel":{fr:"Date et heure",en:"Date and time",de:"Datum und Uhrzeit",it:"Data e ora",es:"Fecha y hora"},
+    "set.apptWithLabel":{fr:"Avec qui (facultatif)",en:"With whom (optional)",de:"Bei wem (optional)",it:"Con chi (facoltativo)",es:"Con quién (opcional)"},
+    "set.apptWithPh":{fr:"ex : Dr Martin, neurologue",en:"e.g. Dr Martin, neurologist",de:"z. B. Dr. Martin, Neurologe",it:"es. Dott. Martin, neurologo",es:"ej. Dr. Martin, neurólogo"},
+    "set.apptWhereLabel":{fr:"Où (facultatif)",en:"Where (optional)",de:"Wo (optional)",it:"Dove (facoltativo)",es:"Dónde (opcional)"},
+    "set.apptWherePh":{fr:"ex : Clinique X, 2e étage",en:"e.g. Clinic X, 2nd floor",de:"z. B. Klinik X, 2. Stock",it:"es. Clinica X, 2° piano",es:"ej. Clínica X, 2.º piso"},
     "set.remindersHint":{fr:"Si vous autorisez les notifications, l'appli rappelle chaque horaire de médicament ci-dessus, et le rendez-vous la veille à 9 h. Tout reste sur l'appareil — rien n'est envoyé.",en:"If you allow notifications, the app reminds you at each medication time above, and the day before the appointment at 9am. Everything stays on the device — nothing is sent anywhere.",de:"Wenn Sie Benachrichtigungen erlauben, erinnert die App an jede oben genannte Medikamentenzeit und einen Tag vor dem Termin um 9 Uhr. Alles bleibt auf dem Gerät — nichts wird versendet.",it:"Se consenti le notifiche, l'app ricorda ogni orario dei farmaci sopra indicato e l'appuntamento il giorno prima alle 9. Tutto resta sul dispositivo — non viene inviato nulla.",es:"Si permite las notificaciones, la app recuerda cada horario de medicación indicado arriba, y la cita el día anterior a las 9 h. Todo permanece en el dispositivo — no se envía nada."},
     "remind.medBody":{fr:"Dose : {dose}",en:"Dose: {dose}",de:"Dosis: {dose}",it:"Dose: {dose}",es:"Dosis: {dose}"},
     "remind.medBodyNoDose":{fr:"C'est l'heure de la prise.",en:"Time for the dose.",de:"Zeit für die Einnahme.",it:"È ora della dose.",es:"Es hora de la dosis."},
@@ -1922,7 +1930,13 @@
     $("printName").textContent=tf("report.title",{name:nameP()});
     $("printMeta").textContent=tf("report.periodLine",{p:periodLbl,d:fmtDate(Date.now())});
     var apptTs=parseInt(localStorage.getItem(APPTKEY),10),apptEl=$("printAppt");
-    if(apptEl){if(ts(apptTs)&&apptTs>Date.now()){apptEl.textContent=tf("report.apptLine",{d:fmtDate(apptTs)+" "+fmtClock(apptTs)});apptEl.style.display="";}else{apptEl.style.display="none";}}
+    if(apptEl){if(ts(apptTs)&&apptTs>Date.now()){
+      var apptD=fmtDate(apptTs)+" "+fmtClock(apptTs);
+      var apptWith=localStorage.getItem(APPTWITHKEY),apptWhere=localStorage.getItem(APPTWHEREKEY);
+      if(apptWith)apptD+=" — "+apptWith;
+      if(apptWhere)apptD+=" ("+apptWhere+")";
+      apptEl.textContent=tf("report.apptLine",{d:apptD});apptEl.style.display="";
+    }else{apptEl.style.display="none";}}
     var n=list.length,alone=0,pain=0,totalMs=0,hours=new Array(24).fill(0),lats=[],byPres={},byType={},ex={none:0,helped:0,nohelp:0,unknown:0},offSub={},nmCount={};
     list.forEach(function(e){var pv=e.presence==="Seule"?"alone":e.presence;if(pv==="alone")alone++;if(e.pain)pain++;totalMs+=(e.end-e.start);hours[new Date(e.start).getHours()]++;if(e.lastMed)lats.push(Math.round((e.start-e.lastMed)/60000));byPres[pv]=(byPres[pv]||0)+1;byType[e.type||"unk"]=(byType[e.type||"unk"]||0)+1;if(e.extra&&ex.hasOwnProperty(e.extra))ex[e.extra]++;if(e.type==="off"&&e.offType)offSub[e.offType]=(offSub[e.offType]||0)+1;if(Array.isArray(e.nm))e.nm.forEach(function(k){nmCount[k]=(nmCount[k]||0)+1;});});
     var frz=new Array(24).fill(0);
@@ -2128,7 +2142,7 @@
      a new phone, a reinstall, or "Clear Website Data". The CSV export is a report,
      not a backup — it cannot be read back in. This is the only route to the data
      surviving the device. */
-  function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG,APPTKEY,WOQKEY,MOTORKEY,BIGKEY];}
+  function allKeys(){return[KEY,MEDKEY,WELLKEY,INCKEY,MEDLIST,REG,SUP,PRESKEY,H,C,PNAME,HNAME,CNAME,LANGKEY,EMERG,APPTKEY,APPTWITHKEY,APPTWHEREKEY,WOQKEY,MOTORKEY,BIGKEY];}
   // ---- DEMO MODE (Priority 5): practise safely; real data is snapshotted and restored ----
   function inDemo(){return localStorage.getItem(DEMOKEY)==="1";}
   function demoSample(){
@@ -2297,6 +2311,7 @@
     $("caregiverNameInput").value=localStorage.getItem(CNAME)||"";
     $("husbandInput").value=getNum(H);$("caregiverInput").value=getNum(C);$("emergInput").value=localStorage.getItem(EMERG)||"";
     var apptTs=parseInt(localStorage.getItem(APPTKEY),10);$("apptInput").value=ts(apptTs)?localInputValue(apptTs):"";
+    $("apptWithInput").value=localStorage.getItem(APPTWITHKEY)||"";$("apptWhereInput").value=localStorage.getItem(APPTWHEREKEY)||"";
     $("bagsOnHand").value=s.bags||"";$("bagDays").value=s.days||"";$("warnDays").value=s.warn||"";
     renderMedListRows();refreshMedNameList();renderRegimenList();refreshBackupState();updateDemoUI();applyBig();
     $("backupMsg").style.display="none";
@@ -2310,6 +2325,9 @@
     localStorage.setItem(H,$("husbandInput").value.trim());localStorage.setItem(C,$("caregiverInput").value.trim());localStorage.setItem(EMERG,$("emergInput").value.trim());
     var apptVal=$("apptInput").value,apptT=apptVal?new Date(apptVal).getTime():NaN;
     if(ts(apptT))localStorage.setItem(APPTKEY,String(apptT));else localStorage.removeItem(APPTKEY);
+    var apptWith=$("apptWithInput").value.trim(),apptWhere=$("apptWhereInput").value.trim();
+    if(apptWith)localStorage.setItem(APPTWITHKEY,apptWith);else localStorage.removeItem(APPTWITHKEY);
+    if(apptWhere)localStorage.setItem(APPTWHEREKEY,apptWhere);else localStorage.removeItem(APPTWHEREKEY);
     var s=getSupply();s.bags=parseFloat($("bagsOnHand").value)||0;s.days=parseFloat($("bagDays").value)||1;s.warn=parseFloat($("warnDays").value)||5;
     if(s.installedAt===null&&s.bags>0)s.installedAt=Date.now();saveSupply(s);
 
@@ -2382,8 +2400,12 @@
         var apptTs=parseInt(localStorage.getItem(APPTKEY),10);
         if(ts(apptTs)&&apptTs>Date.now()){
           var fireAt=new Date(apptTs-86400000);fireAt.setHours(9,0,0,0);
+          var apptBodyD=fmtDate(apptTs)+" "+fmtClock(apptTs);
+          var apptWithR=localStorage.getItem(APPTWITHKEY),apptWhereR=localStorage.getItem(APPTWHEREKEY);
+          if(apptWithR)apptBodyD+=" — "+apptWithR;
+          if(apptWhereR)apptBodyD+=" ("+apptWhereR+")";
           if(fireAt.getTime()>Date.now())toSchedule.push({id:REMIND_APPT_ID,title:t("remind.apptTitle"),
-            body:tf("remind.apptBody",{d:fmtDate(apptTs)+" "+fmtClock(apptTs)}),
+            body:tf("remind.apptBody",{d:apptBodyD}),
             schedule:{at:fireAt,allowWhileIdle:true}});
         }
         if(toSchedule.length)return LN.schedule({notifications:toSchedule});

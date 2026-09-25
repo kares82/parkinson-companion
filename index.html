@@ -1414,7 +1414,14 @@
   function fmtDate(t){var d=new Date(t);return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear();}
   function fmtMins(m){m=Math.round(m);if(m<60)return m+" min";var hh=Math.floor(m/60),r=m%60;return hh+" h"+(r?" "+pad(r):"");}
   function localInputValue(ts){var d=new Date(ts);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes());}
-  function show(id){document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("show");});$(id).classList.add("show");}
+  function show(id){document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("show");});var el=$(id);el.classList.add("show");
+    // .body divs (and #app, for screens with no .body wrapper) keep whatever
+    // scrollTop they had the last time they were open — display:none doesn't
+    // reset it. Without this, reopening a screen you'd scrolled down on before
+    // drops you back into the middle of it with no header/top content visible,
+    // which reads as broken data rather than "you're mid-scroll".
+    var body=el.querySelector(".body");if(body)body.scrollTop=0;
+    $("app").scrollTop=0;}
   document.querySelectorAll("[data-back]").forEach(function(b){b.addEventListener("click",function(){refreshSupplyBar();refreshDoseBar();refreshBackupNag();show("startScreen");});});
 
   /* Shared "when did this actually happen?" control. The carer is busy handling the

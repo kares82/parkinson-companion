@@ -304,6 +304,8 @@
   #cueStripes{position:absolute;inset:-60px 0 0 0;background:repeating-linear-gradient(0deg,#f1c40f 0 14px,#000 14px 60px);animation:cueScroll .6s linear infinite;}
   @keyframes cueScroll{from{background-position-y:0;}to{background-position-y:60px;}}
   #cueTapHint{position:relative;z-index:1;color:#fff;font-weight:800;font-size:16px;padding:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom));background:rgba(0,0,0,.55);width:100%;text-align:center;}
+  #cuePulseBar{display:none;position:absolute;inset:0;background:#111;transition:background .12s ease;}
+  #cuePulseBar.flash{background:#f1c40f;}
 
   /* ---- report range selector ---- */
   .rangeBtns{display:flex;gap:6px;margin-bottom:4px;}
@@ -540,8 +542,11 @@
 
       <div class="calmSec">
         <div class="section-t" data-i18n="calm.cueTitle">Repères visuels (freezing)</div>
-        <p class="hint" data-i18n="calm.cueHint">Des lignes qui défilent, pour aider à redémarrer un pas bloqué. Toucher l'écran pour arrêter.</p>
-        <button type="button" id="cueStart" class="addMedBtn" data-i18n="calm.cueStart">▶ Afficher les repères</button>
+        <p class="hint" data-i18n="calm.cueHint">Deux repères possibles, à essayer selon ce qui aide le mieux. Toucher l'écran pour arrêter.</p>
+        <div class="apBtns" id="cuePatternBtns">
+          <button type="button" class="apOpt" data-mode="lines" data-i18n="calm.cueLines">Lignes à franchir</button>
+          <button type="button" class="apOpt" data-mode="pulse" data-i18n="calm.cuePulse">Flash rythmé</button>
+        </div>
       </div>
     </div>
     <div class="actions">
@@ -551,6 +556,7 @@
 
   <div id="cueScreen" class="screen cue">
     <div id="cueStripes"></div>
+    <div id="cuePulseBar"></div>
     <div id="cueTapHint" data-i18n="calm.cueTapStop">Toucher pour arrêter</div>
   </div>
 
@@ -939,8 +945,9 @@
     "calm.brown":{fr:"Vagues graves",en:"Deep waves",de:"Tiefe Wellen",it:"Onde profonde",es:"Olas profundas"},
     "calm.off":{fr:"Arrêt",en:"Off",de:"Aus",it:"Spento",es:"Apagado"},
     "calm.cueTitle":{fr:"Repères visuels (freezing)",en:"Visual cueing (freezing)",de:"Visuelle Hilfslinien (Freezing)",it:"Riferimenti visivi (freezing)",es:"Referencias visuales (freezing)"},
-    "calm.cueHint":{fr:"Des lignes qui défilent, pour aider à redémarrer un pas bloqué. Toucher l'écran pour arrêter.",en:"Scrolling lines to help restart a blocked step. Tap the screen to stop.",de:"Vorbeilaufende Linien, um einen blockierten Schritt neu zu starten. Zum Beenden den Bildschirm berühren.",it:"Linee che scorrono per aiutare a ripartire da un passo bloccato. Tocca lo schermo per fermare.",es:"Líneas en movimiento para ayudar a reiniciar un paso bloqueado. Toque la pantalla para detener."},
-    "calm.cueStart":{fr:"▶ Afficher les repères",en:"▶ Show cueing lines",de:"▶ Hilfslinien anzeigen",it:"▶ Mostra i riferimenti",es:"▶ Mostrar referencias"},
+    "calm.cueHint":{fr:"Deux repères possibles, à essayer selon ce qui aide le mieux. Toucher l'écran pour arrêter.",en:"Two cueing patterns — try both to see which helps more. Tap the screen to stop.",de:"Zwei mögliche Hilfslinien — probieren Sie beide aus, um zu sehen, welche besser hilft. Zum Beenden den Bildschirm berühren.",it:"Due possibili riferimenti — provali entrambi per vedere quale aiuta di più. Tocca lo schermo per fermare.",es:"Dos patrones posibles — pruebe ambos para ver cuál ayuda más. Toque la pantalla para detener."},
+    "calm.cueLines":{fr:"Lignes à franchir",en:"Lines to step over",de:"Linien zum Übersteigen",it:"Linee da scavalcare",es:"Líneas para pasar por encima"},
+    "calm.cuePulse":{fr:"Flash rythmé",en:"Rhythmic flash",de:"Rhythmisches Blinken",it:"Flash ritmico",es:"Destello rítmico"},
     "calm.cueTapStop":{fr:"Toucher pour arrêter",en:"Tap to stop",de:"Zum Beenden berühren",it:"Tocca per fermare",es:"Toque para detener"},
     "whatsnew.text":{fr:"Nouveau : rappels, fiche médicale d'urgence, notes de transmission et outils de calme — tout dans « Réglages » et sur l'accueil.",en:"New: reminders, emergency medical ID, handover notes, and calming tools — all on the home screen and in Settings.",de:"Neu: Erinnerungen, medizinischer Notfallausweis, Übergabenotizen und Ruhewerkzeuge — alles auf der Startseite und in den Einstellungen.",it:"Novità: promemoria, scheda medica di emergenza, note di consegna e strumenti di calma — tutto nella schermata principale e nelle impostazioni.",es:"Novedades: recordatorios, ficha médica de emergencia, notas de traspaso y herramientas de calma — todo en la pantalla principal y en ajustes."},
     "send.btn":{fr:"Envoyer le rapport",en:"Send report",de:"Bericht senden",it:"Invia il rapporto",es:"Enviar el informe"},
@@ -1797,9 +1804,11 @@
     osc.connect(gain);gain.connect(ctx.destination);
     osc.start();osc.stop(ctx.currentTime+0.1);
   }
+  var calmBpm=80;   // shared tempo: the rhythmic flash pattern uses whatever pace was last set here
   $("metroSlider").addEventListener("input",function(){
+    calmBpm=parseInt(this.value,10);
     $("metroBpmLabel").textContent=this.value;
-    if(metroTimer){clearInterval(metroTimer);metroTimer=setInterval(metroClick,60000/parseInt(this.value,10));}
+    if(metroTimer){clearInterval(metroTimer);metroTimer=setInterval(metroClick,60000/calmBpm);}
   });
   $("metroToggle").addEventListener("click",function(){
     if(metroTimer){clearInterval(metroTimer);metroTimer=null;$("metroToggle").textContent=t("calm.metroStart");return;}
@@ -1853,8 +1862,23 @@
   });
 
   $("calmBtn").addEventListener("click",function(){show("calmScreen");});
-  $("cueStart").addEventListener("click",function(){show("cueScreen");});
-  $("cueScreen").addEventListener("click",function(){show("calmScreen");});
+  var cuePulseTimer=null;
+  $("cuePatternBtns").addEventListener("click",function(e){
+    var b=e.target&&e.target.closest?e.target.closest(".apOpt"):null;if(!b)return;
+    var mode=b.dataset.mode;
+    $("cueStripes").style.display=mode==="lines"?"block":"none";
+    $("cuePulseBar").style.display=mode==="pulse"?"block":"none";
+    if(mode==="pulse"){
+      $("cuePulseBar").classList.remove("flash");
+      cuePulseTimer=setInterval(function(){$("cuePulseBar").classList.toggle("flash");},30000/calmBpm);
+    }
+    show("cueScreen");
+  });
+  $("cueScreen").addEventListener("click",function(){
+    if(cuePulseTimer){clearInterval(cuePulseTimer);cuePulseTimer=null;}
+    $("cuePulseBar").classList.remove("flash");
+    show("calmScreen");
+  });
   // Leaving the screen stops everything — no sound/vibration running unattended in a pocket.
   document.querySelectorAll('#calmScreen [data-back]').forEach(function(b){b.addEventListener("click",function(){
     if(breathTimer){clearInterval(breathTimer);breathTimer=null;$("breathCircle").classList.remove("grow");$("breathLabel").textContent="";$("breathToggle").textContent=t("calm.breathStart");}

@@ -28,7 +28,7 @@
   #tapZone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;}
   #tapZone h1{font-size:clamp(38px,12vw,64px);font-weight:800;line-height:1.1;}#tapZone p{font-size:clamp(15px,4.3vw,20px);margin-top:14px;opacity:.9;}
   #helpBtnMain{padding:24px;font-size:clamp(21px,6.2vw,28px);font-weight:800;background:#111;color:#fff;border:none;border-top:4px solid #f1c40f;}
-  #iceBtn{padding:16px;font-size:clamp(14px,4vw,18px);font-weight:800;background:#c0392b;color:#fff;border:none;overflow-wrap:anywhere;}
+  #iceBtn{padding:16px;font-size:clamp(14px,4vw,18px);font-weight:800;background:#fff;color:#c0392b;border-top:4px solid #111;overflow-wrap:anywhere;}
   #presenceBadge{text-align:center;font-size:clamp(13px,3.6vw,16px);padding:10px;background:#8e2a1a;color:#fff;font-weight:700;}
   #lastMed{text-align:center;font-size:clamp(11px,3vw,14px);opacity:.85;padding:5px;background:#a5311f;color:#fff;}
   .startBtns{display:flex;gap:2px;flex-wrap:wrap;}
@@ -36,6 +36,7 @@
   #stateBtn{background:#34495e;}
   #incBtn{width:100%;padding:14px;font-size:clamp(13px,3.4vw,15px);font-weight:800;border:none;color:#fff;background:#d35400;}
   #medBtn{background:#e67e22;}#newBagBtn{background:#8e44ad;}#wellBtn{background:#16a085;}#incBtn{background:#d35400;}
+  #handoverBtn{background:#2980b9;}#calmBtn{background:#5b3a8e;}
 
   #activeScreen{background:#1e2a38;color:#fff;padding:calc(18px + env(safe-area-inset-top)) 18px 18px;}
   #timer{font-size:clamp(46px,14vw,80px);font-weight:800;text-align:center;margin-top:3vh;font-variant-numeric:tabular-nums;}
@@ -306,6 +307,13 @@
   #cueTapHint{position:relative;z-index:1;color:#fff;font-weight:800;font-size:16px;padding:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom));background:rgba(0,0,0,.55);width:100%;text-align:center;}
   #cuePulseBar{display:none;position:absolute;inset:0;background:#111;transition:background .12s ease;}
   #cuePulseBar.flash{background:#f1c40f;}
+  #cueChecker{display:none;position:absolute;inset:0;background-color:#f1c40f;
+    background-image:linear-gradient(45deg,#111 25%,transparent 25%),linear-gradient(-45deg,#111 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#111 75%),linear-gradient(-45deg,transparent 75%,#111 75%);
+    background-size:70px 70px;background-position:0 0,0 35px,35px -35px,-35px 0px;}
+  #cueFeet{display:none;position:absolute;inset:0;background:#000;align-items:center;justify-content:center;gap:16vw;}
+  .cueFoot{font-size:min(22vw,110px);opacity:.25;transform:scale(.85);transition:opacity .15s ease,transform .15s ease;}
+  .cueFoot.on{opacity:1;transform:scale(1.15);}
 
   /* ---- report range selector ---- */
   .rangeBtns{display:flex;gap:6px;margin-bottom:4px;}
@@ -542,10 +550,12 @@
 
       <div class="calmSec">
         <div class="section-t" data-i18n="calm.cueTitle">Repères visuels (freezing)</div>
-        <p class="hint" data-i18n="calm.cueHint">Deux repères possibles, à essayer selon ce qui aide le mieux. Toucher l'écran pour arrêter.</p>
+        <p class="hint" data-i18n="calm.cueHint">Quatre repères possibles, à essayer selon ce qui aide le mieux. Toucher l'écran pour arrêter.</p>
         <div class="apBtns" id="cuePatternBtns">
           <button type="button" class="apOpt" data-mode="lines" data-i18n="calm.cueLines">Lignes à franchir</button>
           <button type="button" class="apOpt" data-mode="pulse" data-i18n="calm.cuePulse">Flash rythmé</button>
+          <button type="button" class="apOpt" data-mode="feet" data-i18n="calm.cueFeet">Empreintes de pas</button>
+          <button type="button" class="apOpt" data-mode="checker" data-i18n="calm.cueChecker">Damier</button>
         </div>
       </div>
     </div>
@@ -557,6 +567,8 @@
   <div id="cueScreen" class="screen cue">
     <div id="cueStripes"></div>
     <div id="cuePulseBar"></div>
+    <div id="cueChecker"></div>
+    <div id="cueFeet"><div id="cueFootL" class="cueFoot">🦶</div><div id="cueFootR" class="cueFoot">🦶</div></div>
     <div id="cueTapHint" data-i18n="calm.cueTapStop">Toucher pour arrêter</div>
   </div>
 
@@ -945,9 +957,11 @@
     "calm.brown":{fr:"Vagues graves",en:"Deep waves",de:"Tiefe Wellen",it:"Onde profonde",es:"Olas profundas"},
     "calm.off":{fr:"Arrêt",en:"Off",de:"Aus",it:"Spento",es:"Apagado"},
     "calm.cueTitle":{fr:"Repères visuels (freezing)",en:"Visual cueing (freezing)",de:"Visuelle Hilfslinien (Freezing)",it:"Riferimenti visivi (freezing)",es:"Referencias visuales (freezing)"},
-    "calm.cueHint":{fr:"Deux repères possibles, à essayer selon ce qui aide le mieux. Toucher l'écran pour arrêter.",en:"Two cueing patterns — try both to see which helps more. Tap the screen to stop.",de:"Zwei mögliche Hilfslinien — probieren Sie beide aus, um zu sehen, welche besser hilft. Zum Beenden den Bildschirm berühren.",it:"Due possibili riferimenti — provali entrambi per vedere quale aiuta di più. Tocca lo schermo per fermare.",es:"Dos patrones posibles — pruebe ambos para ver cuál ayuda más. Toque la pantalla para detener."},
+    "calm.cueHint":{fr:"Quatre repères possibles, à essayer selon ce qui aide le mieux. Toucher l'écran pour arrêter.",en:"Four cueing patterns — try them to see which helps more. Tap the screen to stop.",de:"Vier mögliche Hilfslinien — probieren Sie aus, welche besser hilft. Zum Beenden den Bildschirm berühren.",it:"Quattro possibili riferimenti — provali per vedere quale aiuta di più. Tocca lo schermo per fermare.",es:"Cuatro patrones posibles — pruébelos para ver cuál ayuda más. Toque la pantalla para detener."},
     "calm.cueLines":{fr:"Lignes à franchir",en:"Lines to step over",de:"Linien zum Übersteigen",it:"Linee da scavalcare",es:"Líneas para pasar por encima"},
     "calm.cuePulse":{fr:"Flash rythmé",en:"Rhythmic flash",de:"Rhythmisches Blinken",it:"Flash ritmico",es:"Destello rítmico"},
+    "calm.cueFeet":{fr:"Empreintes de pas",en:"Footprint targets",de:"Fußabdruck-Ziele",it:"Impronte da seguire",es:"Huellas objetivo"},
+    "calm.cueChecker":{fr:"Damier",en:"Checkerboard",de:"Schachbrett",it:"Scacchiera",es:"Tablero de ajedrez"},
     "calm.cueTapStop":{fr:"Toucher pour arrêter",en:"Tap to stop",de:"Zum Beenden berühren",it:"Tocca per fermare",es:"Toque para detener"},
     "whatsnew.text":{fr:"Nouveau : rappels, fiche médicale d'urgence, notes de transmission et outils de calme — tout dans « Réglages » et sur l'accueil.",en:"New: reminders, emergency medical ID, handover notes, and calming tools — all on the home screen and in Settings.",de:"Neu: Erinnerungen, medizinischer Notfallausweis, Übergabenotizen und Ruhewerkzeuge — alles auf der Startseite und in den Einstellungen.",it:"Novità: promemoria, scheda medica di emergenza, note di consegna e strumenti di calma — tutto nella schermata principale e nelle impostazioni.",es:"Novedades: recordatorios, ficha médica de emergencia, notas de traspaso y herramientas de calma — todo en la pantalla principal y en ajustes."},
     "send.btn":{fr:"Envoyer le rapport",en:"Send report",de:"Bericht senden",it:"Invia il rapporto",es:"Enviar el informe"},
@@ -1862,21 +1876,41 @@
   });
 
   $("calmBtn").addEventListener("click",function(){show("calmScreen");});
+  /* Footprints and checkerboard follow the research pattern rather than
+     inventing one: transverse-line and rhythmic cues are well-established as
+     moving/timed cues, but footprint targets and checkerboard patterns are
+     documented as static or beat-synced floor cues, not scrolling animations
+     — so footprints step in rhythm (same shared tempo as the flash/metronome)
+     and the checkerboard is a fixed pattern, not an animated one. */
   var cuePulseTimer=null;
+  function stopCueTimers(){
+    if(cuePulseTimer){clearInterval(cuePulseTimer);cuePulseTimer=null;}
+    $("cuePulseBar").classList.remove("flash");
+    $("cueFootL").classList.remove("on");$("cueFootR").classList.remove("on");
+  }
   $("cuePatternBtns").addEventListener("click",function(e){
     var b=e.target&&e.target.closest?e.target.closest(".apOpt"):null;if(!b)return;
     var mode=b.dataset.mode;
+    stopCueTimers();
     $("cueStripes").style.display=mode==="lines"?"block":"none";
     $("cuePulseBar").style.display=mode==="pulse"?"block":"none";
+    $("cueChecker").style.display=mode==="checker"?"block":"none";
+    $("cueFeet").style.display=mode==="feet"?"flex":"none";
     if(mode==="pulse"){
-      $("cuePulseBar").classList.remove("flash");
       cuePulseTimer=setInterval(function(){$("cuePulseBar").classList.toggle("flash");},30000/calmBpm);
+    }else if(mode==="feet"){
+      var onLeft=true;
+      $("cueFootL").classList.add("on");
+      cuePulseTimer=setInterval(function(){
+        onLeft=!onLeft;
+        $("cueFootL").classList.toggle("on",onLeft);
+        $("cueFootR").classList.toggle("on",!onLeft);
+      },30000/calmBpm);
     }
     show("cueScreen");
   });
   $("cueScreen").addEventListener("click",function(){
-    if(cuePulseTimer){clearInterval(cuePulseTimer);cuePulseTimer=null;}
-    $("cuePulseBar").classList.remove("flash");
+    stopCueTimers();
     show("calmScreen");
   });
   // Leaving the screen stops everything — no sound/vibration running unattended in a pocket.
@@ -2771,6 +2805,10 @@
   function maybeShowWhatsNew(){
     if(!localStorage.getItem(INTROKEY))return;
     if(localStorage.getItem(WNKEY)===WHATSNEW_ID)return;
+    // Higher-priority banners (an overdue dose, or the backup nag) win the single
+    // banner slot so the home screen never stacks three attention-grabbers at once.
+    if($("doseBar").classList.contains("late"))return;
+    if($("backupNag").classList.contains("show"))return;
     $("whatsNewTxt").textContent=t("whatsnew.text");
     $("whatsNewBanner").style.display="block";
   }

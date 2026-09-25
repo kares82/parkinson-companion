@@ -19,13 +19,19 @@
   #app{touch-action:pan-y;}
   body{background:#000;display:flex;justify-content:center;position:fixed;inset:0;width:100%;}
   #app{height:100%;width:100%;max-width:480px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior-y:contain;position:relative;}
-  /* flex:1 0 auto, not the flex:1 shorthand (flex-basis:0%) — with a basis of 0,
-     a screen taller than one viewport gets squeezed to exactly viewport height
-     regardless of its content, and the overflow paints outside the element's own
-     background box, showing #app's transparent background (black) behind it.
-     flex-basis:auto sizes from content first, so tall screens (a long active-
-     crisis screen with a sticky end-episode bar, e.g.) actually grow to fit. */
-  .screen{flex:1 0 auto;display:none;flex-direction:column;min-height:100%;}.screen.show{display:flex;}
+  .screen{flex:1;display:none;flex-direction:column;min-height:100%;}.screen.show{display:flex;}
+  /* .sheet screens (Settings, History, Report, ICE, Handover, Calm) have their
+     own internal .body{overflow-y:auto} — they NEED flex:1's flex-basis:0% to
+     cap the screen at exactly one viewport, so .body does the scrolling while
+     the header and .actions bar stay fixed in view (the whole point of the
+     pattern: the back button is always reachable without scrolling).
+     A plain .screen with no .body wrapper (the active-crisis screen, which
+     relies on #app itself scrolling) needs the opposite: flex-basis:0% caps
+     ITS box to one viewport too, but its content isn't wrapped in an internal
+     scroller, so anything past that cap still paints — just outside the
+     screen's own background, showing #app's transparent background (black)
+     behind it. flex-basis:auto sizes the box from content first instead. */
+  .screen:not(.sheet){flex:1 0 auto;}
   input{font-family:inherit;}
 
   #startScreen{background:#c0392b;color:#fff;}

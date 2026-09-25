@@ -1238,6 +1238,7 @@
     "report.legendCrises":{fr:"🟦 Crises",en:"🟦 Episodes",de:"🟦 Episoden",it:"🟦 Episodi",es:"🟦 Episodios"},
     "report.legendFreezing":{fr:"🟧 Blocages (freezing)",en:"🟧 Freezing",de:"🟧 Freezing",it:"🟧 Freezing",es:"🟧 Freezing"},
     "report.legendDose":{fr:"💊 Heure de prise prévue",en:"💊 Scheduled dose time",de:"💊 Geplante Dosiszeit",it:"💊 Orario dose previsto",es:"💊 Hora de dosis prevista"},
+    "report.hoursMax":{fr:"max {n}",en:"max {n}",de:"max. {n}",it:"max {n}",es:"máx {n}"},
     "report.doseTimesLine":{fr:"💊 Doses prévues : {t}",en:"💊 Scheduled doses: {t}",de:"💊 Geplante Dosen: {t}",it:"💊 Dosi previste: {t}",es:"💊 Dosis previstas: {t}"},
     "demo.section":{fr:"Essayer l'application",en:"Try the app",de:"App ausprobieren",it:"Prova l'app",es:"Probar la app"},
     "demo.hint":{fr:"Chargez des données d'exemple pour vous entraîner sans crainte, y compris le bouton de crise. Vos vraies données sont mises de côté et restaurées quand vous quittez la démo.",en:"Load sample data to practise without fear, including the crisis button. Your real data is set aside and restored when you leave the demo.",de:"Laden Sie Beispieldaten, um ohne Sorge zu üben, auch den Krisenknopf. Ihre echten Daten werden beiseitegelegt und wiederhergestellt, wenn Sie die Demo verlassen.",it:"Carica dati di esempio per fare pratica senza timore, incluso il pulsante di crisi. I tuoi dati reali vengono messi da parte e ripristinati quando esci dalla demo.",es:"Carga datos de ejemplo para practicar sin miedo, incluido el botón de crisis. Tus datos reales se apartan y se restauran cuando sales de la demo."},
@@ -2067,7 +2068,10 @@
      freezing (orange) stacked on top; dashed guides + a pill mark scheduled dose
      hours, so wearing-off against the dosing clock is readable at a glance. */
   function hoursChartSVG(hours,frz,doseHrs){
-    var W=340,H=152,L=8,R=8,T=18,B=24,pw=W-L-R,ph=H-T-B,bw=pw/24,max=1,i;
+    // Sized for legibility on a phone, not density: bigger axis text, and a
+    // number printed on every bar so the count never has to be guessed from
+    // height alone — reported unreadable by a user on real hardware.
+    var W=340,H=176,L=10,R=8,T=30,B=30,pw=W-L-R,ph=H-T-B,bw=pw/24,max=1,i;
     for(i=0;i<24;i++){var v=(hours[i]||0)+(frz[i]||0);if(v>max)max=v;}
     function X(i){return L+i*bw;}
     var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="'+esc(t("report.hoursSec"))+'" style="display:block;max-width:100%;font-family:inherit;color:#1e2a38">';
@@ -2075,13 +2079,14 @@
     s+='<line x1="'+L+'" y1="'+(T+ph)+'" x2="'+(W-R)+'" y2="'+(T+ph)+'" stroke="currentColor" stroke-opacity="0.35"/>';
     for(i=0;i<24;i++){ if(doseHrs[i]){ var cx=(X(i)+bw/2).toFixed(1);
       s+='<line x1="'+cx+'" y1="'+T+'" x2="'+cx+'" y2="'+(T+ph)+'" stroke="currentColor" stroke-opacity="0.18" stroke-dasharray="2 2"/>';
-      s+='<text x="'+cx+'" y="'+(T-6)+'" text-anchor="middle" font-size="9">💊</text>'; } }
-    for(i=0;i<24;i++){ var cH=hours[i]||0, fH=frz[i]||0, cxb=(X(i)+bw/2).toFixed(1), bxl=(X(i)+bw*0.16).toFixed(1), bWi=(bw*0.68).toFixed(1), yb=T+ph;
+      s+='<text x="'+cx+'" y="'+(T-11)+'" text-anchor="middle" font-size="11">💊</text>'; } }
+    for(i=0;i<24;i++){ var cH=hours[i]||0, fH=frz[i]||0, cxb=(X(i)+bw/2).toFixed(1), bxl=(X(i)+bw*0.16).toFixed(1), bWi=(bw*0.68).toFixed(1), yb=T+ph, total=cH+fH;
       if(cH){var hc=cH/max*ph; s+='<line x1="'+cxb+'" x2="'+cxb+'" y1="'+yb.toFixed(1)+'" y2="'+(yb-hc).toFixed(1)+'" stroke="#2980b9" stroke-width="'+bWi+'"/>'; yb-=hc;}
-      if(fH){var hf=fH/max*ph; s+='<rect x="'+bxl+'" y="'+(yb-hf).toFixed(1)+'" width="'+bWi+'" height="'+hf.toFixed(1)+'" fill="url(#frzHatch)"/>';} }
-    [0,6,12,18].forEach(function(hh){ s+='<text x="'+(X(hh)+bw/2).toFixed(1)+'" y="'+(H-7)+'" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">'+pad(hh)+'h</text>'; });
-    s+='<text x="'+(W-R)+'" y="'+(H-7)+'" text-anchor="end" font-size="9" fill="currentColor" fill-opacity="0.7">23h</text>';
-    s+='<text x="'+L+'" y="'+(T-6)+'" font-size="9" fill="currentColor" fill-opacity="0.7">'+max+'</text>';
+      if(fH){var hf=fH/max*ph; s+='<rect x="'+bxl+'" y="'+(yb-hf).toFixed(1)+'" width="'+bWi+'" height="'+hf.toFixed(1)+'" fill="url(#frzHatch)"/>'; yb-=hf;}
+      if(total)s+='<text x="'+cxb+'" y="'+(yb-4).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor">'+total+'</text>'; }
+    [0,6,12,18].forEach(function(hh){ s+='<text x="'+(X(hh)+bw/2).toFixed(1)+'" y="'+(H-9)+'" text-anchor="middle" font-size="12" fill="currentColor" fill-opacity="0.85">'+pad(hh)+'h</text>'; });
+    s+='<text x="'+(W-R)+'" y="'+(H-9)+'" text-anchor="end" font-size="12" fill="currentColor" fill-opacity="0.85">23h</text>';
+    s+='<text x="'+L+'" y="'+(T-14)+'" font-size="12" font-weight="700" fill="currentColor" fill-opacity="0.85">'+tf("report.hoursMax",{n:max})+'</text>';
     return s+'</svg>';
   }
 

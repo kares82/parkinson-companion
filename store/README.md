@@ -73,72 +73,69 @@ screenshot is where clinical claims creep in. See `regulatory.md`.
 
 ---
 
-## 2. Google Play (TWA)
+## 2. Google Play (Capacitor)
 
-```bash
-npm i -g @bubblewrap/cli
-bubblewrap init --manifest https://parkinson.red-triangle.net/manifest.webmanifest
-# or use the prepared config:
-cp store/twa-manifest.json ./twa-manifest.json && bubblewrap build
-```
+Built by `.github/workflows/android-play.yml`: `node tools/build-www.js && npx cap
+sync android`, then Gradle (`./gradlew bundleRelease`) produces the `.aab` Play
+takes. Signing needs four repo secrets set once — `ANDROID_KEYSTORE_BASE64`,
+`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` — from
+an upload keystore (`keytool -genkeypair ... -keystore upload.jks`, kept safe:
+losing it takes a support request to recover). Without those secrets the
+workflow still builds an *unsigned* bundle, which proves the project compiles
+but Play will refuse to accept.
 
 Then:
 
-- [ ] Bubblewrap prints a SHA-256 fingerprint. Put it in
-      `store/assetlinks-template.json`, rename to `assetlinks.json`, and serve it
-      at `https://parkinson.red-triangle.net/.well-known/assetlinks.json`.
-      **Without this the app opens with a browser URL bar across the top** and
-      looks broken.
-- [ ] After uploading, take the fingerprint from Play Console → Setup → App
-      signing (Play re-signs the app) and update `assetlinks.json` to include it
-      too. Missing this step is the single most common TWA launch failure.
+- [ ] Download the signed `app-release.aab` artifact from the workflow run and
+      upload it in Play Console.
 - [ ] Fill the Data safety form and Health apps declaration → `declarations.md`.
-- [ ] Listing copy → `listing-en.md`, `listing-fr.md`.
+- [ ] Listing copy → `listing-en.md`, `listing-fr.md` (`npm run metadata`
+      regenerates `fastlane/metadata/` from these; `npm run metadata:check` is
+      what CI enforces on every push).
 
-Downloads, printing and storage all work in a TWA because it is Chrome.
+Downloads, printing and storage all work the same as the web app — this is a
+real WebView wrapper around the same `index.html`, not a separate rebuild.
 
 ---
 
 ## 3. Apple App Store
 
 Full checklist: **[`APPSTORE.md`](APPSTORE.md)**. Pricing: **free** — see
-[`pricing.md`](pricing.md). Screenshots and the native print bridge are already
-prepared; what remains needs a Mac.
+[`pricing.md`](pricing.md). Built and shipped entirely from
+`.github/workflows/ios-testflight.yml` on a GitHub Actions macOS runner —
+**no local Mac needed**, including for code signing.
 
-
-Harder. Two specific problems, both solvable but neither automatic.
+Two problems that would sink a naive WKWebView wrap, both already solved here:
 
 **Guideline 4.2 (Minimum Functionality).** Apple rejects apps that are "a
-repackaged website". A bare WKWebView wrapper is a real rejection risk. What
-helps: the app is genuinely offline-first and standalone, and the review note in
-`declarations.md` says so explicitly. Strengthen it with native integration —
-Share sheet, Files access for backups, and a native print path (below).
+repackaged website". What helps: the app is genuinely offline-first and
+standalone, the review note in `declarations.md` says so explicitly, and it has
+real native integration beyond the webview — local notifications for
+medication reminders, haptics for guided breathing, and the native print
+bridge below.
 
-**`window.print()` does nothing in WKWebView.** The one-page PDF summary — the
-feature the GP actually asked for — will silently do nothing in a naive wrap.
-It needs a native bridge:
+**`window.print()` does nothing in WKWebView.** The one-page PDF summary
+needs a native bridge — already implemented as `PrintBridge`, a
+`WKScriptMessageHandler` in `ios/App/App/AppDelegate.swift` (deliberately not
+a Capacitor plugin: `cap sync` would overwrite an app-local plugin's
+registration on every sync, silently making it unreachable from JS). JS posts
+to it via `window.webkit.messageHandlers.print`, falling back to
+`window.print()` in a browser.
 
-```swift
-// Capacitor: expose a native print, call it from JS instead of window.print()
-let fmt = webView.viewPrintFormatter()
-let pc = UIPrintInteractionController.shared
-pc.printFormatter = fmt
-pc.present(animated: true)
-```
+Export and backup go through the Web Share API, which WKWebView supports, and
+only fall back to `<a download>` (inert in WKWebView) outside it.
 
-Export and backup are already handled — they go through the Web Share API, which
-WKWebView supports, and only fall back to `<a download>` (which is inert there).
+Status — done, not a checklist:
 
-Checklist:
-
-- [ ] `npx @capacitor/cli init` or PWABuilder's iOS package.
-- [ ] Bridge printing as above, or drop the Print button on iOS and rely on CSV
-      export + share.
-- [ ] Set `WKWebView` `limitsNavigationsToAppBoundDomains` and declare
-      `WKAppBoundDomains` in `Info.plist` so `localStorage` is not evicted.
+- [x] Capacitor iOS project committed (`ios/`), no local `@capacitor/cli init` needed.
+- [x] Print bridged natively (`PrintBridge` in `AppDelegate.swift`).
+- [x] `WKWebView` `limitsNavigationsToAppBoundDomains` set in `capacitor.config.json`
+      so `localStorage` is not evicted.
+- [x] Medication reminders (`@capacitor/local-notifications`) and haptics
+      (`@capacitor/haptics`) as further native integration.
 - [ ] App Privacy → **Data Not Collected** (`declarations.md`).
 - [ ] Paste the review note from `declarations.md`.
-- [ ] `icon-1024.png` as the App Store icon.
+- [x] `icon-1024.png` as the App Store icon.
 
 ---
 

@@ -1,1 +1,1 @@
-parkinson,tremor,episode,diary,tracker,carer,caregiver,medication,health,dyskinesia,neurology
+tremor,dyskinesia,levodopa,symptom,tracker,caregiver,movement,dose,neurology,freezing,wellbeing

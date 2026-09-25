@@ -1,7 +1,13 @@
-Parkinson Companion is a simple tracking diary, built to be used one-handed in
-the moment that matters — by the person themselves or by their carer.
+Parkinson Companion is free and works completely offline — built to be used
+one-handed in the moment that matters, by the carer as much as by the person
+themselves.
 
-All data stays on the phone. No account, no server, no advertising, no tracking.
+No account. No sign-up. No subscription. No signal needed. Open it and it just
+works, and all data stays private on the phone — nothing is uploaded, tracked,
+or sold.
+
+One tap starts an episode. One tap calls for help. That is the whole point: when
+things are hard, the app is simple.
 
 WHAT YOU CAN TRACK
 
@@ -12,11 +18,18 @@ WHAT YOU CAN TRACK
 
 • Medication — your list with doses and, if you want them, dose times. Each dose
   is recorded at the time it was actually given, not the time it was typed in.
+  If you allow notifications, the app can remind you at each dose time — the
+  reminder is scheduled entirely on the phone, nothing is sent anywhere.
 
 • Next dose — with times set, the home screen shows the next dose due and flags
   overdue ones.
 
-• Wellbeing — a quick daily check-in: appetite, mood, pain, sleep, weight.
+• Next appointment — an optional date shown at the top of the doctor report,
+  with a reminder the day before if you allow notifications.
+
+• Wellbeing — a quick daily check-in: appetite, mood, pain, sleep, weight, and
+  optional non-motor symptoms (anxiety, fatigue, brain fog, urinary issues,
+  constipation, dizziness on standing) that are easy to forget to mention.
 
 • Incidents — falls, near-falls, freezing, choking.
 

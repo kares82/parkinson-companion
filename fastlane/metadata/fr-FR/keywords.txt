@@ -1,1 +1,1 @@
-parkinson,tremblement,crise,journal,suivi,aidant,medicament,sante,neurologie,dyskinesie
+tremblement,dyskinésie,lévodopa,symptôme,aidant,mouvement,dose,neurologie,blocage,journal,chute

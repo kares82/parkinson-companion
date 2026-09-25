@@ -1,6 +1,7 @@
 import UIKit
 import WebKit
 import Capacitor
+import AVFoundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -8,7 +9,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // WKWebView's Web Audio (metronome, ambient sound) defaults to the
+        // "ambient" session category, which iOS silences when the ring/silent
+        // switch is on. The Calm & Focus tools exist to be heard in exactly
+        // that moment — e.g. quietly cueing a freeze in a clinic — so this
+        // switches to .playback, which plays regardless of the switch.
+        // mixWithOthers keeps it from stopping the user's own music/podcast.
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            NSLog("AudioSession: %@", error.localizedDescription)
+        }
         return true
     }
 

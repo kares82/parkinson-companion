@@ -595,7 +595,7 @@
       <div id="reportBody"></div>
     </div>
     <div class="actions">
-      <button class="backBtn" data-back data-i18n="common.back">Retour</button>
+      <button class="backBtn" id="reportBack" data-i18n="common.back">Retour</button>
       <button class="reportBtn" id="printBtn" data-i18n="report.print">Imprimer / PDF</button>
       <button class="exportBtn" id="exportBtn2" data-i18n="report.exportCsv">Exporter (CSV)</button>
       <button class="reportBtn" id="sendReportBtn" data-i18n="send.btn" style="background:#16a085">Envoyer le rapport</button>
@@ -2074,7 +2074,10 @@
     var W=340,H=176,L=10,R=8,T=30,B=30,pw=W-L-R,ph=H-T-B,bw=pw/24,max=1,i;
     for(i=0;i<24;i++){var v=(hours[i]||0)+(frz[i]||0);if(v>max)max=v;}
     function X(i){return L+i*bw;}
-    var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="'+esc(t("report.hoursSec"))+'" style="display:block;max-width:100%;font-family:inherit;color:#1e2a38">';
+    // No hardcoded color here: it must inherit from its container so dark
+    // mode's light .sheet text color applies. A hardcoded dark navy read as
+    // near-black-on-near-black in dark mode — unreadable, reported directly.
+    var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="'+esc(t("report.hoursSec"))+'" style="display:block;max-width:100%;font-family:inherit">';
     s+='<defs><pattern id="frzHatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0H4V4H0Z" fill="#e67e22"/><line x1="0" y1="0" x2="0" y2="4" stroke="#8a4a12" stroke-width="2"/></pattern></defs>';
     s+='<line x1="'+L+'" y1="'+(T+ph)+'" x2="'+(W-R)+'" y2="'+(T+ph)+'" stroke="currentColor" stroke-opacity="0.35"/>';
     for(i=0;i<24;i++){ if(doseHrs[i]){ var cx=(X(i)+bw/2).toFixed(1);
@@ -2231,6 +2234,7 @@
     return ts.length?Math.min.apply(null,ts):Date.now();
   }
   $("toReport").addEventListener("click",function(){renderReport();show("reportScreen");});
+  $("reportBack").addEventListener("click",function(){renderHistory();show("historyScreen");});
   $("reportRange").addEventListener("click",function(e){
     var b=e.target&&e.target.closest?e.target.closest("[data-r]"):null;if(!b)return;
     reportDays=parseInt(b.dataset.r,10);renderReport();});

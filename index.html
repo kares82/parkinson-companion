@@ -31,7 +31,7 @@
   #presenceBadge{text-align:center;font-size:clamp(13px,3.6vw,16px);padding:10px;background:#8e2a1a;color:#fff;font-weight:700;}
   #lastMed{text-align:center;font-size:clamp(11px,3vw,14px);opacity:.85;padding:5px;background:#a5311f;color:#fff;}
   .startBtns{display:flex;gap:2px;flex-wrap:wrap;}
-  .startBtns button{flex:1 1 40%;padding:16px 4px;font-size:clamp(13px,3.6vw,16px);font-weight:800;border:none;color:#fff;}
+  .startBtns button{flex:1 1 40%;padding:16px 4px;font-size:clamp(13px,3.6vw,16px);font-weight:800;border:none;color:#fff;overflow-wrap:anywhere;}
   #stateBtn{background:#34495e;}
   #incBtn{width:100%;padding:14px;font-size:clamp(13px,3.4vw,15px);font-weight:800;border:none;color:#fff;background:#d35400;}
   #medBtn{background:#e67e22;}#newBagBtn{background:#8e44ad;}#wellBtn{background:#16a085;}#incBtn{background:#d35400;}
@@ -43,7 +43,14 @@
   #helpBtnActive{margin-top:14px;padding:20px;font-size:clamp(20px,5.6vw,26px);font-weight:800;background:#111;color:#fff;border:none;border-radius:16px;border-top:4px solid #f1c40f;}
   .typeRow{margin-top:2.5vh;}.typeRow .label{font-size:clamp(13px,3.6vw,16px);opacity:.85;text-align:center;margin-bottom:9px;}
   .typeBtns{display:flex;gap:9px;flex-wrap:wrap;}
-  .typeBtn{flex:1 1 40%;padding:16px 4px;font-size:clamp(13px,3.6vw,16px);font-weight:700;border:3px solid #48607a;background:#2b3c50;color:#fff;border-radius:13px;}
+  .typeBtn{flex:1 1 40%;padding:16px 4px;font-size:clamp(13px,3.6vw,16px);font-weight:700;border:3px solid #48607a;background:#2b3c50;color:#fff;border-radius:13px;overflow-wrap:anywhere;}
+  /* Any button holding translated/dynamic text inside a width-constrained row
+     or grid needs this: a single unbroken word (German "Verschlucken", a
+     custom carer name typed with no space, etc.) has nowhere to wrap without
+     it and overflows past its own button into whatever is next to it — the
+     exact bug found in .apOpt. Applied once, broadly, rather than per-class,
+     so no future button in this pattern can hit it again. */
+  .tAdjBtn,#startAdj .sa,.incTypeBtn,.ynBtn,.langBtn,.tagChip{overflow-wrap:anywhere;}
   .typeBtn.sel{background:#f1c40f;color:#1e2a38;border-color:#f1c40f;}
   .typeHint{font-size:clamp(11px,2.8vw,13px);opacity:.7;text-align:center;margin-top:9px;line-height:1.4;}
   #endBtn{margin-top:14px;padding:22px;font-size:clamp(20px,5.6vw,26px);font-weight:800;background:#27ae60;color:#fff;border:none;border-radius:16px;}
@@ -69,6 +76,7 @@
   .sheet header{padding:calc(16px + env(safe-area-inset-top)) 16px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #eee;}
   .sheet h2{font-size:19px;}.body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:12px 16px;}
   .actions{padding:14px;display:flex;gap:8px;border-top:2px solid #eee;flex-wrap:wrap;}
+  .actions button{overflow-wrap:anywhere;}
   .actions button{flex:1;min-width:88px;padding:14px;font-size:14px;font-weight:700;border:none;border-radius:10px;}
   .exportBtn{background:#27ae60;color:#fff;}.backBtn{background:#34495e;color:#fff;}
   .clearBtn{background:#fff;color:#c0392b;border:2px solid #c0392b !important;}.reportBtn{background:#2980b9;color:#fff;}
@@ -149,8 +157,8 @@
   .mlTimeChip{display:flex;align-items:center;gap:4px;border:2px dashed #ccc;border-radius:9px;padding:2px 2px 2px 8px;}
   .mlTimeVal{border:none!important;padding:8px 2px!important;width:104px!important;font-size:14px;}
   .mlTimeDel{width:30px;height:30px;border:none;background:#fdecea;color:#c0392b;border-radius:7px;font-size:13px;font-weight:800;line-height:1;flex:0 0 auto;}
-  .mlTimeAdd{padding:10px 14px;font-size:13px;font-weight:800;border:2px dashed #999;background:#fafafa;color:#444;border-radius:9px;}
-  .addMedBtn{width:100%;padding:13px;font-size:14px;font-weight:800;border:2px dashed #999;background:#fafafa;color:#444;border-radius:10px;margin-top:2px;}
+  .mlTimeAdd{padding:10px 14px;font-size:13px;font-weight:800;border:2px dashed #999;background:#fafafa;color:#444;border-radius:9px;overflow-wrap:anywhere;}
+  .addMedBtn{width:100%;padding:13px;font-size:14px;font-weight:800;border:2px dashed #999;background:#fafafa;color:#444;border-radius:10px;margin-top:2px;overflow-wrap:anywhere;}
 
   #medCheckWrap{max-height:50vh;overflow-y:auto;overscroll-behavior:contain;margin-bottom:6px;}
   .medCheckRow{display:grid;grid-template-columns:26px 1fr 1fr;gap:8px;align-items:center;padding:9px 2px;border-bottom:1px solid #eee;}
@@ -205,16 +213,16 @@
   #sendCard{background:#fff;color:#1e2a38;border-radius:18px;padding:22px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;}
   #sendCard h3{font-size:20px;margin-bottom:6px;}
   .modalBody{font-size:15px;line-height:1.5;margin-bottom:16px;}
-  .sendBtn{display:block;width:100%;padding:16px;margin-bottom:10px;font-size:16px;font-weight:800;border:none;border-radius:12px;min-height:52px;}
+  .sendBtn{display:block;width:100%;padding:16px;margin-bottom:10px;font-size:16px;font-weight:800;border:none;border-radius:12px;min-height:52px;overflow-wrap:anywhere;}
   #extraCard{background:#fff;color:#1e2a38;border-radius:18px;padding:22px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;}
   #extraCard h3{font-size:20px;margin-bottom:6px;}#extraBody{margin-bottom:14px;}
-  .exOpt{display:block;width:100%;padding:16px;margin-bottom:10px;font-size:16px;font-weight:800;border:2px solid #ccc;border-radius:12px;background:#fafafa;color:#1e2a38;min-height:52px;}
+  .exOpt{display:block;width:100%;padding:16px;margin-bottom:10px;font-size:16px;font-weight:800;border:2px solid #ccc;border-radius:12px;background:#fafafa;color:#1e2a38;min-height:52px;overflow-wrap:anywhere;}
   #demoBanner{padding:10px;text-align:center;font-weight:800;font-size:clamp(12px,3.3vw,15px);background:#6c3483;color:#fff;}
   #stateModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
   #stateModal.show{display:flex;}
   #stateCard{background:#fff;color:#1e2a38;border-radius:18px;padding:20px;width:100%;max-width:440px;}
   #stateCard h3{font-size:20px;margin-bottom:12px;}
-  .stOpt{display:block;width:100%;padding:18px;margin-bottom:10px;font-size:17px;font-weight:800;border:none;border-radius:14px;color:#fff;min-height:56px;}
+  .stOpt{display:block;width:100%;padding:18px;margin-bottom:10px;font-size:17px;font-weight:800;border:none;border-radius:14px;color:#fff;min-height:56px;overflow-wrap:anywhere;}
   .stOpt[data-st="on"]{background:#27ae60;}.stOpt[data-st="off"]{background:#e67e22;}.stOpt[data-st="dysk"]{background:#8e44ad;}
   #stateCancel{display:block;width:100%;padding:14px;font-size:15px;font-weight:700;border:2px solid #ccc;border-radius:12px;background:#eee;color:#333;min-height:48px;}
   #woqModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
@@ -261,7 +269,7 @@
 
   /* ---- report range selector ---- */
   .rangeBtns{display:flex;gap:6px;margin-bottom:4px;}
-  .rangeBtns button{flex:1;min-height:42px;padding:10px 4px;font-size:13px;font-weight:800;border:2px solid #ccc;background:#fafafa;color:#444;border-radius:9px;}
+  .rangeBtns button{flex:1;min-height:42px;padding:10px 4px;font-size:13px;font-weight:800;border:2px solid #ccc;background:#fafafa;color:#444;border-radius:9px;overflow-wrap:anywhere;}
   .rangeBtns button.sel{background:#2980b9;border-color:#2980b9;color:#fff;}
   #printHead{display:none;}
   .disc{font-size:12px;color:#777;line-height:1.45;background:#f7f7f7;border-radius:9px;padding:10px 12px;margin-top:10px;}

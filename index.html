@@ -18,7 +18,7 @@
      keeping normal vertical scrolling. */
   #app{touch-action:pan-y;}
   body{background:#000;display:flex;justify-content:center;position:fixed;inset:0;width:100%;}
-  #app{height:100%;width:100%;max-width:480px;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;position:relative;}
+  #app{height:100%;width:100%;max-width:480px;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior-y:contain;position:relative;}
   .screen{flex:1;display:none;flex-direction:column;min-height:100%;}.screen.show{display:flex;}
   input{font-family:inherit;}
 
@@ -76,7 +76,7 @@
 
   .sheet{background:#fff;color:#1e2a38;}
   .sheet header{padding:calc(16px + env(safe-area-inset-top)) 16px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #eee;}
-  .sheet h2{font-size:19px;}.body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:12px 16px;}
+  .sheet h2{font-size:19px;}.body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:12px 16px;}
   /* ---- ICE / medical-ID card — fixed high-contrast red/white, same look in
      light or dark mode, so it reads reliably for a stranger in an emergency ---- */
   .screen.sheet.ice{background:#c0392b;color:#fff;}

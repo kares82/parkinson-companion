@@ -67,7 +67,7 @@
   #helpBack{margin-top:auto;padding:20px;font-size:clamp(18px,5vw,22px);font-weight:800;background:#333;color:#fff;border:none;border-radius:14px;}
   .helpNote{font-size:clamp(11px,3vw,13px);opacity:.7;text-align:center;margin-bottom:10px;line-height:1.4;}
 
-  #presencePick{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:20;padding:20px;}
+  #presencePick{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:20;padding:20px;}
   #presencePick.show{display:flex;}
   #presenceCard{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:420px;}
   #presenceCard h3{font-size:20px;margin-bottom:14px;color:#1e2a38;}
@@ -107,7 +107,7 @@
   textarea.num{width:100%;padding:14px;font-size:16px;border:2px solid #ccc;border-radius:10px;font-family:inherit;resize:vertical;min-height:70px;}
   .regBox{background:#f0f6fb;border:1px solid #cfe2f0;border-radius:10px;padding:8px 10px;margin-top:4px;font-size:13px;color:#1c4e70;}
 
-  #confirmModal{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
+  #confirmModal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
   #confirmModal.show{display:flex;}
   #confirmCard{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:420px;}
   #confirmMsg{font-size:19px;font-weight:700;color:#1e2a38;margin-bottom:18px;line-height:1.4;}
@@ -115,7 +115,7 @@
   #confirmCard button{flex:1;padding:18px 6px;font-size:16px;font-weight:800;border:none;border-radius:12px;}
   #confirmYes{background:#c0392b;color:#fff;}#confirmNo{background:#eee;color:#333;}
 
-  #medModal{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
+  #medModal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
   #medModal.show{display:flex;}
   #medCard{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;display:flex;flex-direction:column;}
   #medCard h3{font-size:20px;color:#1e2a38;margin-bottom:4px;flex-shrink:0;}
@@ -130,7 +130,7 @@
   #medCard .cBtns button{flex:1;padding:16px 6px;font-size:16px;font-weight:800;border:none;border-radius:12px;}
   #medCancel{background:#eee;color:#333;}#medSave{background:#e67e22;color:#fff;}
 
-  #wellModal{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
+  #wellModal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
   #wellModal.show{display:flex;}
   #wellCard{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:440px;}
   #wellCard h3{font-size:20px;color:#1e2a38;margin-bottom:4px;}
@@ -144,7 +144,7 @@
   #wellCard .cBtns button{flex:1;padding:16px 6px;font-size:16px;font-weight:800;border:none;border-radius:12px;}
   #wellCancel{background:#eee;color:#333;}#wellSave{background:#16a085;color:#fff;}
 
-  #incModal{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
+  #incModal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
   #incModal.show{display:flex;}
   #incCard{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;overscroll-behavior:contain;}
   #incCard h3{font-size:20px;color:#1e2a38;margin-bottom:4px;}
@@ -209,7 +209,7 @@
   #whatsNewBanner{position:relative;padding:9px 34px 9px 10px;background:#16a085;color:#fff;font-size:clamp(11px,3vw,13px);font-weight:700;text-align:center;line-height:1.35;}
   #whatsNewClose{position:absolute;top:2px;right:4px;background:transparent;border:none;color:#fff;font-size:16px;font-weight:800;line-height:1;padding:4px 8px;min-height:32px;min-width:32px;}
   #lastBackupState.warn{color:#c0392b;font-weight:800;}
-  #introModal,#wipeModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
+  #introModal,#wipeModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
   #introModal.show,#wipeModal.show{display:flex;}
   #introCard,#wipeCard{background:#fff;color:#1e2a38;border-radius:18px;padding:22px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;}
   #introCard h3,#wipeCard h3{font-size:21px;margin-bottom:12px;}
@@ -220,9 +220,9 @@
   #wipeCard .cBtns button{flex:1;padding:16px 6px;font-size:16px;font-weight:800;border:none;border-radius:12px;min-height:52px;}
   #wipeCancel{background:#eee;color:#333;}
   #wipeConfirm{background:#c0392b;color:#fff;opacity:.45;}#wipeConfirm.on{opacity:1;}
-  #extraModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
+  #extraModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
   #extraModal.show{display:flex;}
-  #sendModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
+  #sendModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
   #sendModal.show{display:flex;}
   #sendCard{background:#fff;color:#1e2a38;border-radius:18px;padding:22px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;}
   #sendCard h3{font-size:20px;margin-bottom:6px;}
@@ -232,14 +232,14 @@
   #extraCard h3{font-size:20px;margin-bottom:6px;}#extraBody{margin-bottom:14px;}
   .exOpt{display:block;width:100%;padding:16px;margin-bottom:10px;font-size:16px;font-weight:800;border:2px solid #ccc;border-radius:12px;background:#fafafa;color:#1e2a38;min-height:52px;overflow-wrap:anywhere;}
   #demoBanner{padding:10px;text-align:center;font-weight:800;font-size:clamp(12px,3.3vw,15px);background:#6c3483;color:#fff;}
-  #stateModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
+  #stateModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
   #stateModal.show{display:flex;}
   #stateCard{background:#fff;color:#1e2a38;border-radius:18px;padding:20px;width:100%;max-width:440px;}
   #stateCard h3{font-size:20px;margin-bottom:12px;}
   .stOpt{display:block;width:100%;padding:18px;margin-bottom:10px;font-size:17px;font-weight:800;border:none;border-radius:14px;color:#fff;min-height:56px;overflow-wrap:anywhere;}
   .stOpt[data-st="on"]{background:#27ae60;}.stOpt[data-st="off"]{background:#e67e22;}.stOpt[data-st="dysk"]{background:#8e44ad;}
   #stateCancel{display:block;width:100%;padding:14px;font-size:15px;font-weight:700;border:2px solid #ccc;border-radius:12px;background:#eee;color:#333;min-height:48px;}
-  #woqModal{position:absolute;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
+  #woqModal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:40;padding:20px;}
   #woqModal.show{display:flex;}
   #woqCard{background:#fff;color:#1e2a38;border-radius:18px;padding:20px;width:100%;max-width:460px;max-height:88vh;max-height:88dvh;display:flex;flex-direction:column;}
   #woqCard h3{font-size:20px;margin-bottom:6px;}
@@ -267,7 +267,7 @@
   #startAdj .sa{flex:1 1 0;min-height:40px;padding:8px 4px;font-size:clamp(11px,3vw,13px);font-weight:700;border:2px solid #48607a;background:transparent;color:#cfd8e3;border-radius:9px;}
   #cancelBtn{margin-top:9px;padding:14px;font-size:clamp(13px,3.6vw,16px);font-weight:700;background:transparent;color:#cfd8e3;border:2px solid #48607a;border-radius:12px;width:100%;}
 
-  #epModal{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
+  #epModal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30;padding:20px;}
   #epModal.show{display:flex;}
   #epCard{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:440px;max-height:88vh;max-height:88dvh;overflow-y:auto;overscroll-behavior:contain;}
   #epCard h3{font-size:20px;color:#1e2a38;margin-bottom:10px;}

@@ -1223,7 +1223,9 @@
     "report.extraSec":{fr:"Dose supplémentaire pendant la crise",en:"Extra dose during the episode",de:"Zusätzliche Dosis während der Episode",it:"Dose extra durante l'episodio",es:"Dosis extra durante el episodio"},
     "report.extraGiven":{fr:"Donnée : {g} / {n}",en:"Given: {g} / {n}",de:"Gegeben: {g} / {n}",it:"Somministrata: {g} / {n}",es:"Administrada: {g} / {n}"},
     "report.extraHelpedLine":{fr:"A aidé : {h} / {g}",en:"Helped: {h} / {g}",de:"Half: {h} / {g}",it:"Ha aiutato: {h} / {g}",es:"Ayudó: {h} / {g}"},
-    "report.hoursLegend":{fr:"🟦 Crises · 🟧 Blocages (freezing) · 💊 Heure de prise prévue",en:"🟦 Episodes · 🟧 Freezing · 💊 Scheduled dose time",de:"🟦 Episoden · 🟧 Freezing · 💊 Geplante Dosiszeit",it:"🟦 Episodi · 🟧 Freezing · 💊 Orario dose previsto",es:"🟦 Episodios · 🟧 Freezing · 💊 Hora de dosis prevista"},
+    "report.legendCrises":{fr:"🟦 Crises",en:"🟦 Episodes",de:"🟦 Episoden",it:"🟦 Episodi",es:"🟦 Episodios"},
+    "report.legendFreezing":{fr:"🟧 Blocages (freezing)",en:"🟧 Freezing",de:"🟧 Freezing",it:"🟧 Freezing",es:"🟧 Freezing"},
+    "report.legendDose":{fr:"💊 Heure de prise prévue",en:"💊 Scheduled dose time",de:"💊 Geplante Dosiszeit",it:"💊 Orario dose previsto",es:"💊 Hora de dosis prevista"},
     "report.doseTimesLine":{fr:"💊 Doses prévues : {t}",en:"💊 Scheduled doses: {t}",de:"💊 Geplante Dosen: {t}",it:"💊 Dosi previste: {t}",es:"💊 Dosis previstas: {t}"},
     "demo.section":{fr:"Essayer l'application",en:"Try the app",de:"App ausprobieren",it:"Prova l'app",es:"Probar la app"},
     "demo.hint":{fr:"Chargez des données d'exemple pour vous entraîner sans crainte, y compris le bouton de crise. Vos vraies données sont mises de côté et restaurées quand vous quittez la démo.",en:"Load sample data to practise without fear, including the crisis button. Your real data is set aside and restored when you leave the demo.",de:"Laden Sie Beispieldaten, um ohne Sorge zu üben, auch den Krisenknopf. Ihre echten Daten werden beiseitegelegt und wiederhergestellt, wenn Sie die Demo verlassen.",it:"Carica dati di esempio per fare pratica senza timore, incluso il pulsante di crisi. I tuoi dati reali vengono messi da parte e ripristinati quando esci dalla demo.",es:"Carga datos de ejemplo para practicar sin miedo, incluido el botón de crisis. Tus datos reales se apartan y se restauran cuando sales de la demo."},
@@ -2392,9 +2394,16 @@
     h+='<div class="section-t">'+esc(t("report.hoursSec"))+'</div>';
     var slots=scheduleSlots(),doseHrs={};slots.forEach(function(s){doseHrs[Math.floor(s.min/60)]=true;});
     var anyH=false;for(var hi=0;hi<24;hi++){if(hours[hi]||frz[hi]){anyH=true;break;}}
+    var anyFrz=false;for(var fi=0;fi<24;fi++){if(frz[fi]){anyFrz=true;break;}}
     if(anyH){
       h+='<div style="margin:6px 0 2px">'+hoursChartSVG(hours,frz,doseHrs)+'</div>';
-      h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(t("report.hoursLegend"))+'</div>';
+      // Only list legend entries for what's actually plotted — a color key for
+      // an empty series (no freezing incidents logged, no dose schedule set)
+      // reads as "where did this go" rather than "there is none".
+      var legendParts=[t("report.legendCrises")];
+      if(anyFrz)legendParts.push(t("report.legendFreezing"));
+      if(slots.length)legendParts.push(t("report.legendDose"));
+      h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(legendParts.join(" · "))+'</div>';
       if(slots.length)h+='<div class="stat" style="opacity:.75;font-size:13px">'+esc(tf("report.doseTimesLine",{t:slots.map(function(s){return pad(Math.floor(s.min/60))+":"+pad(s.min%60);}).join(", ")}))+'</div>';
     }
     if(!anyH)h+='<div class="stat">'+esc(t("report.noData"))+'</div>';

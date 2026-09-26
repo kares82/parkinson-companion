@@ -392,6 +392,18 @@
     .pill.unk{background:#2b3a49;color:#cdd9e5;}
     .pill.off{background:#2a3550;color:#c7d0ff;}
     a{color:#6db3f2;}
+    /* The report is meant to be printed or shown to a doctor — it should
+       always look like the same light, professional document, not flip to
+       a dark background depending on the time of day the phone switches
+       Dark Mode on. Matches this file's own light-mode values exactly. */
+    #reportScreen{background:#fff!important;color:#1e2a38!important;}
+    #reportScreen header{border-bottom-color:#eee!important;}
+    #reportScreen .actions{background:#fff!important;border-top-color:#eee!important;}
+    #reportScreen .section-t{border-top-color:#eee!important;color:#1e2a38!important;}
+    #reportScreen .regBox{background:#f0f6fb!important;border-color:#cfe2f0!important;color:#1c4e70!important;}
+    #reportScreen .barRow .h{color:#555!important;}
+    #reportScreen a{color:#2980b9!important;}
+    #reportScreen .hint{color:#777!important;}
   }
 </style>
 </head>

@@ -1292,6 +1292,9 @@
     "report.incSec":{fr:"Incidents",en:"Incidents",de:"Vorfälle",it:"Incidenti",es:"Incidentes"},
     "report.withInjury":{fr:"Avec blessure : <b>{n} / {t}</b>",en:"With injury: <b>{n} / {t}</b>",de:"Mit Verletzung: <b>{n} / {t}</b>",it:"Con lesione: <b>{n} / {t}</b>",es:"Con lesión: <b>{n} / {t}</b>"},
     "report.byTreatSec":{fr:"Par traitement (avant / après changement)",en:"By treatment (before / after change)",de:"Nach Behandlung (vor / nach Änderung)",it:"Per trattamento (prima / dopo il cambio)",es:"Por tratamiento (antes / después del cambio)"},
+    "report.detailCrisesSec":{fr:"Détail des crises",en:"Episode detail",de:"Episoden im Detail",it:"Dettaglio degli episodi",es:"Detalle de los episodios"},
+    "report.detailMedsSec":{fr:"Détail des prises de médicament",en:"Medication doses given",de:"Verabreichte Medikamentendosen",it:"Dosi di farmaco somministrate",es:"Dosis de medicación administradas"},
+    "report.detailNone":{fr:"Aucune donnée pour cette période.",en:"No data for this period.",de:"Keine Daten für diesen Zeitraum.",it:"Nessun dato per questo periodo.",es:"Sin datos para este período."},
     "report.beforeTracking":{fr:"avant le suivi",en:"before tracking",de:"vor der Erfassung",it:"prima del monitoraggio",es:"antes del seguimiento"},
     "report.since":{fr:"depuis le {d}",en:"since {d}",de:"seit {d}",it:"dal {d}",es:"desde el {d}"},
     "report.to":{fr:" au {d}",en:" to {d}",de:" bis {d}",it:" al {d}",es:" al {d}"},
@@ -2482,6 +2485,35 @@
         h+='<div class="stat regBox"><b>'+esc(String(r.text).replace(/\n/g,' / '))+'</b><br><span style="opacity:.8">'+esc(period)+'</span><br>'
           +esc(tf("report.perDay",{c:sc,r:perDay,tot:fmtDur(tot2),avg:fmtDur(Math.round(tot2/sub.length))}))+'<br>'+esc(tf("report.aloneCount",{a:alone2,t:sub.length}))+'</div>';
       });
+    }
+
+    // Entry-by-entry detail, not just aggregates — the "Export recherche" CSV
+    // has this same data but isn't meant to be read directly; this is what
+    // makes the printed/PDF report a complete document on its own.
+    h+='<div class="section-t">'+esc(t("report.detailCrisesSec"))+'</div>';
+    if(list.length){
+      list.slice().sort(function(a,b){return a.start-b.start;}).forEach(function(e){
+        var dur=e.end?fmtDur(e.end-e.start):"—";
+        var pv=e.presence==="Seule"?"alone":e.presence;
+        var bits=[typeLbl(e.type),presLabel(pv)];
+        if(e.pain)bits.push(t("pill.pain"));
+        var nm=nmCsv(e.nm);if(nm)bits.push(nm);
+        var off=offLbl(e.offType);if(off)bits.push(off);
+        var line='<b>'+esc(fmtDate(e.start))+' '+esc(fmtClock(e.start))+(e.end?'→'+esc(fmtClock(e.end)):'')+'</b> ('+esc(dur)+') — '+esc(bits.join(', '));
+        if(e.lastMed)line+='<br><span style="opacity:.75">'+esc(tf("hist.afterMed",{n:Math.round((e.start-e.lastMed)/60000),lbl:(e.lastMedLabel?(" ("+e.lastMedLabel+")"):"")}))+'</span>';
+        h+='<div class="stat" style="font-size:13px;margin-bottom:8px">'+line+'</div>';
+      });
+    }else h+='<div class="stat" style="opacity:.75">'+esc(t("report.detailNone"))+'</div>';
+
+    var mlistP=normMed(load(MEDKEY)).filter(function(m){return m.time>=fromT;}).sort(function(a,b){return a.time-b.time;});
+    h+='<div class="section-t">'+esc(t("report.detailMedsSec"))+'</div>';
+    if(mlistP.length){mlistP.forEach(function(m){h+='<div class="stat" style="font-size:13px">'+esc(fmtDate(m.time))+' '+esc(fmtClock(m.time))+' — '+esc(medLabel(m))+'</div>';});}
+    else h+='<div class="stat" style="opacity:.75">'+esc(t("report.detailNone"))+'</div>';
+
+    var wlistP=loadWell().filter(function(w){return w.time>=fromT;}).sort(function(a,b){return a.time-b.time;});
+    if(wlistP.length){
+      h+='<div class="section-t">'+esc(t("hist.daily"))+'</div>';
+      wlistP.forEach(function(w){h+='<div class="stat" style="font-size:13px">'+esc(fmtDate(w.time))+' '+esc(fmtClock(w.time))+' — '+wellSummaryLine(w)+'</div>';});
     }
 
     $("reportBody").innerHTML=h;}

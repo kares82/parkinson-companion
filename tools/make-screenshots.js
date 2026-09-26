@@ -13,7 +13,11 @@ const path = require('path');
 const BASE = process.env.BASE_URL || 'http://127.0.0.1:8099';
 const OUT = 'fastlane/screenshots';
 const SIZES = [
-  { name: 'iphone69', w: 430, h: 932, scale: 3 },   // 1290x2796 (6.7"/6.9" slot)
+  // Apple's currently-accepted App Store screenshot pixel sizes: exactly
+  // 1284x2778 and 1242x2688 (or their landscape rotations). 1290x2796
+  // (an equally real device resolution, iPhone 15/16 Pro Max) is NOT in
+  // that accepted list and was silently rejected on upload.
+  { name: 'iphone69', w: 428, h: 926, scale: 3 },   // 1284x2778 (6.7" slot)
   { name: 'iphone65', w: 414, h: 896, scale: 3 },   // 1242x2688 (6.5" slot)
 ];
 
@@ -63,6 +67,19 @@ function seedScript(lang) {
       { text: 'Levodopa 150 mg; Entacapone 200 mg', start: now - 28 * D, end: null },
     ]));
     localStorage.setItem('lastbackup_v5', String(now - 2 * D));
+    // ICE card + handover note, so those two screenshots show a filled-in
+    // example instead of empty "Not set" / "No notes yet" placeholders.
+    localStorage.setItem('diagnosis_v5', ${JSON.stringify(lang === 'fr' ? "Maladie de Parkinson, diagnostiquée en 2019" : "Parkinson's disease, diagnosed 2019")});
+    localStorage.setItem('dbs_v5', 'yes');
+    localStorage.setItem('dbsdetail_v5', ${JSON.stringify(lang === 'fr' ? "Implanté en 2021, Medtronic" : "Implanted 2021, Medtronic")});
+    localStorage.setItem('allergies_v5', ${JSON.stringify(lang === 'fr' ? "Pénicilline" : "Penicillin")});
+    localStorage.setItem('blood_v5', 'O+');
+    localStorage.setItem('shiftlog_v5', JSON.stringify([
+      { time: now - 2 * 36e5, who: ${JSON.stringify(lang === 'fr' ? 'Jean' : 'David')},
+        text: ${JSON.stringify(lang === 'fr'
+          ? "A bien mangé, a mal dormi, risque de chute vers 15h, prochaine dose à 18h."
+          : "Ate well, slept poorly, fall risk around 3pm, next dose at 6pm.")} },
+    ]));
   })()`;
 }
 
@@ -74,6 +91,9 @@ const SHOTS = [
   { id: '4-history', go: async p => { await p.click('#histLink'); await p.waitForTimeout(400); } },
   { id: '5-meds',    go: async p => { await p.click('#setLink'); await p.waitForTimeout(300);
                                       await p.$eval('#medListRows', e => e.scrollIntoView({ block: 'center' })); await p.waitForTimeout(300); } },
+  { id: '6-ice',     go: async p => { await p.click('#iceBtn'); await p.waitForTimeout(400); } },
+  { id: '7-handover',go: async p => { await p.click('#handoverBtn'); await p.waitForTimeout(400); } },
+  { id: '8-calm',    go: async p => { await p.click('#calmBtn'); await p.waitForTimeout(400); } },
 ];
 
 (async () => {

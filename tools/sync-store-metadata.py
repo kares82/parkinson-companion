@@ -18,8 +18,10 @@ HEAD = {
     "short": r"(?:Short description|Description courte)",
     "full":  r"(?:Full description|Description complète)",
     "keys":  r"(?:Keywords|Mots-clés)",
+    "promo": r"(?:Promotional text|Texte promotionnel)",
+    "news":  r"(?:What's new in this version|Nouveautés de cette version)",
 }
-LIMITS = {"sub": 30, "short": 80, "keys": 100}
+LIMITS = {"sub": 30, "short": 80, "keys": 100, "promo": 170}
 
 def section(text, pattern):
     m = re.search(r"^## " + pattern + r"[^\n]*\n(.*?)(?=^## |\Z)", text, re.S | re.M)
@@ -57,10 +59,12 @@ def main():
         write(a / "full_description.txt",  vals["full"],  check, stale)
 
         i = ROOT / "fastlane/metadata" / locale
-        write(i / "name.txt",        vals["name"], check, stale)
-        write(i / "subtitle.txt",    vals["sub"],  check, stale)
-        write(i / "description.txt", vals["full"], check, stale)
-        write(i / "keywords.txt",    vals["keys"], check, stale)
+        write(i / "name.txt",              vals["name"],  check, stale)
+        write(i / "subtitle.txt",          vals["sub"],   check, stale)
+        write(i / "description.txt",       vals["full"],  check, stale)
+        write(i / "keywords.txt",          vals["keys"],  check, stale)
+        write(i / "promotional_text.txt",  vals["promo"], check, stale)
+        write(i / "release_notes.txt",     vals["news"],  check, stale)
         write(i / "privacy_url.txt", "https://parkinson.red-triangle.net/privacy.html", check, stale)
         write(i / "support_url.txt", "https://parkinson.red-triangle.net/", check, stale)
 

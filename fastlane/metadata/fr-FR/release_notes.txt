@@ -1,0 +1,6 @@
+Cette version ajoute : les rappels de médicaments, un champ prochain
+rendez-vous, une Fiche médicale d'urgence pour les secours, des notes de
+Transmission pour les changements d'aidant, et Calme & Concentration —
+respiration guidée, métronome, son d'ambiance et repères visuels pour le
+freezing. Aussi : un rapport plus clair avec le détail de chaque crise, et
+une passe de lisibilité et de contraste sur toute l'application.

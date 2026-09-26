@@ -8,8 +8,20 @@ Gratuit, hors ligne, aidant
 <!-- 27 caractères -->
 
 ## Mots-clés (App Store, 100 car. max, séparés par des virgules, sans espaces)
-tremblement,dyskinésie,lévodopa,symptôme,aidant,mouvement,dose,neurologie,blocage,journal,chute
-<!-- 95 caractères -->
+parkinson,tremblement,dyskinesie,levodopa,aidant,blocage,rappel,transmission,neurologie,chute
+<!-- 94 caractères -->
+
+## Texte promotionnel (App Store, 170 car. max — modifiable à tout moment, sans nouvelle validation)
+Gratuit, hors ligne, privé. Crises, médicaments et rappels ; outils calme et concentration ; fiche d'urgence pour les secours. Rien ne sort du téléphone.
+<!-- 153 caractères -->
+
+## Nouveautés de cette version
+Cette version ajoute : les rappels de médicaments, un champ prochain
+rendez-vous, une Fiche médicale d'urgence pour les secours, des notes de
+Transmission pour les changements d'aidant, et Calme & Concentration —
+respiration guidée, métronome, son d'ambiance et repères visuels pour le
+freezing. Aussi : un rapport plus clair avec le détail de chaque crise, et
+une passe de lisibilité et de contraste sur toute l'application.
 
 ## Description courte (Google Play, 80 car. max)
 Carnet Parkinson gratuit et hors ligne pour l'aidant. Privé : rien ne sort.
@@ -41,11 +53,30 @@ CE QUE VOUS POUVEZ SUIVRE
 • Prochaine dose — avec les horaires renseignés, l'accueil affiche la prochaine
   prise et signale celles en retard.
 
-• Bien-être — un point quotidien rapide : appétit, humeur, douleur, sommeil, poids.
+• Prochain rendez-vous — une date optionnelle affichée en haut du rapport pour
+  le médecin, avec un rappel la veille si vous autorisez les notifications.
+
+• Bien-être — un point quotidien rapide : appétit, humeur, douleur, sommeil,
+  poids, et symptômes non-moteurs optionnels (anxiété, fatigue, esprit
+  embrumé, troubles urinaires, constipation, étourdissements).
 
 • Incidents — chutes, presque-chutes, blocages, fausses routes.
 
 • Stock de poches — pour anticiper le renouvellement.
+
+• Transmission — de courtes notes pour le prochain aidant, pour qu'il ne
+  reparte pas de zéro. Les notes de plus de 30 jours s'archivent seules.
+
+• Fiche médicale d'urgence — une carte à fort contraste, accessible en un
+  geste, avec diagnostic, stimulation cérébrale profonde, allergies, groupe
+  sanguin, médicaments actuels et contacts d'urgence, pensée pour être
+  montrée aux secours sans déverrouiller le reste de l'application.
+
+• Calme & Concentration — trois outils hors ligne pour la personne :
+  respiration guidée, métronome et son d'ambiance pour rythmer la marche ou
+  un geste bloqué (freezing), ainsi que quatre repères visuels (lignes,
+  flash, empreintes, damier) pour aider à redémarrer le mouvement. Tout est
+  généré sur le téléphone — rien n'est téléchargé.
 
 POUR LE MÉDECIN
 
@@ -78,10 +109,6 @@ donne aucun conseil médical et ne remplace ni un professionnel de santé ni les
 services d'urgence. Elle ne surveille pas la personne : elle ne détecte pas les
 chutes et ne peut pas alerter quelqu'un d'elle-même — utilisez pour cela la
 détection de chute de l'iPhone ou de l'Apple Watch.
-
-## Mots-clés (App Store, 100 car. max, séparés par des virgules)
-parkinson,tremblement,crise,journal,suivi,aidant,medicament,sante,neurologie,dyskinesie
-<!-- 87 caractères -->
 
 ## Catégorie
 Principale : Médecine — Secondaire : Forme et santé

@@ -22,11 +22,30 @@ CE QUE VOUS POUVEZ SUIVRE
 • Prochaine dose — avec les horaires renseignés, l'accueil affiche la prochaine
   prise et signale celles en retard.
 
-• Bien-être — un point quotidien rapide : appétit, humeur, douleur, sommeil, poids.
+• Prochain rendez-vous — une date optionnelle affichée en haut du rapport pour
+  le médecin, avec un rappel la veille si vous autorisez les notifications.
+
+• Bien-être — un point quotidien rapide : appétit, humeur, douleur, sommeil,
+  poids, et symptômes non-moteurs optionnels (anxiété, fatigue, esprit
+  embrumé, troubles urinaires, constipation, étourdissements).
 
 • Incidents — chutes, presque-chutes, blocages, fausses routes.
 
 • Stock de poches — pour anticiper le renouvellement.
+
+• Transmission — de courtes notes pour le prochain aidant, pour qu'il ne
+  reparte pas de zéro. Les notes de plus de 30 jours s'archivent seules.
+
+• Fiche médicale d'urgence — une carte à fort contraste, accessible en un
+  geste, avec diagnostic, stimulation cérébrale profonde, allergies, groupe
+  sanguin, médicaments actuels et contacts d'urgence, pensée pour être
+  montrée aux secours sans déverrouiller le reste de l'application.
+
+• Calme & Concentration — trois outils hors ligne pour la personne :
+  respiration guidée, métronome et son d'ambiance pour rythmer la marche ou
+  un geste bloqué (freezing), ainsi que quatre repères visuels (lignes,
+  flash, empreintes, damier) pour aider à redémarrer le mouvement. Tout est
+  généré sur le téléphone — rien n'est téléchargé.
 
 POUR LE MÉDECIN
 

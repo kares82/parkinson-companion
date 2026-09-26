@@ -8,8 +8,20 @@ Free offline carer diary
 <!-- 24 characters -->
 
 ## Keywords (App Store, 100 char max, comma-separated, no spaces)
-tremor,dyskinesia,levodopa,symptom,tracker,caregiver,movement,dose,neurology,freezing,wellbeing
-<!-- 96 characters -->
+parkinson,tremor,dyskinesia,levodopa,caregiver,freezing,reminder,handover,neurology,wellbeing
+<!-- 94 characters -->
+
+## Promotional text (App Store, 170 char max — can be updated any time, no review needed)
+Free, offline, private. Track episodes, meds and reminders; calm & focus tools; an emergency ID card for paramedics. Nothing ever leaves the phone.
+<!-- 149 characters -->
+
+## What's new in this version
+This release adds: medication reminders, a next-appointment field, an
+Emergency Medical ID card for paramedics, Caregiver Handover notes for shift
+changes, and Calm & Focus — guided breathing, a metronome, ambient sound and
+visual cueing patterns to help with freezing. Also: a clearer report with a
+full episode-by-episode breakdown, and a round of readability and contrast
+fixes throughout.
 
 ## Short description (Google Play, 80 char max)
 Free, offline Parkinson's diary for carers. Private — nothing leaves the phone.
@@ -54,6 +66,19 @@ WHAT YOU CAN TRACK
 
 • Pouch supply — so a refill is never a surprise.
 
+• Caregiver handover — short shift-log notes so the next carer coming on
+  isn't starting cold. Notes older than 30 days archive themselves.
+
+• Emergency Medical ID — a one-tap, high-contrast card with diagnosis, DBS
+  status, allergies, blood type, current medications and emergency contacts,
+  meant to be shown to paramedics without unlocking into the rest of the app.
+
+• Calm & Focus — three offline tools for the person: guided breathing, a
+  metronome and ambient sound to help pace walking or a blocked movement
+  (freezing), plus four visual cueing patterns (lines, flash, footprints,
+  checkerboard) to help start moving again. Everything is generated on the
+  phone — nothing is downloaded.
+
 FOR THE DOCTOR
 
 The report filters to 7, 30 or 90 days, or the whole history. It shows episode
@@ -84,10 +109,6 @@ advice, and does not replace a healthcare professional or the emergency
 services. It does not monitor the person: it cannot detect falls and cannot
 alert anyone on its own — use the iPhone's or Apple Watch's fall detection
 for that.
-
-## Keywords (App Store, 100 char max, comma separated)
-parkinson,tremor,episode,diary,tracker,carer,caregiver,medication,health,dyskinesia,neurology
-<!-- 92 characters -->
 
 ## Category
 Primary: Medical — Secondary: Health & Fitness

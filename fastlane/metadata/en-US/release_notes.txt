@@ -1,0 +1,6 @@
+This release adds: medication reminders, a next-appointment field, an
+Emergency Medical ID card for paramedics, Caregiver Handover notes for shift
+changes, and Calm & Focus — guided breathing, a metronome, ambient sound and
+visual cueing patterns to help with freezing. Also: a clearer report with a
+full episode-by-episode breakdown, and a round of readability and contrast
+fixes throughout.

@@ -1922,7 +1922,11 @@
     if(b.dataset.a==="off")stopAmbient();else startAmbient(b.dataset.a);
   });
 
-  $("calmBtn").addEventListener("click",function(){show("calmScreen");});
+  // The whole point of these tools is to be looked at (or listened to)
+  // hands-off — freezing-of-gait cueing especially, since someone standing
+  // still trying to unfreeze isn't touching the screen to keep it awake.
+  // Reuses the same screen-wake-lock request as an active crisis.
+  $("calmBtn").addEventListener("click",function(){requestCrisisWake();show("calmScreen");});
   /* Footprints and checkerboard follow the research pattern rather than
      inventing one: transverse-line and rhythmic cues are well-established as
      moving/timed cues, but footprint targets and checkerboard patterns are
@@ -1966,6 +1970,7 @@
     if(metroTimer){clearInterval(metroTimer);metroTimer=null;$("metroToggle").textContent=t("calm.metroStart");}
     stopAmbient();
     document.querySelectorAll("#ambientBtns .apOpt").forEach(function(x){x.classList.remove("sel");});
+    releaseCrisisWake();
   });});
 
   // ---- CRISIS ----

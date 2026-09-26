@@ -35,6 +35,19 @@ WHAT YOU CAN TRACK
 
 • Pouch supply — so a refill is never a surprise.
 
+• Caregiver handover — short shift-log notes so the next carer coming on
+  isn't starting cold. Notes older than 30 days archive themselves.
+
+• Emergency Medical ID — a one-tap, high-contrast card with diagnosis, DBS
+  status, allergies, blood type, current medications and emergency contacts,
+  meant to be shown to paramedics without unlocking into the rest of the app.
+
+• Calm & Focus — three offline tools for the person: guided breathing, a
+  metronome and ambient sound to help pace walking or a blocked movement
+  (freezing), plus four visual cueing patterns (lines, flash, footprints,
+  checkerboard) to help start moving again. Everything is generated on the
+  phone — nothing is downloaded.
+
 FOR THE DOCTOR
 
 The report filters to 7, 30 or 90 days, or the whole history. It shows episode

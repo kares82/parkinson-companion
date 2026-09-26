@@ -1,1 +1,1 @@
-tremor,dyskinesia,levodopa,symptom,tracker,caregiver,movement,dose,neurology,freezing,wellbeing
+parkinson,tremor,dyskinesia,levodopa,caregiver,freezing,reminder,handover,neurology,wellbeing

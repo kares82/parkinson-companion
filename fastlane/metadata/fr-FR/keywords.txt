@@ -1,1 +1,1 @@
-tremblement,dyskinésie,lévodopa,symptôme,aidant,mouvement,dose,neurologie,blocage,journal,chute
+parkinson,tremblement,dyskinesie,levodopa,aidant,blocage,rappel,transmission,neurologie,chute
